@@ -1,5 +1,8 @@
 package ggow.teamt.mdrs;
 
+//THIS APPEARS TO BE MAJOR OVERKILL. TRYING TO SIMPLIFY BY USING IMAGEBUTTON MAIN CLASS.
+//http://www.mkyong.com/android/android-imagebutton-example/
+
 import java.io.IOException;
 
 import android.content.Context;
@@ -32,7 +35,7 @@ public class RecordButton extends Button {
 				Context context = getApplicationContext();
 				CharSequence text = "Recording saved. Length = "+((startTime-endTime)/1000000000)+" seconds";
 				int duration = Toast.LENGTH_SHORT;
-				Toast finishRecordToast = Toast.makeText(context, text, duration);
+				Toast finishRecordToast = Toast.makeText(getApplicationContext(), text, duration);
 				finishRecordToast.show();
 			}
 			mStartRecording = !mStartRecording;

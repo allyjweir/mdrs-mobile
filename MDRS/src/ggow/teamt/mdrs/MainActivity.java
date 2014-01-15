@@ -11,6 +11,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 import android.location.Location;
 import android.support.v4.app.FragmentActivity;
@@ -38,7 +39,8 @@ OnMyLocationButtonClickListener {
 	//Recording stuff
 	private static final String LOG_TAG = "AudioRecordTest";
 	private static String mFileName = null;
-
+	
+	ImageButton newRecordButton;
 
 	public MainActivity() {
 		mFileName = Environment.getExternalStorageDirectory().getAbsolutePath() + "/audiorecordtest.3gp";
@@ -98,6 +100,19 @@ OnMyLocationButtonClickListener {
 		setContentView(R.layout.activity_main);
 		
 		mMessageView = (TextView) findViewById(R.id.message_text);
+		addListenerOnButton();
+	}
+
+	private void addListenerOnButton() {
+		newRecordButton = (ImageButton) findViewById(R.id.recImageButton);
+		
+		newRecordButton.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View arg0) {
+				Toast.makeText(MainActivity.this, "RecButton is clicked!", Toast.LENGTH_SHORT).show();
+			}
+		});
+		
 	}
 
 	@Override
