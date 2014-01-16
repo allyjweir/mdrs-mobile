@@ -128,20 +128,14 @@ OnMyLocationButtonClickListener {
 	
 	private void startRecording() {
 		recorder = new MediaRecorder();
-		Log.e(LOG_TAG, "Hey pal, made that mediarecorder for you");
 		recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 		recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-		Log.e(LOG_TAG, "Hey pal, set the source and format for you");
-		recorder.setOutputFile(mFileName);		
-		Log.e(LOG_TAG, "Hey pal, set the file name for you");
+		recorder.setOutputFile(mFileName);
 		recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-		Log.e(LOG_TAG, "Hey pal, set the audioencoder for you");
 
 		try {
 			recorder.prepare();
-			Log.e(LOG_TAG, "Hey pal, prepared that for you");
 			recorder.start();
-			Log.e(LOG_TAG, "Hey pal, started that mediarecorder for you");
 		} catch (IOException e) {
 			Log.e(LOG_TAG, "prepare() in startRecording failed");
 		}

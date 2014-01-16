@@ -1,5 +1,4 @@
 INDEX VERSION 1.126+/Users/alastairweir/mdrs-mobile/.metadata/.plugins/org.eclipse.jdt.core
-3786528172.index
 3010747216.index
 2326015649.index
 1415693123.index
