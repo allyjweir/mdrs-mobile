@@ -2,11 +2,15 @@ package ggow.teamt.mdrs;
 
 import java.io.IOException;
 
+import android.content.Context;
+import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 import android.location.Location;
@@ -34,12 +38,12 @@ OnMyLocationButtonClickListener {
 
 	//Recording stuff
 	private static final String LOG_TAG = "AudioRecordTest";
-	private static String mFileName = "musak";
+	private static String mFileName = null;
 	boolean isRecording = false;
 	private long startTime = 0;
 	private long endTime = 0;
 	private long elapsedTime = 0;
-	private MediaRecorder recorder;
+	private MediaRecorder recorder = null;
 	ImageButton newRecordButton;
 
 	public MainActivity() {

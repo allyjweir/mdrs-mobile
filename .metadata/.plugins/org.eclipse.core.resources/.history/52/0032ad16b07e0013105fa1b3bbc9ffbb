@@ -2,11 +2,15 @@ package ggow.teamt.mdrs;
 
 import java.io.IOException;
 
+import android.content.Context;
+import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 import android.location.Location;
@@ -34,12 +38,8 @@ OnMyLocationButtonClickListener {
 
 	//Recording stuff
 	private static final String LOG_TAG = "AudioRecordTest";
-	private static String mFileName = "musak";
-	boolean isRecording = false;
-	private long startTime = 0;
-	private long endTime = 0;
-	private long elapsedTime = 0;
-	private MediaRecorder recorder;
+	private static String mFileName = null;
+	
 	ImageButton newRecordButton;
 
 	public MainActivity() {
@@ -98,55 +98,39 @@ OnMyLocationButtonClickListener {
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
 		setContentView(R.layout.activity_main);
+		
 		mMessageView = (TextView) findViewById(R.id.message_text);
 		addListenerOnButton();
 	}
 
 	private void addListenerOnButton() {
 		newRecordButton = (ImageButton) findViewById(R.id.recImageButton);
-		newRecordButton.setOnClickListener(new View.OnClickListener() {
+		
+		newRecordButton.setOnClickListener(new OnClickListener(){
 			@Override
-			public void onClick(View v) {
-				if (isRecording) {
-					stopRecording();
-					endTime = System.nanoTime();
-					elapsedTime = endTime - startTime;
-					Toast.makeText(MainActivity.this, "Stopping Recording", Toast.LENGTH_SHORT).show();
-					isRecording = false;
-					//NEED TO HANDLE STOP OF RECORDER HERE
-				}
-				else if (!isRecording) {
-					startRecording();
-					startTime = System.nanoTime();
-					startRecording();
-				}
-				Toast.makeText(MainActivity.this, "RecButton is clicked!", Toast.LENGTH_SHORT).show();				
+			public void onClick(View arg0) {
+				Toast.makeText(MainActivity.this, "RecButton is clicked!", Toast.LENGTH_SHORT).show();
 			}
 		});
-			
+		
 	}
-	
-	private void startRecording() {
-		recorder = new MediaRecorder();
-		recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-		recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-		recorder.setOutputFile(mFileName);
-		recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 
-		try {
-			recorder.prepare();
-			recorder.start();
-		} catch (IOException e) {
-			Log.e(LOG_TAG, "prepare() in startRecording failed");
+	@Override
+	public void onPause() {
+		super.onPause();
+
+		if (mLocationClient != null) {
+			mLocationClient.disconnect();
 		}
-	}
-	private void stopRecording() {
-		try {
-			recorder.stop();
-			recorder.release();
-			recorder = null;
-		} catch (Exception e) {
-			Log.e(LOG_TAG, "bloop");
+
+		if (mRecorder != null) {
+			mRecorder.release();
+			mRecorder = null;
+		}
+
+		if (mPlayer != null) {
+			mPlayer.release();
+			mPlayer = null;
 		}
 	}
 
@@ -186,4 +170,7 @@ OnMyLocationButtonClickListener {
 	public void onDisconnected() {
 		//Do nothing.
 	}
+
+
+
 }

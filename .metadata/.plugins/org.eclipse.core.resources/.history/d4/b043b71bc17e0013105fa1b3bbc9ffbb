@@ -34,12 +34,12 @@ OnMyLocationButtonClickListener {
 
 	//Recording stuff
 	private static final String LOG_TAG = "AudioRecordTest";
-	private static String mFileName = "musak";
+	private static String mFileName = null;
 	boolean isRecording = false;
 	private long startTime = 0;
 	private long endTime = 0;
 	private long elapsedTime = 0;
-	private MediaRecorder recorder;
+	private MediaRecorder recorder = null;
 	ImageButton newRecordButton;
 
 	public MainActivity() {
