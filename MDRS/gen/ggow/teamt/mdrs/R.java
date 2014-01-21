@@ -206,6 +206,7 @@ containing a value of this type.
         public static final int ic_plusone_small_off_client=0x7f02001a;
         public static final int ic_plusone_standard_off_client=0x7f02001b;
         public static final int ic_plusone_tall_off_client=0x7f02001c;
+        public static final int recodring=0x7f02001d;
     }
     public static final class id {
         public static final int action_settings=0x7f050011;
@@ -292,15 +293,19 @@ containing a value of this type.
          */
         public static final int common_google_play_services_install_title=0x7f060000;
         /**  Message in confirmation dialog informing the user that they provided an invalid account. [CHAR LIMIT=NONE] 
+ Message in confirmation dialog informing the user that they provided an invalid account. [CHAR LIMIT=NONE] 
          */
         public static final int common_google_play_services_invalid_account_text=0x7f06000c;
         /**  Title of confirmation dialog informing the user that they provided an invalid account. [CHAR LIMIT=40] 
+ Title of confirmation dialog informing the user that they provided an invalid account. [CHAR LIMIT=40] 
          */
         public static final int common_google_play_services_invalid_account_title=0x7f06000b;
         /**  Message in confirmation dialog informing the user that a network error occurred. [CHAR LIMIT=NONE] 
+ Message in confirmation dialog informing the user that a network error occurred. [CHAR LIMIT=NONE] 
          */
         public static final int common_google_play_services_network_error_text=0x7f06000a;
         /**  Title of confirmation dialog informing the user that a network error occurred. [CHAR LIMIT=40] 
+ Title of confirmation dialog informing the user that a network error occurred. [CHAR LIMIT=40] 
          */
         public static final int common_google_play_services_network_error_title=0x7f060009;
         /**  Message in confirmation dialog informing user there is an unknown issue in Google Play
@@ -308,6 +313,8 @@ containing a value of this type.
          */
         public static final int common_google_play_services_unknown_issue=0x7f06000d;
         /**  Message in confirmation dialog informing user that date on the device is not correct,
+    causing certificate checks to fail. [CHAR LIMIT=NONE] 
+ Message in confirmation dialog informing user that date on the device is not correct,
     causing certificate checks to fail. [CHAR LIMIT=NONE] 
          */
         public static final int common_google_play_services_unsupported_date_text=0x7f060010;

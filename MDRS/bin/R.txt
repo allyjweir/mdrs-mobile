@@ -57,6 +57,7 @@ int drawable ic_plusone_medium_off_client 0x7f020019
 int drawable ic_plusone_small_off_client 0x7f02001a
 int drawable ic_plusone_standard_off_client 0x7f02001b
 int drawable ic_plusone_tall_off_client 0x7f02001c
+int drawable recodring 0x7f02001d
 int id action_settings 0x7f050011
 int id compass_toggle 0x7f05000a
 int id get_my_location_button 0x7f050007

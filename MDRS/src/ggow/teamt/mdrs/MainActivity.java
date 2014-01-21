@@ -19,9 +19,12 @@ import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailed
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
 
 
 
@@ -53,6 +56,7 @@ OnMyLocationButtonClickListener {
 	private LocationClient mLocationClient;
 	private TextView mMessageView;
 
+	
 	// These settings are the same as the settings for the map. They will in fact give you updates
 	// at the maximal rates currently possible.
 	private static final LocationRequest REQUEST = LocationRequest.create()
@@ -68,6 +72,9 @@ OnMyLocationButtonClickListener {
 			if (mMap != null) {
 				mMap.setMyLocationEnabled(true);
 				mMap.setOnMyLocationButtonClickListener(this);
+				mMap.getUiSettings().setMyLocationButtonEnabled(true);
+				mMap.getUiSettings().setZoomControlsEnabled(false);
+				centerMapOnMyLocation();	
 			}
 		}
 	}
@@ -92,69 +99,7 @@ OnMyLocationButtonClickListener {
 		}
 	}
 
-	//NEED TO ADD TO THIS. REQWORK. THE MAP EXAMPLE IS PRETTY GOOD
-	//FOR HELP
-	@Override
-	public void onCreate(Bundle icicle) {
-		super.onCreate(icicle);
-		setContentView(R.layout.activity_main);
-		mMessageView = (TextView) findViewById(R.id.message_text);
-		addListenerOnButton();
-	}
-
-	private void addListenerOnButton() {
-		newRecordButton = (ImageButton) findViewById(R.id.recImageButton);
-		newRecordButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (isRecording) {
-					stopRecording();
-					endTime = System.nanoTime();
-					elapsedTime = endTime - startTime;
-					Toast.makeText(MainActivity.this, "Stopping Recording", Toast.LENGTH_SHORT).show();
-					isRecording = false;
-					//NEED TO HANDLE STOP OF RECORDER HERE
-				}
-				else if (!isRecording) {
-					startRecording();
-					startTime = System.nanoTime();
-					startRecording();
-				}
-				Toast.makeText(MainActivity.this, "RecButton is clicked!", Toast.LENGTH_SHORT).show();				
-			}
-		});
-			
-	}
 	
-	private void startRecording() {
-		recorder = new MediaRecorder();
-		Log.e(LOG_TAG, "Hey pal, made that mediarecorder for you");
-		recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-		recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-		Log.e(LOG_TAG, "Hey pal, set the source and format for you");
-		recorder.setOutputFile(mFileName);		
-		Log.e(LOG_TAG, "Hey pal, set the file name for you");
-		recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-		Log.e(LOG_TAG, "Hey pal, set the audioencoder for you");
-
-		try {
-			recorder.prepare();
-			Log.e(LOG_TAG, "Hey pal, prepared that for you");
-			recorder.start();
-			Log.e(LOG_TAG, "Hey pal, started that mediarecorder for you");
-		} catch (IOException e) {
-			Log.e(LOG_TAG, "prepare() in startRecording failed");
-		}
-	}
-	private void stopRecording() {
-		try {
-			recorder.stop();
-			recorder.release();
-			recorder = null;
-		} catch (Exception e) {
-			Log.e(LOG_TAG, "bloop");
-		}
-	}
 
 	@Override
 	public boolean onMyLocationButtonClick() {
@@ -168,7 +113,6 @@ OnMyLocationButtonClickListener {
 	@Override
 	public void onLocationChanged(Location location) {
 		mMessageView.setText("Location = " + location);
-
 	}
 
 	@Override
@@ -192,4 +136,80 @@ OnMyLocationButtonClickListener {
 	public void onDisconnected() {
 		//Do nothing.
 	}
+	
+	private void centerMapOnMyLocation() {
+	    mMap.setMyLocationEnabled(true);
+	    Location location = mMap.getMyLocation();
+		if (location != null) {
+	        LatLng myLocation = new LatLng(location.getLatitude(),
+	                location.getLongitude());
+	        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation,
+		            16));
+	    }
+	    
+	}
+	
+	//NEED TO ADD TO THIS. REQWORK. THE MAP EXAMPLE IS PRETTY GOOD
+		//FOR HELP
+		@Override
+		public void onCreate(Bundle icicle) {
+			super.onCreate(icicle);
+			setContentView(R.layout.activity_main);
+			mMessageView = (TextView) findViewById(R.id.message_text);
+			addListenerOnButton();
+		}
+
+		private void addListenerOnButton() {
+			newRecordButton = (ImageButton) findViewById(R.id.recImageButton);
+			newRecordButton.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if (isRecording) {
+						stopRecording();
+						endTime = System.nanoTime();
+						elapsedTime = endTime - startTime;
+						Toast.makeText(MainActivity.this, "Stopping Recording", Toast.LENGTH_SHORT).show();
+						isRecording = false;
+						//NEED TO HANDLE STOP OF RECORDER HERE
+					}
+					else if (!isRecording) {
+						startRecording();
+						startTime = System.nanoTime();
+						startRecording();
+					}
+					Toast.makeText(MainActivity.this, "RecButton is clicked!", Toast.LENGTH_SHORT).show();				
+				}
+			});
+				
+		}
+		
+		private void startRecording() {
+			recorder = new MediaRecorder();
+			Log.e(LOG_TAG, "Hey pal, made that mediarecorder for you");
+			recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+			recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+			Log.e(LOG_TAG, "Hey pal, set the source and format for you");
+			recorder.setOutputFile(mFileName);		
+			Log.e(LOG_TAG, "Hey pal, set the file name for you");
+			recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+			Log.e(LOG_TAG, "Hey pal, set the audioencoder for you");
+
+			try {
+				recorder.prepare();
+				Log.e(LOG_TAG, "Hey pal, prepared that for you");
+				recorder.start();
+				Log.e(LOG_TAG, "Hey pal, started that mediarecorder for you");
+			} catch (IOException e) {
+				Log.e(LOG_TAG, "prepare() in startRecording failed");
+			}
+		}
+		private void stopRecording() {
+			try {
+				recorder.stop();
+				recorder.release();
+				recorder = null;
+			} catch (Exception e) {
+				Log.e(LOG_TAG, "bloop");
+			}
+		}
 }
