@@ -60,7 +60,7 @@ int drawable ic_plusone_tall_off_client 0x7f02001c
 int drawable recodring 0x7f02001d
 int id action_settings 0x7f050011
 int id compass_toggle 0x7f05000a
-int id get_my_location_button 0x7f050007
+int id get_my_location_button 0x7f050008
 int id hybrid 0x7f050004
 int id map 0x7f050006
 int id message_text 0x7f050005
@@ -68,7 +68,7 @@ int id mylocationbutton_toggle 0x7f05000b
 int id mylocationlayer_toggle 0x7f05000c
 int id none 0x7f050000
 int id normal 0x7f050001
-int id recImageButton 0x7f050008
+int id recImageButton 0x7f050007
 int id rotate_toggle 0x7f050010
 int id satellite 0x7f050002
 int id scroll_toggle 0x7f05000d
@@ -108,10 +108,12 @@ int string common_google_play_services_update_text 0x7f060008
 int string common_google_play_services_update_title 0x7f060007
 int string common_signin_button_text 0x7f060012
 int string common_signin_button_text_long 0x7f060013
+int string defauly_message 0x7f060020
 int string hello_world 0x7f06001c
 int string map_not_ready 0x7f06001f
 int string my_location 0x7f06001d
 int string rotate_toggle 0x7f06001e
+int string todo 0x7f060021
 int style AppBaseTheme 0x7f090000
 int style AppTheme 0x7f090001
 int[] styleable AdsAttrs { 0x7f010000, 0x7f010001 }

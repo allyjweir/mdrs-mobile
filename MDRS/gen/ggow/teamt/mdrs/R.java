@@ -211,7 +211,7 @@ containing a value of this type.
     public static final class id {
         public static final int action_settings=0x7f050011;
         public static final int compass_toggle=0x7f05000a;
-        public static final int get_my_location_button=0x7f050007;
+        public static final int get_my_location_button=0x7f050008;
         public static final int hybrid=0x7f050004;
         public static final int map=0x7f050006;
         public static final int message_text=0x7f050005;
@@ -219,7 +219,7 @@ containing a value of this type.
         public static final int mylocationlayer_toggle=0x7f05000c;
         public static final int none=0x7f050000;
         public static final int normal=0x7f050001;
-        public static final int recImageButton=0x7f050008;
+        public static final int recImageButton=0x7f050007;
         public static final int rotate_toggle=0x7f050010;
         public static final int satellite=0x7f050002;
         public static final int scroll_toggle=0x7f05000d;
@@ -341,10 +341,12 @@ containing a value of this type.
         /**  Long form sign-in button text [CHAR LIMIT=30] 
          */
         public static final int common_signin_button_text_long=0x7f060013;
+        public static final int defauly_message=0x7f060020;
         public static final int hello_world=0x7f06001c;
         public static final int map_not_ready=0x7f06001f;
         public static final int my_location=0x7f06001d;
         public static final int rotate_toggle=0x7f06001e;
+        public static final int todo=0x7f060021;
     }
     public static final class style {
         /** 

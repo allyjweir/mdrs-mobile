@@ -9,5 +9,7 @@
     <string name="my_location">I don\'t know yet</string>
     <string name="rotate_toggle">willies</string>
     <string name="map_not_ready">map isn\'t ready mate</string>
+    <string name="defauly_message">Defauly Message</string>
+    <string name="todo">TODO</string>
 
 </resources>
