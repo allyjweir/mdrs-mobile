@@ -16,7 +16,9 @@ import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import android.location.Location;
@@ -152,7 +154,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		}
 		Log.e(LOG_TAG, "Successful written metadata to storage.");
 
-		//TODO HOW DO I END THE APPLICATION????
+		//TODO HOW 
 	}
 
 	/*
@@ -185,6 +187,8 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	}
 	
 	private void fillMap(){
+		
+		//Create line of recording
 		Iterator<Location> it = locationTrail.values().iterator();
 		PolylineOptions trail = new PolylineOptions();
 		while(it.hasNext()){
@@ -192,6 +196,21 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 			trail.add(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
 		}
 		mMap.addPolyline(trail);
+		
+		//Starter Marker
+		mMap.addMarker(new MarkerOptions()
+			.position(new LatLng(locationTrail.get(getEndTime()).getLatitude(), locationTrail.get(getEndTime()).getLongitude()))
+			.draggable(false)
+			.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+			);
+		
+		//End Marker
+		mMap.addMarker(new MarkerOptions()//end marker
+			.position(new LatLng(locationTrail.entrySet().iterator().next().getValue().getLatitude(), locationTrail.entrySet().iterator().next().getValue().getLongitude()))
+			.draggable(false)
+			.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+			);
+			
 		//TODO	place markers where images are along the trail. Possibly MVC with the horizontal scroll of them?
 	}
 
