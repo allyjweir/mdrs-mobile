@@ -1,7 +1,15 @@
 package ggow.teamt.mdrs;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -13,6 +21,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Environment;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -28,6 +37,8 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 	private static final String LOG_TAG = "Upload - MDRS";
 	private GoogleMap mMap;
+	private LinkedHashMap<Long, Location> locationTrail;
+	private JSONArray metadata;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -35,9 +46,10 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		setContentView(R.layout.activity_upload);
 		// Show the Up button in the action bar.
 		setupActionBar();
+		metadata = new JSONArray();
 		Intent intent = getIntent();
-		LinkedHashMap<Long, Location> locationTrail = intent.getParcelableExtra(RecordingActivity.TRAIL);
-		setUpMapIfNeeded(locationTrail);
+		locationTrail = intent.getParcelableExtra(RecordingActivity.TRAIL);
+		setUpMapIfNeeded();
 	}
 
 	/**
@@ -84,13 +96,78 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		
 	}
 
+	/*
+	 * Gather together all the data that has been created and save it to a JSON ready
+	 * for uploading when connecting to a computer.
+	 * 
+	 * In a future version this will be able to automatically upload to a server but 
+	 * for now it will just be old fashioned.
+	 */
 	private void upload() {
-		// TODO Auto-generated method stub
+		//Metadata gathered from user into JSON
+		JSONObject titleObj = new JSONObject(); //Object at the start of the JSON which holds general info
+		try {
+			titleObj.put("title", R.id.name);
+			titleObj.put("description", R.id.description);
+			titleObj.put("startTime", locationTrail.entrySet().iterator().next().getKey());
+			titleObj.put("endTime", getEndTime());
+		} catch (JSONException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		metadata.put(titleObj);
+		Log.e(LOG_TAG, "Successful init metadata JSON");
 		
+		//Location loading into the JSON
+		JSONArray locations = new JSONArray(); //array to hold all location objects
+		Iterator<Location> it = locationTrail.values().iterator();
+		while (it.hasNext()){
+			JSONObject obj = new JSONObject(); //Object to hold specific location data
+			Location curLoc = (Location) it.next();
+			try {
+				obj.put("lon", curLoc.getLongitude());
+				obj.put("time", curLoc.getTime());
+				obj.put("lat", curLoc.getLatitude());
+				obj.put("bearing", curLoc.getBearing());
+				obj.put("altitude", curLoc.getAltitude());
+				obj.put("speed", curLoc.getSpeed());
+				
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			locations.put(obj);
+			Log.e(LOG_TAG, "next location added to JSONArray");
+
+		}
+		metadata.put(locations);
+		try{
+			FileWriter file = new FileWriter(Environment.getExternalStorageDirectory().getAbsolutePath() 
+				+ "/MDRS/" + "/" + RecordingActivity.folderTime + "/" + "metadata.json");
+			file.write(metadata.toString());
+			file.flush();
+			file.close();
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+		Log.e(LOG_TAG, "Successful written metadata to storage.");
+
+		//TODO HOW DO I END THE APPLICATION????
 	}
 
-	private void setUpMapIfNeeded(LinkedHashMap<Long, Location> locationTrail) { //would be used onResume I would assume
-		Log.v(LOG_TAG, "into SuMiN");
+	/*
+	 * Using a LinkedHashMap causes issues as unlike a list you cannot just get the end
+	 * object or key. To work around this (and yes, this could be avoided with a better
+	 * suited data structure) I take the key set and put it into a list. Then I take the
+	 * end one from the list and return the Long value.
+	 */
+	private Long getEndTime() {
+		List<Long> times = new ArrayList<Long>(locationTrail.keySet());
+		return times.get(times.size()-1);
+	}
+
+	private void setUpMapIfNeeded() { //would be used onResume I would assume
+		Log.v(LOG_TAG, "into map setup");
 
 		// Do a null check to confirm that we have not already instantiated the map.
 		if (mMap == null) {
@@ -99,7 +176,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 			mMap.setMyLocationEnabled(true);
 			mMap.getUiSettings().setCompassEnabled(true);
 			mMap.getUiSettings().setMyLocationButtonEnabled(true);
-			fillMap(locationTrail);
+			fillMap();
 			// Check if we were successful in obtaining the map.
 			if (mMap != null) {
 				Log.e(LOG_TAG, "Map's all good brah");
@@ -107,7 +184,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		}
 	}
 	
-	private void fillMap(LinkedHashMap<Long, Location> locationTrail){
+	private void fillMap(){
 		Iterator<Location> it = locationTrail.values().iterator();
 		PolylineOptions trail = new PolylineOptions();
 		while(it.hasNext()){

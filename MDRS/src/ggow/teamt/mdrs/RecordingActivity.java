@@ -59,9 +59,13 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	private SharedPreferences mPrefs;
 	private LinkedHashMap<Long, Location> locationTrail;
 	private MediaRecorder mRecorder;
+	public static Long folderTime;
 	public final static String TRAIL = "ggow.teamt.MDRS.trail";
 	private String mFileName;
 	public final static String AUDIO = "ggow.teamt.MDRS.audio";
+	
+	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -94,8 +98,9 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
 		mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+		folderTime = System.currentTimeMillis();
 		mFileName = Environment.getExternalStorageDirectory().getAbsolutePath() 
-				+ "/MDRS/" + "/" + System.currentTimeMillis() + "/" + "audio"; 
+				+ "/MDRS/" + "/" + folderTime + "/" + "audio"; 
 		mRecorder.setOutputFile(mFileName);
 		try {
 			mRecorder.prepare();
