@@ -15,7 +15,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true" />
+        android:layout_alignParentTop="true"
+        tools:layout="@layout/activity_map_view" />
 
     <ImageButton
         android:id="@+id/recButton"

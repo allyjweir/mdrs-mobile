@@ -3,6 +3,7 @@ package ggow.teamt.mdrs;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -56,7 +57,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	boolean mUpdatesRequested;
 	private Editor mEditor;
 	private SharedPreferences mPrefs;
-	private Hashtable<Long, Location> locationTrail;
+	private LinkedHashMap<Long, Location> locationTrail;
 	private MediaRecorder mRecorder;
 	public final static String TRAIL = "ggow.teamt.MDRS.trail";
 	private String mFileName;
@@ -67,7 +68,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		setContentView(R.layout.activity_recording);
 
 		//Location Setup
-		locationTrail = new Hashtable<Long, Location>();
+		locationTrail = new LinkedHashMap<Long, Location>();
 		Intent intent = getIntent();
 		Location startLocation = intent.getParcelableExtra(MapViewActivity.START_LOCATION);
 		Toast.makeText(this, startLocation.toString(), Toast.LENGTH_SHORT).show();
