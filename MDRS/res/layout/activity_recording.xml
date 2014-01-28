@@ -21,7 +21,7 @@
         android:layout_below="@+id/textView2"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="48dp"
-        android:text="Medium Text"
+        android:text="Test text - temp."
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <ImageButton
@@ -33,6 +33,6 @@
         android:layout_marginBottom="61dp"
         android:contentDescription="@string/stopRec"
         android:onClick="stopRecording"
-        android:src="@drawable/common_signin_btn_icon_dark" />
+        android:src="@drawable/recordinv" />
 
 </RelativeLayout>

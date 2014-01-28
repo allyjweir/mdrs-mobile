@@ -26,6 +26,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:contentDescription="@string/startRec"
+        android:src="@drawable/record"
         android:onClick="startRecording" />
 
 </RelativeLayout>
