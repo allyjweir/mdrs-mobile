@@ -154,6 +154,24 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		mEditor.commit();
 		super.onPause();
 	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		/*
+		 * Get any previous setting for location updates
+		 * Gets "false" if an error occurs
+		 */
+		if (mPrefs.contains("KEY_UPDATES_ON")) {
+			mUpdatesRequested =
+					mPrefs.getBoolean("KEY_UPDATES_ON", false);
+
+			// Otherwise, turn off location updates
+		} else {
+			mEditor.putBoolean("KEY_UPDATES_ON", false);
+			mEditor.commit();
+		}
+	}    
 
 	/*
 	 * Called when the Activity is no longer visible at all.
@@ -178,23 +196,6 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		mLocationClient.disconnect();
 		super.onStop();
 	}
-
-	@Override
-	protected void onResume() {
-		/*
-		 * Get any previous setting for location updates
-		 * Gets "false" if an error occurs
-		 */
-		if (mPrefs.contains("KEY_UPDATES_ON")) {
-			mUpdatesRequested =
-					mPrefs.getBoolean("KEY_UPDATES_ON", false);
-
-			// Otherwise, turn off location updates
-		} else {
-			mEditor.putBoolean("KEY_UPDATES_ON", false);
-			mEditor.commit();
-		}
-	}    
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
