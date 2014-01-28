@@ -50,12 +50,13 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	private Editor mEditor;
 	private SharedPreferences mPrefs;
 	private LinkedHashMap<Long, Location> locationTrail;
-	private MediaRecorder mRecorder;
-	public static Long folderTime;
 	public final static String TRAIL = "ggow.teamt.MDRS.trail";
 	private String mFileName;
 	public final static String AUDIO = "ggow.teamt.MDRS.audio";
-	private File MDRSFolder = null;
+	
+	private MediaRecorder mRecorder;
+	public static String folderTime;
+	private String path;
 	
 	
 	
@@ -68,7 +69,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		locationTrail = new LinkedHashMap<Long, Location>();
 		Intent intent = getIntent();
 		Location startLocation = intent.getParcelableExtra(MapViewActivity.START_LOCATION);
-		Toast.makeText(this, startLocation.toString(), Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, "Got starter location!", Toast.LENGTH_SHORT).show();
 		mLocationRequest = LocationRequest.create();
 		mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 		mLocationRequest.setInterval(UPDATE_INTERVAL);
@@ -86,26 +87,49 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		// Start with updates turned off
 		mUpdatesRequested = false;
 
+		
 		//Audio Recording setup
+		folderTime = String.valueOf(System.currentTimeMillis());
+		path = folderTime + "/audio.3gp";
+		PathPrep(path);
+		try {
+			AudioRecordStart();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void PathPrep(String path) {
+		this.path = sanitisePath(path);
+	}
+	
+	private String sanitisePath(String path) {
+		if(!path.startsWith("/")){
+			path = "/" + path;
+		}
+		if (!path.contains(".")) {
+			path += ".3gp";
+		}
+		return Environment.getExternalStorageDirectory().getAbsolutePath() + path;
+	}
+	public void AudioRecordStart() throws IOException {
+		String state = android.os.Environment.getExternalStorageState();
+		if (!state.equals(android.os.Environment.MEDIA_MOUNTED)) {
+			throw new IOException("SD Card is causing issues");
+		}
+		
+		File directory = new File(path).getParentFile();
+		if(!directory.exists() && !directory.mkdirs()) {
+			throw new IOException("Path to file could not be created");
+		}
+		
 		mRecorder = new MediaRecorder();
-		mRecorder.reset();
 		mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 		mRecorder.setAudioChannels(1);
 		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
 		mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-		folderTime = System.currentTimeMillis();
+		mRecorder.setOutputFile(path);
 		
-		if (android.os.Environment.getExternalStorageState()
-				.equals(android.os.Environment.MEDIA_MOUNTED)) {
-			
-			File MDRSFolder = new File(Environment.getExternalStorageDirectory() 
-										+ File.separator + getString(R.string.app_name));
-		} else {
-			File MDRSFolder = new File("/data/data/" + getPackageName() + File.separator 
-					+ getString(R.string.app_name));
-		}
-		mFileName = MDRSFolder.getAbsolutePath() + "/audio.3gp"; 
-		mRecorder.setOutputFile(mFileName);
 		try {
 			mRecorder.prepare();
 		} catch (IOException e) {
