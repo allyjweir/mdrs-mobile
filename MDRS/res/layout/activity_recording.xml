@@ -32,7 +32,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="61dp"
         android:contentDescription="@string/stopRec"
-        android:onClick="stopRecording()"
+        android:onClick="stopRecording"
         android:src="@drawable/common_signin_btn_icon_dark" />
 
 </RelativeLayout>

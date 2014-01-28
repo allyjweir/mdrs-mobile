@@ -230,9 +230,9 @@ containing a value of this type.
     }
     public static final class id {
         public static final int RelativeLayout1=0x7f06000a;
-        public static final int action_cancel=0x7f060011;
-        public static final int action_confirm=0x7f060010;
-        public static final int action_settings=0x7f06000f;
+        public static final int action_cancel=0x7f060012;
+        public static final int action_confirm=0x7f060011;
+        public static final int action_settings=0x7f060010;
         public static final int description=0x7f06000c;
         public static final int fragment1=0x7f06000d;
         public static final int horizontalScrollView1=0x7f06000b;
@@ -247,6 +247,7 @@ containing a value of this type.
         public static final int terrain=0x7f060003;
         public static final int textView2=0x7f060007;
         public static final int timer=0x7f060008;
+        public static final int uploadScreenMap=0x7f06000f;
     }
     public static final class integer {
         public static final int google_play_services_version=0x7f080000;

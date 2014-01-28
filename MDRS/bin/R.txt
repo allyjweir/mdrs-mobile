@@ -65,9 +65,9 @@ int drawable ic_plusone_small_off_client 0x7f02001c
 int drawable ic_plusone_standard_off_client 0x7f02001d
 int drawable ic_plusone_tall_off_client 0x7f02001e
 int id RelativeLayout1 0x7f06000a
-int id action_cancel 0x7f060011
-int id action_confirm 0x7f060010
-int id action_settings 0x7f06000f
+int id action_cancel 0x7f060012
+int id action_confirm 0x7f060011
+int id action_settings 0x7f060010
 int id description 0x7f06000c
 int id fragment1 0x7f06000d
 int id horizontalScrollView1 0x7f06000b
@@ -82,6 +82,7 @@ int id stopRecording 0x7f060009
 int id terrain 0x7f060003
 int id textView2 0x7f060007
 int id timer 0x7f060008
+int id uploadScreenMap 0x7f06000f
 int integer google_play_services_version 0x7f080000
 int layout activity_map_view 0x7f030000
 int layout activity_recording 0x7f030001
