@@ -1,22 +1,9 @@
 package ggow.teamt.mdrs;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.LinkedHashMap;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.location.LocationClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-
-import android.location.Location;
-import android.media.MediaRecorder;
-import android.os.Bundle;
-import android.os.Environment;
-import android.provider.Settings.Secure;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -24,14 +11,22 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.location.Location;
+import android.media.MediaRecorder;
+import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.Menu;
 import android.widget.Toast;
 
-//assuming I don't need google play services check since I've already done the check at the start.
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 
 public class RecordingActivity extends FragmentActivity implements
 GooglePlayServicesClient.ConnectionCallbacks,
@@ -49,9 +44,6 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 			MILLISECONDS_PER_SECOND * UPDATE_INTERVAL_IN_SECONDS;
 	// The fastest update frequency, in seconds
 	private static final int FASTEST_INTERVAL_IN_SECONDS = 1;
-	// A fast frequency ceiling in milliseconds
-	private static final long FASTEST_INTERVAL =
-			MILLISECONDS_PER_SECOND * FASTEST_INTERVAL_IN_SECONDS;
 	LocationRequest mLocationRequest;
 	LocationClient mLocationClient;
 	boolean mUpdatesRequested;
@@ -63,6 +55,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	public final static String TRAIL = "ggow.teamt.MDRS.trail";
 	private String mFileName;
 	public final static String AUDIO = "ggow.teamt.MDRS.audio";
+	private File MDRSFolder = null;
 	
 	
 	
@@ -95,19 +88,30 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 
 		//Audio Recording setup
 		mRecorder = new MediaRecorder();
+		mRecorder.reset();
 		mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+		mRecorder.setAudioChannels(1);
 		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
 		mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 		folderTime = System.currentTimeMillis();
-		mFileName = Environment.getExternalStorageDirectory().getAbsolutePath() 
-				+ "/MDRS/" + "/" + folderTime + "/" + "audio"; 
+		
+		if (android.os.Environment.getExternalStorageState()
+				.equals(android.os.Environment.MEDIA_MOUNTED)) {
+			
+			File MDRSFolder = new File(Environment.getExternalStorageDirectory() 
+										+ File.separator + getString(R.string.app_name));
+		} else {
+			File MDRSFolder = new File("/data/data/" + getPackageName() + File.separator 
+					+ getString(R.string.app_name));
+		}
+		mFileName = MDRSFolder.getAbsolutePath() + "/audio.3gp"; 
 		mRecorder.setOutputFile(mFileName);
 		try {
 			mRecorder.prepare();
-			mRecorder.start();
 		} catch (IOException e) {
 			Log.e(LOG_TAG, "prepare() for recording failed");
 		}
+		mRecorder.start();
 	}
 
 	@Override

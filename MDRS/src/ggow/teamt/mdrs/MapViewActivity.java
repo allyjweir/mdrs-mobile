@@ -73,6 +73,16 @@ OnMyLocationButtonClickListener{
 	}
 
 	@Override
+	protected void onResume() {
+		super.onResume();
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+	}
+	
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.map_view, menu);
@@ -92,13 +102,14 @@ OnMyLocationButtonClickListener{
 	}
 
 	private void openSettings() {
-		// TODO Auto-generated method stub
-		
+		Intent intent = new Intent(this, SettingsActivity.class);
+		startActivity(intent);
 	}
 
 	public void startRecording(View view){
 		Intent intent = new Intent(this, RecordingActivity.class);
 		intent.putExtra(START_LOCATION, mCurrentLocation);
+		startActivity(intent);
 	}
 
 	private void setUpMapIfNeeded() { //would be used onResume I would assume
