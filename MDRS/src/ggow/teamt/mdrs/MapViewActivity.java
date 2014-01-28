@@ -23,10 +23,12 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.Toast;
 
 public class MapViewActivity extends FragmentActivity

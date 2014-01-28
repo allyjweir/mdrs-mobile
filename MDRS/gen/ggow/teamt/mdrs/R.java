@@ -228,6 +228,7 @@ containing a value of this type.
         public static final int ic_plusone_standard_off_client=0x7f02001d;
         public static final int ic_plusone_tall_off_client=0x7f02001e;
         public static final int record=0x7f02001f;
+        public static final int recordinv=0x7f020020;
     }
     public static final class id {
         public static final int RelativeLayout1=0x7f06000a;

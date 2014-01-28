@@ -65,6 +65,7 @@ int drawable ic_plusone_small_off_client 0x7f02001c
 int drawable ic_plusone_standard_off_client 0x7f02001d
 int drawable ic_plusone_tall_off_client 0x7f02001e
 int drawable record 0x7f02001f
+int drawable recordinv 0x7f020020
 int id RelativeLayout1 0x7f06000a
 int id action_cancel 0x7f060012
 int id action_confirm 0x7f060011
