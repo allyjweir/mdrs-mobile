@@ -168,4 +168,7 @@ int styleable MapAttrs_uiZoomControls 10
 int styleable MapAttrs_uiZoomGestures 11
 int styleable MapAttrs_useViewLifecycle 12
 int styleable MapAttrs_zOrderOnTop 13
-int xml preferences 0x7f040000
+int xml pref_data_sync 0x7f040000
+int xml pref_general 0x7f040001
+int xml pref_headers 0x7f040002
+int xml pref_notification 0x7f040003
