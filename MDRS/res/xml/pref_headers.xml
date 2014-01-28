@@ -6,8 +6,10 @@
         android:fragment="ggow.teamt.mdrs.SettingsActivity$GeneralPreferenceFragment"
         android:title="@string/pref_header_general" />
     <header
-        android:fragment="ggow.teamt.mdrs.SettingsActivity$HelpPreferenceFragment"
-        android:title="@string/pref_header_help" />
-
+        android:fragment="ggow.teamt.mdrs.SettingsActivity$NotificationPreferenceFragment"
+        android:title="@string/pref_header_notifications" />
+    <header
+        android:fragment="ggow.teamt.mdrs.SettingsActivity$DataSyncPreferenceFragment"
+        android:title="@string/pref_header_data_sync" />
 
 </preference-headers>
