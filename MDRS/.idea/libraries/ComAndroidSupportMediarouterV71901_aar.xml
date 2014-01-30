@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="ComAndroidSupportMediarouterV71901.aar">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/mdrs/build/exploded-bundles/ComAndroidSupportMediarouterV71901.aar/classes.jar!/" />
+      <root url="file://$PROJECT_DIR$/mdrs/build/exploded-bundles/ComAndroidSupportMediarouterV71901.aar/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
