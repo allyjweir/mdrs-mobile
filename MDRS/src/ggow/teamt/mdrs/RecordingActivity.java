@@ -19,7 +19,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
-import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -33,23 +32,33 @@ public class RecordingActivity extends FragmentActivity implements
 GooglePlayServicesClient.ConnectionCallbacks,
 GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 
-	private static final String LOG_TAG = "MDRS - RecordingActivity";
-	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+	private static final String LOG_TAG = "RecordingActivity - MDRS";
+	private final static int
+	CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+	// Milliseconds per second
 	private static final int MILLISECONDS_PER_SECOND = 1000;
+	// Update frequency in seconds
 	public static final int UPDATE_INTERVAL_IN_SECONDS = 5;
-	private static final long UPDATE_INTERVAL =	MILLISECONDS_PER_SECOND * UPDATE_INTERVAL_IN_SECONDS;
+	// Update frequency in milliseconds
+	private static final long UPDATE_INTERVAL =
+			MILLISECONDS_PER_SECOND * UPDATE_INTERVAL_IN_SECONDS;
+	// The fastest update frequency, in seconds
 	private static final int FASTEST_INTERVAL_IN_SECONDS = 1;
-	private LocationRequest mLocationRequest;
-	private LocationClient mLocationClient;
-	private boolean mUpdatesRequested;
+	LocationRequest mLocationRequest;
+	LocationClient mLocationClient;
+	boolean mUpdatesRequested;
 	private Editor mEditor;
 	private SharedPreferences mPrefs;
 	private LinkedHashMap<Long, Location> locationTrail;
 	public final static String TRAIL = "ggow.teamt.MDRS.trail";
+	private String mFileName;
 	public final static String AUDIO = "ggow.teamt.MDRS.audio";
+	
 	private MediaRecorder mRecorder;
 	public static String folderTime;
 	private String path;
+	
+	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -205,13 +214,13 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		locationTrail.put(System.currentTimeMillis(), location);
 	}
 
-	public void stopRecording(View view){
+	public void stopRecording(){
 		mRecorder.stop();
 		mRecorder.release();
 		mRecorder=null;
 		Intent intent = new Intent(this, UploadActivity.class);
 		intent.putExtra(TRAIL, locationTrail);
-		intent.putExtra(AUDIO, path);  //This may be incorrect
+		intent.putExtra(AUDIO, mFileName);
 		startActivity(intent);
 	}
 	

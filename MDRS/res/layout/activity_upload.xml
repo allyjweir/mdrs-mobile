@@ -52,7 +52,7 @@
     </EditText>
 
     <fragment
-        android:id="@+id/uploadScreenMap"
+        android:id="@+id/fragment1"
         android:name="com.google.android.gms.maps.MapFragment"
         android:layout_width="match_parent"
         android:layout_height="171dp"
