@@ -31,16 +31,6 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="61dp"
-        android:contentDescription="@string/stopRec"
-<<<<<<< HEAD
-<<<<<<< HEAD
-        android:onClick="stopRecording"
-        android:src="@drawable/recordinv" />
-=======
-=======
->>>>>>> parent of c32e45e... Various fixes
-        android:onClick="stopRecording()"
-        android:src="@drawable/common_signin_btn_icon_dark" />
->>>>>>> parent of c32e45e... Various fixes
+        android:contentDescription="@string/stopRec" />
 
 </RelativeLayout>
