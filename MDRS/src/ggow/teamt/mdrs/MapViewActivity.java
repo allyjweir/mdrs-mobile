@@ -40,7 +40,7 @@ OnMyLocationButtonClickListener{
 
 	private final static int
 	CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
-	private static final String LOG_TAG = "MapView - MDRS";
+	private static final String LOG_TAG = "MDRS - MapView";
 	private GoogleMap mMap;
 	private LocationClient mLocationClient;
 	public Location mCurrentLocation = null;
@@ -119,7 +119,7 @@ OnMyLocationButtonClickListener{
 	}
 
 	private void setUpMapIfNeeded() { //would be used onResume I would assume
-		Log.v(LOG_TAG, "into SuMiN");
+		Log.v(LOG_TAG, "Setting up map");
 
 		// Do a null check to confirm that we have not already instantiated the map.
 		if (mMap == null) {
@@ -130,7 +130,7 @@ OnMyLocationButtonClickListener{
 			mMap.getUiSettings().setMyLocationButtonEnabled(true);
 			// Check if we were successful in obtaining the map.
 			if (mMap != null) {
-				Log.e(LOG_TAG, "Map's all good brah");
+				Log.e(LOG_TAG, "Map successfully configured");
 			}
 		}
 	}

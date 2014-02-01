@@ -31,13 +31,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 
-public class UploadActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks,
+public class UploadActivity extends FragmentActivity implements GooglePlayServicesClient.ConnectionCallbacks,
 GooglePlayServicesClient.OnConnectionFailedListener{
 
 	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
-	private static final String LOG_TAG = "Upload - MDRS";
+	private static final String LOG_TAG = "MDRS - Upload";
 	private GoogleMap mMap;
 	private LinkedHashMap<Long, Location> locationTrail;
 	private JSONArray metadata;
@@ -51,6 +52,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		metadata = new JSONArray();
 		Intent intent = getIntent();
 		locationTrail = intent.getParcelableExtra(RecordingActivity.TRAIL);
+		System.out.println(locationTrail);
 		setUpMapIfNeeded();
 	}
 
@@ -173,8 +175,8 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 
 		// Do a null check to confirm that we have not already instantiated the map.
 		if (mMap == null) {
-			mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map))
-					.getMap();
+			mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.uploadScreenMap))
+					.getMap();			
 			mMap.setMyLocationEnabled(true);
 			mMap.getUiSettings().setCompassEnabled(true);
 			mMap.getUiSettings().setMyLocationButtonEnabled(true);

@@ -31,6 +31,12 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="61dp"
+<<<<<<< HEAD
         android:contentDescription="@string/stopRec" />
+=======
+        android:contentDescription="@string/stopRec"
+        android:onClick="stopRecording"
+        android:src="@drawable/recordinv" />
+>>>>>>> parent of b187aae... req commit
 
 </RelativeLayout>
