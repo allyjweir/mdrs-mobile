@@ -42,7 +42,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	private GoogleMap mMap;
 	private LinkedHashMap<Long, Location> locationTrail;
 	private JSONArray metadata;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -91,24 +91,17 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		case R.id.action_cancel:
 			cancel();
 			return true;
-		
+
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
+
 	private void cancel() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
-	/*
-	 * Gather together all the data that has been created and save it to a JSON ready
-	 * for uploading when connecting to a computer.
-	 * 
-	 * In a future version this will be able to automatically upload to a server but 
-	 * for now it will just be old fashioned.
-	 */
-	private void upload() {
+	private void createJSONFromLocationTrail() {
 		//Metadata gathered from user into JSON
 		JSONObject titleObj = new JSONObject(); //Object at the start of the JSON which holds general info
 		try {
@@ -122,7 +115,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		}
 		metadata.put(titleObj);
 		Log.v(LOG_TAG, "Successful init metadata JSON");
-		
+
 		//Location loading into the JSON
 		JSONArray locations = new JSONArray(); //array to hold all location objects
 		Iterator<Location> it = locationTrail.values().iterator();
@@ -136,7 +129,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 				obj.put("bearing", curLoc.getBearing());
 				obj.put("altitude", curLoc.getAltitude());
 				obj.put("speed", curLoc.getSpeed());
-				
+
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -146,9 +139,15 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 
 		}
 		metadata.put(locations);
+	}
+
+	private void saveMetadataToDevice(){
+		String path = RecordingActivity.path;
+		Log.v(LOG_TAG, "current path for json is: " + path);
+		path = path.substring(0, path.length()-9);
+		Log.v(LOG_TAG,"after chopping the tail off it is: "+path);
 		try{
-			FileWriter file = new FileWriter(Environment.getExternalStorageDirectory().getAbsolutePath() 
-				+ "/MDRS/" + "/" + RecordingActivity.folderTime + "/" + "metadata.json");
+			FileWriter file = new FileWriter(path + "metadata.json");
 			file.write(metadata.toString());
 			file.flush();
 			file.close();
@@ -156,6 +155,19 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 			e.printStackTrace();
 		}
 		Log.v(LOG_TAG, "Successful written metadata to storage.");
+
+	}
+	/*
+	 * Gather together all the data that has been created and save it to a JSON ready
+	 * for uploading when connecting to a computer.
+	 * 
+	 * In a future version this will be able to automatically upload to a server but 
+	 * for now it will just be old fashioned.
+	 */
+	private void upload() {
+		createJSONFromLocationTrail();
+		saveMetadataToDevice();
+
 
 		//TODO HOW 
 	}
@@ -189,7 +201,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 			}
 		}
 	}
-	
+
 	private void fillMap(){
 		boolean isFirstLocation = true;
 		//Create line of recording
@@ -203,29 +215,29 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 			trail.add(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
 		}
 		mMap.addPolyline(trail);
-		
+
 		//Starter Marker
 		mMap.addMarker(new MarkerOptions()
-			.position(new LatLng(locationTrail.get(getEndTime()).getLatitude(), locationTrail.get(getEndTime()).getLongitude()))
-			.draggable(false)
-			.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-			);
-		
+		.position(new LatLng(locationTrail.get(getEndTime()).getLatitude(), locationTrail.get(getEndTime()).getLongitude()))
+		.draggable(false)
+		.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+				);
+
 		//End Marker
 		mMap.addMarker(new MarkerOptions()//end marker
-			.position(new LatLng(locationTrail.entrySet().iterator().next().getValue().getLatitude(), locationTrail.entrySet().iterator().next().getValue().getLongitude()))
-			.draggable(false)
-			.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-			);
-			
+		.position(new LatLng(locationTrail.entrySet().iterator().next().getValue().getLatitude(), locationTrail.entrySet().iterator().next().getValue().getLongitude()))
+		.draggable(false)
+		.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+				);
+
 		//TODO	place markers where images are along the trail. Possibly MVC with the horizontal scroll of them?
 	}
 
 	private void zoomInOnStart(Location start){
 		CameraPosition cameraPosition = new CameraPosition.Builder()
-			.target(new LatLng(start.getLatitude(), start.getLongitude()))
-			.zoom(17)
-			.build();
+		.target(new LatLng(start.getLatitude(), start.getLongitude()))
+		.zoom(17)
+		.build();
 		mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 	}
 	@SuppressWarnings("deprecation")

@@ -49,8 +49,8 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	public final static String TRAIL = "ggow.teamt.MDRS.trail";
 	public final static String AUDIO = "ggow.teamt.MDRS.audio";
 	private MediaRecorder mRecorder;
-	public static String folderTime;
-	private String path;
+	private String folderTime;
+	public static String path;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -83,8 +83,10 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		
 		//Audio Recording setup
 		folderTime = String.valueOf(System.currentTimeMillis());
-		path = folderTime + "/audio.3gp";
+		path = "MDRS/" + folderTime + "/audio.3gp";
+		Log.v(LOG_TAG, "path before prep is: " + path);
 		PathPrep(path);
+		Log.v(LOG_TAG, "path after prep is: " + path);
 		try {
 			AudioRecordStart();
 		} catch (IOException e) {
