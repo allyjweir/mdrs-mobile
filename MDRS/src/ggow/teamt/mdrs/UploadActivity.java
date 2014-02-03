@@ -180,9 +180,10 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		if (mMap == null) {
 			mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.uploadScreenMap))
 					.getMap();			
-			mMap.setMyLocationEnabled(true);
-			mMap.getUiSettings().setCompassEnabled(true);
-			mMap.getUiSettings().setMyLocationButtonEnabled(true);
+			mMap.setMyLocationEnabled(false);
+			mMap.getUiSettings().setCompassEnabled(false);
+			mMap.getUiSettings().setMyLocationButtonEnabled(false);
+			mMap.getUiSettings().setZoomControlsEnabled(false);
 			fillMap();
 			// Check if we were successful in obtaining the map.
 			if (mMap != null) {
@@ -226,9 +227,8 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		CameraPosition cameraPosition = new CameraPosition.Builder()
 			.target(new LatLng(start.getLatitude(), start.getLongitude()))
 			.zoom(17)
-			.tilt(30)
 			.build();
-		mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+		mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 	}
 	@SuppressWarnings("deprecation")
 	@Override

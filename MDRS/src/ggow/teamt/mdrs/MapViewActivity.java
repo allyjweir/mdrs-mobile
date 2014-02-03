@@ -129,8 +129,9 @@ OnMyLocationButtonClickListener{
 			mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map))
 					.getMap();
 			mMap.setMyLocationEnabled(true);
-			mMap.getUiSettings().setCompassEnabled(true);
-			mMap.getUiSettings().setMyLocationButtonEnabled(true);
+			mMap.getUiSettings().setCompassEnabled(false);
+			mMap.getUiSettings().setMyLocationButtonEnabled(false);
+			mMap.getUiSettings().setZoomControlsEnabled(false);
 			// Check if we were successful in obtaining the map.
 			if (mMap != null) {
 				Log.e(LOG_TAG, "Map successfully configured");
@@ -166,7 +167,6 @@ OnMyLocationButtonClickListener{
 		CameraPosition cameraPosition = new CameraPosition.Builder()
 			.target(new LatLng(start.getLatitude(), start.getLongitude()))
 			.zoom(17)
-			.tilt(30)
 			.build();
 		mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 	}
