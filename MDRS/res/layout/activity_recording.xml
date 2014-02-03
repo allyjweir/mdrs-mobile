@@ -3,39 +3,28 @@
     android:id="@+id/RelativeLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".RecordingActivity" >
-
-    <Space
-        android:id="@+id/Space1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" />
 
     <ImageButton
         android:id="@+id/stopRecording"
-        android:layout_width="162dp"
-        android:layout_height="162dp"
+        android:layout_width="469dp"
+        android:layout_height="165dp"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
+        android:layout_alignParentLeft="true"
         android:background="@null"
         android:contentDescription="@string/stopRec"
-        android:maxWidth="5dp"
         android:onClick="stopRecording"
         android:scaleType="fitCenter"
         android:src="@drawable/rec_gray" />
 
     <TextView
-        android:id="@+id/current_location_readout"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_alignParentLeft="true"
+        android:id="@+id/current_location_ticker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="69dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="62dp"
         android:text="@string/current_location"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textSize="23sp"
-        android:typeface="normal" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </RelativeLayout>

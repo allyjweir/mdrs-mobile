@@ -26,12 +26,10 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ListView;
 import android.widget.Toast;
 
 public class MapViewActivity extends FragmentActivity
@@ -101,22 +99,9 @@ OnMyLocationButtonClickListener{
 		case R.id.action_settings:
 			openSettings();
 			return true;
-		case R.id.action_feedback:
-			feedback();
-			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
-	}
-
-	private void feedback() {
-		final Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
-
-		emailIntent.setType("plain/text");
-		emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"ally.pcgf+mdrsfeedback@gmail.com"});
-		emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Feedback for MDRS App");
-		
-		startActivity(emailIntent);
 	}
 
 	private void openSettings() {
@@ -147,7 +132,7 @@ OnMyLocationButtonClickListener{
 			mMap.getUiSettings().setZoomControlsEnabled(false);
 			// Check if we were successful in obtaining the map.
 			if (mMap != null) {
-				Log.e(LOG_TAG, "Map successfully configured");
+				Log.v(LOG_TAG, "Map successfully configured");
 			}
 		}
 	}
@@ -158,13 +143,10 @@ OnMyLocationButtonClickListener{
 		return false;
 	}
 
-
 	@Override
 	public void onLocationChanged(Location arg0) {
 		System.err.println("in onLocChanged");
 	}
-
-
 
 	/**
 	 * Callback called when connected to GCore. Implementation of {@link ConnectionCallbacks}.
@@ -172,14 +154,14 @@ OnMyLocationButtonClickListener{
 	@Override
 	public void onConnected(Bundle connectionHint) {
 		Toast.makeText(this, "Waiting for location...", Toast.LENGTH_SHORT).show();
-		mCurrentLocation = mLocationClient.getLastLocation();
-		zoomInOnStart(mCurrentLocation);
+			mCurrentLocation = mLocationClient.getLastLocation();
+			zoomInOnStart(mCurrentLocation);
 	}
 
 	private void zoomInOnStart(Location start){
 		CameraPosition cameraPosition = new CameraPosition.Builder()
 		.target(new LatLng(start.getLatitude(), start.getLongitude()))
-		.zoom(17)
+		.zoom(15)
 		.build();
 		mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 	}

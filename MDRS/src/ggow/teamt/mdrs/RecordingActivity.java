@@ -47,7 +47,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	private SharedPreferences mPrefs;
 	public static LinkedHashMap<Long, Location> locationTrail;
 	public final static String TRAIL = "ggow.teamt.MDRS.trail";
-	public final static String PATH = "ggow.teamt.MDRS.path";
+	public final static String AUDIO = "ggow.teamt.MDRS.audio";
 	private MediaRecorder mRecorder;
 	public static String folderTime;
 	private String path;
@@ -60,7 +60,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		//Location Setup
 		locationTrail = new LinkedHashMap<Long, Location>();
 		Intent intent = getIntent();
-		Location startLocation = intent.getParcelableExtra(MapViewActivity.START_LOCATION);
+		intent.getParcelableExtra(MapViewActivity.START_LOCATION);
 		Toast.makeText(this, "Got starter location!", Toast.LENGTH_SHORT).show();
 		mLocationRequest = LocationRequest.create();
 		mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -206,7 +206,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 				Double.toString(location.getLatitude()) + "," +
 				Double.toString(location.getLongitude());
 		//Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-		TextView text = (TextView)findViewById(R.id.current_location_readout);
+		TextView text = (TextView) findViewById(R.id.current_location_ticker);
 		text.setText(msg);
 		Log.v(LOG_TAG, location.toString());
 		locationTrail.put(location.getTime(), location);
@@ -218,7 +218,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		mRecorder=null;
 		Intent intent = new Intent(this, UploadActivity.class);
 		//intent.putExtra(TRAIL, locationTrail);
-		intent.putExtra(PATH, path);  //This may be incorrect
+		//intent.putExtra(AUDIO, path);  //This may be incorrect
 		startActivity(intent);
 	}
 	
