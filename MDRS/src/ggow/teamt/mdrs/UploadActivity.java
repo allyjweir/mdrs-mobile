@@ -14,9 +14,11 @@ import org.json.JSONObject;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -51,7 +53,8 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		setupActionBar();
 		metadata = new JSONArray();
 		Intent intent = getIntent();
-		locationTrail = intent.getParcelableExtra(RecordingActivity.TRAIL);
+		//locationTrail = intent.getParcelableExtra(RecordingActivity.TRAIL);
+		locationTrail = RecordingActivity.locationTrail;
 		System.out.println(locationTrail);
 		setUpMapIfNeeded();
 	}
@@ -120,7 +123,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 			e1.printStackTrace();
 		}
 		metadata.put(titleObj);
-		Log.e(LOG_TAG, "Successful init metadata JSON");
+		Log.v(LOG_TAG, "Successful init metadata JSON");
 		
 		//Location loading into the JSON
 		JSONArray locations = new JSONArray(); //array to hold all location objects
@@ -141,7 +144,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 				e.printStackTrace();
 			}
 			locations.put(obj);
-			Log.e(LOG_TAG, "next location added to JSONArray");
+			Log.v(LOG_TAG, "next location added to JSONArray");
 
 		}
 		metadata.put(locations);
@@ -154,7 +157,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
-		Log.e(LOG_TAG, "Successful written metadata to storage.");
+		Log.v(LOG_TAG, "Successful written metadata to storage.");
 
 		//TODO HOW 
 	}
@@ -183,18 +186,21 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 			fillMap();
 			// Check if we were successful in obtaining the map.
 			if (mMap != null) {
-				Log.e(LOG_TAG, "Map's all good brah");
+				Log.v(LOG_TAG, "Map's all good brah");
 			}
 		}
 	}
 	
 	private void fillMap(){
-		
+		boolean isFirstLocation = true;
 		//Create line of recording
 		Iterator<Location> it = locationTrail.values().iterator();
 		PolylineOptions trail = new PolylineOptions();
 		while(it.hasNext()){
 			Location currentLocation = (Location) it.next();
+			if (isFirstLocation){
+				zoomInOnStart(currentLocation);
+			}
 			trail.add(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
 		}
 		mMap.addPolyline(trail);
@@ -216,6 +222,14 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		//TODO	place markers where images are along the trail. Possibly MVC with the horizontal scroll of them?
 	}
 
+	private void zoomInOnStart(Location start){
+		CameraPosition cameraPosition = new CameraPosition.Builder()
+			.target(new LatLng(start.getLatitude(), start.getLongitude()))
+			.zoom(17)
+			.tilt(30)
+			.build();
+		mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+	}
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onConnectionFailed(ConnectionResult connectionResult) {

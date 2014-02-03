@@ -44,7 +44,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	private boolean mUpdatesRequested;
 	private Editor mEditor;
 	private SharedPreferences mPrefs;
-	private LinkedHashMap<Long, Location> locationTrail;
+	public static LinkedHashMap<Long, Location> locationTrail;
 	public final static String TRAIL = "ggow.teamt.MDRS.trail";
 	public final static String AUDIO = "ggow.teamt.MDRS.audio";
 	private MediaRecorder mRecorder;
@@ -65,6 +65,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 		mLocationRequest.setInterval(UPDATE_INTERVAL);
 		mLocationRequest.setFastestInterval(FASTEST_INTERVAL_IN_SECONDS);
+		
 		// Open the shared preferences
 		mPrefs = getSharedPreferences("SharedPreferences",
 				Context.MODE_PRIVATE);
@@ -76,7 +77,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		 */
 		mLocationClient = new LocationClient(this, this, this);
 		// Start with updates turned off
-		mUpdatesRequested = false;
+		mUpdatesRequested = true;
 
 		
 		//Audio Recording setup
@@ -93,7 +94,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	public void PathPrep(String path) {
 		this.path = sanitisePath(path);
 	}
-	
+
 	private String sanitisePath(String path) {
 		if(!path.startsWith("/")){
 			path = "/" + path;
@@ -103,6 +104,8 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		}
 		return Environment.getExternalStorageDirectory().getAbsolutePath() + path;
 	}
+	
+
 	public void AudioRecordStart() throws IOException {
 		String state = android.os.Environment.getExternalStorageState();
 		if (!state.equals(android.os.Environment.MEDIA_MOUNTED)) {
@@ -202,7 +205,8 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 				Double.toString(location.getLatitude()) + "," +
 				Double.toString(location.getLongitude());
 		Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-		locationTrail.put(System.currentTimeMillis(), location);
+		Log.v(LOG_TAG, location.toString());
+		locationTrail.put(location.getTime(), location);
 	}
 
 	public void stopRecording(View view){
@@ -210,8 +214,8 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		mRecorder.release();
 		mRecorder=null;
 		Intent intent = new Intent(this, UploadActivity.class);
-		intent.putExtra(TRAIL, locationTrail);
-		intent.putExtra(AUDIO, path);  //This may be incorrect
+		//intent.putExtra(TRAIL, locationTrail);
+		//intent.putExtra(AUDIO, path);  //This may be incorrect
 		startActivity(intent);
 	}
 	
@@ -224,10 +228,10 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	public void onConnected(Bundle dataBundle) {
 		// Display the connection status
 		Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
-		// If already requested, start periodic updates
-		if (mUpdatesRequested) {
-			mLocationClient.requestLocationUpdates(mLocationRequest, this);
-		}
+		Location startLocation = mLocationClient.getLastLocation();
+		Log.v(LOG_TAG, startLocation.toString());
+		locationTrail.put(startLocation.getTime(), startLocation);
+		mLocationClient.requestLocationUpdates(mLocationRequest, this);
 	}
 	/*
 	 * Called by Location Services if the connection to the

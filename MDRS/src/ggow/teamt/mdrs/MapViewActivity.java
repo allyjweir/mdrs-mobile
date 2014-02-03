@@ -6,8 +6,11 @@ import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallback
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.MapFragment;
 import android.location.Location;
 import android.location.LocationManager;
@@ -156,8 +159,18 @@ OnMyLocationButtonClickListener{
 	public void onConnected(Bundle connectionHint) {
 		Toast.makeText(this, "Waiting for location...", Toast.LENGTH_SHORT).show();
 		mCurrentLocation = mLocationClient.getLastLocation();
+		zoomInOnStart(mCurrentLocation);
 	}
 
+	private void zoomInOnStart(Location start){
+		CameraPosition cameraPosition = new CameraPosition.Builder()
+			.target(new LatLng(start.getLatitude(), start.getLongitude()))
+			.zoom(17)
+			.tilt(30)
+			.build();
+		mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+	}
+	
 	/**
 	 * Callback called when disconnected from GCore. Implementation of {@link ConnectionCallbacks}.
 	 */
