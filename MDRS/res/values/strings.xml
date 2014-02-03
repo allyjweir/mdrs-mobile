@@ -17,4 +17,9 @@
 	<string name="confirm_upload">Confirm Upload</string>
 	<string name="cancel">Cancel</string>
 	<string name="cancel_upload">Cancel Upload</string>
+	<string name="discard">Discard</string>
+	<string name="discard_message">Are you sure you want to discard?</string>
+	<string name="feedback">Give developer feedback</string>
+	<string name="feedback_condensed">Feedback</string>
+	<string name="current_location">No location yet.</string>
 </resources>

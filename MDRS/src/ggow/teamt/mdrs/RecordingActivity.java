@@ -20,6 +20,7 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -46,7 +47,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	private SharedPreferences mPrefs;
 	public static LinkedHashMap<Long, Location> locationTrail;
 	public final static String TRAIL = "ggow.teamt.MDRS.trail";
-	public final static String AUDIO = "ggow.teamt.MDRS.audio";
+	public final static String PATH = "ggow.teamt.MDRS.path";
 	private MediaRecorder mRecorder;
 	public static String folderTime;
 	private String path;
@@ -204,7 +205,9 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		String msg = "Updated Location: " +
 				Double.toString(location.getLatitude()) + "," +
 				Double.toString(location.getLongitude());
-		Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+		//Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+		TextView text = (TextView)findViewById(R.id.current_location_readout);
+		text.setText(msg);
 		Log.v(LOG_TAG, location.toString());
 		locationTrail.put(location.getTime(), location);
 	}
@@ -215,7 +218,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		mRecorder=null;
 		Intent intent = new Intent(this, UploadActivity.class);
 		//intent.putExtra(TRAIL, locationTrail);
-		//intent.putExtra(AUDIO, path);  //This may be incorrect
+		intent.putExtra(PATH, path);  //This may be incorrect
 		startActivity(intent);
 	}
 	

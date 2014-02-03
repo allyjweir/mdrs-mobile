@@ -81,29 +81,42 @@ OnMyLocationButtonClickListener{
 	protected void onResume() {
 		super.onResume();
 	}
-	
+
 	@Override
 	protected void onPause() {
 		super.onPause();
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.map_view, menu);
 		return true;
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-	    // Handle presses on the action bar items
-	    switch (item.getItemId()) {
-	        case R.id.action_settings:
-	            openSettings();
-	            return true;
-	        default:
-	            return super.onOptionsItemSelected(item);
-	    }
+		// Handle presses on the action bar items
+		switch (item.getItemId()) {
+		case R.id.action_settings:
+			openSettings();
+			return true;
+		case R.id.action_feedback:
+			feedback();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
+	private void feedback() {
+		final Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
+
+		emailIntent.setType("plain/text");
+		emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"ally.pcgf+mdrsfeedback@gmail.com"});
+		emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Feedback for MDRS App");
+		
+		startActivity(emailIntent);
 	}
 
 	private void openSettings() {
@@ -165,12 +178,12 @@ OnMyLocationButtonClickListener{
 
 	private void zoomInOnStart(Location start){
 		CameraPosition cameraPosition = new CameraPosition.Builder()
-			.target(new LatLng(start.getLatitude(), start.getLongitude()))
-			.zoom(17)
-			.build();
+		.target(new LatLng(start.getLatitude(), start.getLongitude()))
+		.zoom(17)
+		.build();
 		mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 	}
-	
+
 	/**
 	 * Callback called when disconnected from GCore. Implementation of {@link ConnectionCallbacks}.
 	 */
@@ -221,7 +234,7 @@ OnMyLocationButtonClickListener{
 			}
 		}
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onConnectionFailed(ConnectionResult connectionResult) {

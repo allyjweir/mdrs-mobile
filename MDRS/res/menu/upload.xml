@@ -1,9 +1,16 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
     
-    <item android:id="@+id/action_confirm" android:titleCondensed="@string/upload" android:title="@string/confirm_upload" android:icon="@drawable/ic_action_accept" android:visible="true"></item><item android:id="@+id/action_cancel"
+    <item android:id="@+id/action_cancel"
         android:titleCondensed="@string/cancel"
         android:title="@string/cancel_upload"
         android:icon="@drawable/ic_action_cancel"
-        android:visible="true"/>
-
+        android:visible="true"
+        android:showAsAction="ifRoom"/>
+    <item android:id="@+id/action_confirm" 
+        android:titleCondensed="@string/upload" 
+        android:title="@string/confirm_upload" 
+        android:icon="@drawable/ic_action_accept" 
+        android:visible="true"
+        android:showAsAction="ifRoom"></item>       
 </menu>

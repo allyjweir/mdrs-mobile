@@ -1,5 +1,6 @@
 package ggow.teamt.mdrs;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,6 +28,8 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Environment;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.util.Log;
@@ -44,7 +47,8 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	private GoogleMap mMap;
 	private LinkedHashMap<Long, Location> locationTrail;
 	private JSONArray metadata;
-	
+	private String path;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -52,8 +56,6 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		// Show the Up button in the action bar.
 		setupActionBar();
 		metadata = new JSONArray();
-		Intent intent = getIntent();
-		//locationTrail = intent.getParcelableExtra(RecordingActivity.TRAIL);
 		locationTrail = RecordingActivity.locationTrail;
 		System.out.println(locationTrail);
 		setUpMapIfNeeded();
@@ -63,7 +65,6 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	 * Set up the {@link android.app.ActionBar}.
 	 */
 	private void setupActionBar() {
-
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 
 	}
@@ -72,45 +73,56 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.upload, menu);
-		return true;
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case android.R.id.home:
-			// This ID represents the Home or Up button. In the case of this
-			// activity, the Up button is shown. Use NavUtils to allow users
-			// to navigate up one level in the application structure. For
-			// more details, see the Navigation pattern on Android Design:
-			//
-			// http://developer.android.com/design/patterns/navigation.html#up-vs-back
-			//
 			NavUtils.navigateUpFromSameTask(this);
 			return true;
 		case R.id.action_confirm:
-			upload();
+			try {
+				upload();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return true;
 		case R.id.action_cancel:
 			cancel();
 			return true;
-		
+
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
-	private void cancel() {
-		// TODO Auto-generated method stub
-		
-	}
 
-	/*
-	 * Gather together all the data that has been created and save it to a JSON ready
-	 * for uploading when connecting to a computer.
-	 * 
-	 * In a future version this will be able to automatically upload to a server but 
-	 * for now it will just be old fashioned.
-	 */
-	private void upload() {
+	//restarts the application at the start screen
+	//TODO confirm dialog
+	private void cancel() {
+		Log.e(LOG_TAG, "Cancel button pressed");
+		
+		 new AlertDialog.Builder(this)
+	        .setIcon(android.R.drawable.ic_dialog_alert)
+	        .setTitle(R.string.discard)
+	        .setMessage(R.string.discard_message)
+	        .setPositiveButton(R.string.discard, new DialogInterface.OnClickListener() {
+
+	            @Override
+	            public void onClick(DialogInterface dialog, int which) {
+
+	                //Stop the activity
+	        		Intent intent = getBaseContext().getPackageManager().getLaunchIntentForPackage(getBaseContext().getPackageName());
+	        		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+	        		startActivity(intent);    
+	            }
+	        })
+	        .setNegativeButton(R.string.cancel, null)
+	        .show();
+		}
+
+	private void metadataProcessing() {
 		//Metadata gathered from user into JSON
 		JSONObject titleObj = new JSONObject(); //Object at the start of the JSON which holds general info
 		try {
@@ -124,7 +136,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		}
 		metadata.put(titleObj);
 		Log.v(LOG_TAG, "Successful init metadata JSON");
-		
+
 		//Location loading into the JSON
 		JSONArray locations = new JSONArray(); //array to hold all location objects
 		Iterator<Location> it = locationTrail.values().iterator();
@@ -138,7 +150,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 				obj.put("bearing", curLoc.getBearing());
 				obj.put("altitude", curLoc.getAltitude());
 				obj.put("speed", curLoc.getSpeed());
-				
+
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -150,7 +162,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		metadata.put(locations);
 		try{
 			FileWriter file = new FileWriter(Environment.getExternalStorageDirectory().getAbsolutePath() 
-				+ "/MDRS/" + "/" + RecordingActivity.folderTime + "/" + "metadata.json");
+					+ "/MDRS/" + "/" + RecordingActivity.folderTime + "/" + "metadata.json");
 			file.write(metadata.toString());
 			file.flush();
 			file.close();
@@ -158,6 +170,56 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 			e.printStackTrace();
 		}
 		Log.v(LOG_TAG, "Successful written metadata to storage.");
+	}
+
+	private void metadataSaving() throws IOException {
+		path = RecordingActivity.folderTime + "/metadata.json";
+		PathPrep(path);
+
+		String state = android.os.Environment.getExternalStorageState();
+		if (!state.equals(android.os.Environment.MEDIA_MOUNTED)) {
+			throw new IOException("SD Card is causing issues");
+		}
+
+		File directory = new File(path).getParentFile();
+		if(!directory.exists() && !directory.mkdirs()) {
+			throw new IOException("Path to file could not be created");
+		}
+
+		try{
+			FileWriter file = new FileWriter(path);
+			file.write(metadata.toString());
+			file.flush();
+			file.close();
+		} catch (IOException e){
+			e.printStackTrace();
+		}
+	}
+
+	public void PathPrep(String path) {
+		this.path = sanitisePath(path);
+	}
+
+	private String sanitisePath(String path) {
+		if(!path.startsWith("/")){
+			path = "/" + path;
+		}
+		if (!path.contains(".")) {
+			path += ".3gp";
+		}
+		return Environment.getExternalStorageDirectory().getAbsolutePath() + path;
+	}
+	/*
+	 * Gather together all the data that has been created and save it to a JSON ready
+	 * for uploading when connecting to a computer.
+	 * 
+	 * In a future version this will be able to automatically upload to a server but 
+	 * for now it will just be old fashioned.
+	 */
+	private void upload() throws IOException {
+		metadataProcessing();
+		metadataSaving();
+		Log.v(LOG_TAG, "Successful metadata save to memory.");
 
 		//TODO HOW 
 	}
@@ -174,8 +236,6 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	}
 
 	private void setUpMapIfNeeded() { //would be used onResume I would assume
-		Log.v(LOG_TAG, "into map setup");
-
 		// Do a null check to confirm that we have not already instantiated the map.
 		if (mMap == null) {
 			mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.uploadScreenMap))
@@ -184,14 +244,15 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 			mMap.getUiSettings().setCompassEnabled(false);
 			mMap.getUiSettings().setMyLocationButtonEnabled(false);
 			mMap.getUiSettings().setZoomControlsEnabled(false);
+			Log.v(LOG_TAG, "Map successfully initialised.");
 			fillMap();
 			// Check if we were successful in obtaining the map.
 			if (mMap != null) {
-				Log.v(LOG_TAG, "Map's all good brah");
+				Log.v(LOG_TAG, "Map already setup");
 			}
 		}
 	}
-	
+
 	private void fillMap(){
 		boolean isFirstLocation = true;
 		//Create line of recording
@@ -205,31 +266,34 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 			trail.add(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
 		}
 		mMap.addPolyline(trail);
-		
+
 		//Starter Marker
 		mMap.addMarker(new MarkerOptions()
-			.position(new LatLng(locationTrail.get(getEndTime()).getLatitude(), locationTrail.get(getEndTime()).getLongitude()))
-			.draggable(false)
-			.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-			);
-		
+		.position(new LatLng(locationTrail.get(getEndTime()).getLatitude(), locationTrail.get(getEndTime()).getLongitude()))
+		.draggable(false)
+		.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+				);
+
 		//End Marker
 		mMap.addMarker(new MarkerOptions()//end marker
-			.position(new LatLng(locationTrail.entrySet().iterator().next().getValue().getLatitude(), locationTrail.entrySet().iterator().next().getValue().getLongitude()))
-			.draggable(false)
-			.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-			);
-			
+		.position(new LatLng(locationTrail.entrySet().iterator().next().getValue().getLatitude(), locationTrail.entrySet().iterator().next().getValue().getLongitude()))
+		.draggable(false)
+		.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+				);
+		
+		Log.v(LOG_TAG, "Map successfully filled.");
 		//TODO	place markers where images are along the trail. Possibly MVC with the horizontal scroll of them?
 	}
 
 	private void zoomInOnStart(Location start){
 		CameraPosition cameraPosition = new CameraPosition.Builder()
-			.target(new LatLng(start.getLatitude(), start.getLongitude()))
-			.zoom(17)
-			.build();
+		.target(new LatLng(start.getLatitude(), start.getLongitude()))
+		.zoom(15)
+		.build();
 		mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+		Log.v(LOG_TAG, "Map successfully zoomed.");
 	}
+	
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onConnectionFailed(ConnectionResult connectionResult) {
