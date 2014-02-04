@@ -30,6 +30,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 public class MapViewActivity extends FragmentActivity
@@ -52,6 +54,19 @@ OnMyLocationButtonClickListener{
 		Log.v(LOG_TAG, "into onCreate");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_map_view);
+
+		if(android.os.Build.VERSION.SDK_INT >= 19){
+			Window w = getWindow();
+			w.setFlags(
+					WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
+					WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+		//	w.setFlags(
+		//			WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
+		//			WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+		} else {
+			Log.v(LOG_TAG, "Not KitKat+");
+		}
+		
 		setUpMapIfNeeded();
 		isLocationEnabled(this);
 		mLocationClient = new LocationClient(this, this, this);
@@ -139,14 +154,14 @@ OnMyLocationButtonClickListener{
 			}
 		}
 	}
-	
+
 	private void feedback(){
 		final Intent email = new Intent(android.content.Intent.ACTION_SEND);
 		email.setType("plain/text");
 		email.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"ally.pcgf+mdrsfeedback@gmail.com"});
 		email.putExtra(android.content.Intent.EXTRA_SUBJECT, "MDRS - Android App Feedback");
 		startActivity(email);
-		
+
 	}
 
 	@Override

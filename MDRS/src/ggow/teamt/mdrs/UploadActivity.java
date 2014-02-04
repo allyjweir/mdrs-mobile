@@ -25,6 +25,8 @@ import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -54,6 +56,18 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		setContentView(R.layout.activity_upload);
 		// Show the Up button in the action bar.
 		setupActionBar();
+		
+	/*	if(android.os.Build.VERSION.SDK_INT >= 19){
+			Window w = getWindow();
+			w.setFlags(
+					WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
+					WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+		//	w.setFlags(
+		//			WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
+		//			WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+		} else {
+			Log.v(LOG_TAG, "Not KitKat+");
+		}*/
 		metadata = new JSONArray();
 		getIntent();
 		//locationTrail = intent.getParcelableExtra(RecordingActivity.TRAIL);
@@ -179,7 +193,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 			ioe.printStackTrace();
 		}
 
-		//Check to see write was successful
+		/*/Check to see write was successful
 		FileInputStream fIn = openFileInput(path);
 		InputStreamReader isr = new InputStreamReader(fIn);
 		char[] buffer = new char[metadata.length()];
@@ -187,8 +201,8 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		String readString = new String(buffer);
 		boolean isSuccess = metadata.toString().equals(readString);
 		Log.i(LOG_TAG, "File write success = " + isSuccess);
-
-		/*		try{
+		
+		try{
 			FileOutputStream fOut= openFileOutput(path, MODE_WORLD_READABLE);
 			OutputStreamWriter osw = new OutputStreamWriter(fOut);
 			osw.write(metadata.toString());

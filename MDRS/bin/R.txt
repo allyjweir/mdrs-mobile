@@ -155,6 +155,8 @@ int string title_activity_upload 0x7f07001e
 int string upload 0x7f070026
 int style AppBaseTheme 0x7f0b0000
 int style AppTheme 0x7f0b0001
+int style TranslucentActionBar 0x7f0b0003
+int style TranslucentStatusBar 0x7f0b0002
 int[] styleable AdsAttrs { 0x7f010000, 0x7f010001, 0x7f010002 }
 int styleable AdsAttrs_adSize 0
 int styleable AdsAttrs_adSizes 1

@@ -21,6 +21,8 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,6 +60,18 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_recording);
 
+		if(android.os.Build.VERSION.SDK_INT >= 19){
+			Window w = getWindow();
+			w.setFlags(
+					WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
+					WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+		//	w.setFlags(
+		//			WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
+		//			WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+		} else {
+			Log.v(LOG_TAG, "Not KitKat+");
+		}
+		
 		//Location Setup
 		locationTrail = new LinkedHashMap<Long, Location>();
 		Intent intent = getIntent();
