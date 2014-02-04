@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -198,6 +199,8 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.recording, menu);
+		ActionBar actionBar = getActionBar();
+		actionBar.hide();
 		return true;
 	}
 
@@ -207,7 +210,6 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		String msg = "Updated Location: " +
 				Double.toString(location.getLatitude()) + "," +
 				Double.toString(location.getLongitude());
-		//Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
 		TextView text = (TextView) findViewById(R.id.current_location_ticker);
 		text.setText(msg);
 		Log.v(LOG_TAG, location.toString());

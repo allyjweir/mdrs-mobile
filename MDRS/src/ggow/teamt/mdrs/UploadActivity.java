@@ -1,7 +1,12 @@
 package ggow.teamt.mdrs;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -87,7 +92,13 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 			NavUtils.navigateUpFromSameTask(this);
 			return true;
 		case R.id.action_confirm:
-			upload();
+			try {
+				upload();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				Log.e(LOG_TAG,"Problem with upload method");
+			}
 			return true;
 		case R.id.action_cancel:
 			cancel();
@@ -142,20 +153,50 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		metadata.put(locations);
 	}
 
-	private void saveMetadataToDevice(){
+	private void saveMetadataToDevice() throws IOException{
 		String path = RecordingActivity.path;
 		Log.v(LOG_TAG, "current path for json is: " + path);
 		path = path.substring(0, path.length()-9);
 		Log.v(LOG_TAG,"after chopping the tail off it is: "+path);
-		try{
-			FileWriter file = new FileWriter(path + "metadata.json");
-			file.write(metadata.toString());
-			file.flush();
-			file.close();
-		} catch(IOException e) {
-			e.printStackTrace();
+		path = path + "metadata.json";
+
+		String state = android.os.Environment.getExternalStorageState();
+		if (!state.equals(android.os.Environment.MEDIA_MOUNTED)) {
+			throw new IOException("SD Card is causing issues");
 		}
-		Log.v(LOG_TAG, "Successful written metadata to storage.");
+
+		File directory = new File(path).getParentFile();
+		if(!directory.exists() && !directory.mkdirs()) {
+			throw new IOException("Path to file could not be created");
+		}
+
+		try{
+			FileWriter fw = new FileWriter(path);
+			fw.write(metadata.toString());
+			fw.close();
+		} catch (IOException ioe) {
+			Log.e(LOG_TAG, "Error saving metadata");
+			ioe.printStackTrace();
+		}
+
+		//Check to see write was successful
+		FileInputStream fIn = openFileInput(path);
+		InputStreamReader isr = new InputStreamReader(fIn);
+		char[] buffer = new char[metadata.length()];
+		isr.read(buffer);
+		String readString = new String(buffer);
+		boolean isSuccess = metadata.toString().equals(readString);
+		Log.i(LOG_TAG, "File write success = " + isSuccess);
+
+		/*		try{
+			FileOutputStream fOut= openFileOutput(path, MODE_WORLD_READABLE);
+			OutputStreamWriter osw = new OutputStreamWriter(fOut);
+			osw.write(metadata.toString());
+			osw.close();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+		Log.v(LOG_TAG, "Successful written metadata to storage.");*/
 
 	}
 	/*
@@ -165,7 +206,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	 * In a future version this will be able to automatically upload to a server but 
 	 * for now it will just be old fashioned.
 	 */
-	private void upload() {
+	private void upload() throws IOException {
 		createJSONFromLocationTrail();
 		saveMetadataToDevice();
 		uploadToServer();
@@ -177,7 +218,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 
 	private void uploadToServer() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	/*
