@@ -53,7 +53,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	public final static String AUDIO = "ggow.teamt.MDRS.audio";
 	private MediaRecorder mRecorder;
 	private String folderTime;
-	public static String path;
+	public static String AudioPath;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -98,10 +98,10 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		
 		//Audio Recording setup
 		folderTime = String.valueOf(System.currentTimeMillis());
-		path = folderTime + "/audio.3gp";
-		Log.v(LOG_TAG, "path before prep is: " + path);
-		PathPrep(path);
-		Log.v(LOG_TAG, "path after prep is: " + path);
+		AudioPath = folderTime + "/audio.3gp";
+		Log.v(LOG_TAG, "path before prep is: " + AudioPath);
+		PathPrep(AudioPath);
+		Log.v(LOG_TAG, "path after prep is: " + AudioPath);
 		try {
 			AudioRecordStart();
 		} catch (IOException e) {
@@ -110,7 +110,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	}
 	
 	public void PathPrep(String path) {
-		RecordingActivity.path = sanitisePath(path);
+		RecordingActivity.AudioPath = sanitisePath(path);
 	}
 
 	private String sanitisePath(String path) {
@@ -130,7 +130,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 			throw new IOException("SD Card is causing issues");
 		}
 		
-		File directory = new File(path).getParentFile();
+		File directory = new File(AudioPath).getParentFile();
 		if(!directory.exists() && !directory.mkdirs()) {
 			throw new IOException("Path to file could not be created");
 		}
@@ -140,7 +140,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		mRecorder.setAudioChannels(1);
 		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
 		mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-		mRecorder.setOutputFile(path);
+		mRecorder.setOutputFile(AudioPath);
 		
 		try {
 			mRecorder.prepare();

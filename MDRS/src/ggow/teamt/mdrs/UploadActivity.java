@@ -2,6 +2,7 @@ package ggow.teamt.mdrs;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -27,6 +28,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -40,6 +42,8 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 
 public class UploadActivity extends FragmentActivity implements GooglePlayServicesClient.ConnectionCallbacks,
 GooglePlayServicesClient.OnConnectionFailedListener{
@@ -49,6 +53,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	private GoogleMap mMap;
 	private LinkedHashMap<Long, Location> locationTrail;
 	private JSONArray metadata;
+	private String MetaDataPath;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -131,8 +136,10 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		//Metadata gathered from user into JSON
 		JSONObject titleObj = new JSONObject(); //Object at the start of the JSON which holds general info
 		try {
-			titleObj.put("title", R.id.name);
-			titleObj.put("description", R.id.description);
+			EditText etTitle = (EditText) findViewById(R.id.name);
+			titleObj.put("title", etTitle.getText().toString());
+			EditText etDesc = (EditText) findViewById(R.id.description);
+			titleObj.put("description", etDesc.getText().toString());
 			titleObj.put("startTime", locationTrail.entrySet().iterator().next().getKey());
 			titleObj.put("endTime", getEndTime());
 		} catch (JSONException e1) {
@@ -168,50 +175,30 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	}
 
 	private void saveMetadataToDevice() throws IOException{
-		String path = RecordingActivity.path;
-		Log.v(LOG_TAG, "current path for json is: " + path);
-		path = path.substring(0, path.length()-9);
-		Log.v(LOG_TAG,"after chopping the tail off it is: "+path);
-		path = path + "metadata.json";
+		MetaDataPath = RecordingActivity.AudioPath;
+		Log.v(LOG_TAG, "current path for json is: " + MetaDataPath);
+		MetaDataPath = MetaDataPath.substring(0, MetaDataPath.length()-9);
+		Log.v(LOG_TAG,"after chopping the tail off it is: "+ MetaDataPath);
+		MetaDataPath = MetaDataPath + "metadata.json";
 
 		String state = android.os.Environment.getExternalStorageState();
 		if (!state.equals(android.os.Environment.MEDIA_MOUNTED)) {
 			throw new IOException("SD Card is causing issues");
 		}
 
-		File directory = new File(path).getParentFile();
+		File directory = new File(MetaDataPath).getParentFile();
 		if(!directory.exists() && !directory.mkdirs()) {
 			throw new IOException("Path to file could not be created");
 		}
 
 		try{
-			FileWriter fw = new FileWriter(path);
+			FileWriter fw = new FileWriter(MetaDataPath);
 			fw.write(metadata.toString());
 			fw.close();
 		} catch (IOException ioe) {
 			Log.e(LOG_TAG, "Error saving metadata");
 			ioe.printStackTrace();
 		}
-
-		/*/Check to see write was successful
-		FileInputStream fIn = openFileInput(path);
-		InputStreamReader isr = new InputStreamReader(fIn);
-		char[] buffer = new char[metadata.length()];
-		isr.read(buffer);
-		String readString = new String(buffer);
-		boolean isSuccess = metadata.toString().equals(readString);
-		Log.i(LOG_TAG, "File write success = " + isSuccess);
-		
-		try{
-			FileOutputStream fOut= openFileOutput(path, MODE_WORLD_READABLE);
-			OutputStreamWriter osw = new OutputStreamWriter(fOut);
-			osw.write(metadata.toString());
-			osw.close();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
-		Log.v(LOG_TAG, "Successful written metadata to storage.");*/
-
 	}
 	/*
 	 * Gather together all the data that has been created and save it to a JSON ready
@@ -231,8 +218,17 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	}
 
 	private void uploadToServer() {
-		// TODO Auto-generated method stub
-
+		File audioFile = new File(RecordingActivity.AudioPath);
+		File metadataFile = new File (MetaDataPath);
+		RequestParams params = new RequestParams();
+		try {
+			params.put("audio", audioFile);
+			params.put("metadata", metadataFile);
+		} catch (FileNotFoundException e) {
+			Log.e(LOG_TAG, "Can't find a file to upload to server");
+			e.printStackTrace();
+		}
+		httpUpload.post("submit", params, new AsyncHttpResponseHandler());
 	}
 
 	/*
