@@ -83,7 +83,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		
 		//Audio Recording setup
 		folderTime = String.valueOf(System.currentTimeMillis());
-		path = "MDRS/" + folderTime + "/audio.3gp";
+		path = folderTime + "/audio.3gp";
 		Log.v(LOG_TAG, "path before prep is: " + path);
 		PathPrep(path);
 		Log.v(LOG_TAG, "path after prep is: " + path);
@@ -95,7 +95,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	}
 	
 	public void PathPrep(String path) {
-		this.path = sanitisePath(path);
+		RecordingActivity.path = sanitisePath(path);
 	}
 
 	private String sanitisePath(String path) {

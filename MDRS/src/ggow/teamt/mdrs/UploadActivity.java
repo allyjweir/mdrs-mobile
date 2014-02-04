@@ -11,10 +11,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Intent;
 import android.content.IntentSender;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
@@ -88,6 +88,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 			return true;
 		case R.id.action_confirm:
 			upload();
+			return true;
 		case R.id.action_cancel:
 			cancel();
 			return true;
@@ -97,7 +98,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	}
 
 	private void cancel() {
-		// TODO Auto-generated method stub
+		// TODO Add dialog and then send back to mapviewactivity
 
 	}
 
@@ -167,9 +168,16 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	private void upload() {
 		createJSONFromLocationTrail();
 		saveMetadataToDevice();
-
+		uploadToServer();
+		Toast.makeText(this, R.string.success, Toast.LENGTH_SHORT).show();
+		startActivity(new Intent(this, MapViewActivity.class));
 
 		//TODO HOW 
+	}
+
+	private void uploadToServer() {
+		// TODO Auto-generated method stub
+		
 	}
 
 	/*

@@ -99,6 +99,9 @@ OnMyLocationButtonClickListener{
 		case R.id.action_settings:
 			openSettings();
 			return true;
+		case R.id.action_feedback:
+			feedback();
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
@@ -136,6 +139,15 @@ OnMyLocationButtonClickListener{
 			}
 		}
 	}
+	
+	private void feedback(){
+		final Intent email = new Intent(android.content.Intent.ACTION_SEND);
+		email.setType("plain/text");
+		email.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"ally.pcgf+mdrsfeedback@gmail.com"});
+		email.putExtra(android.content.Intent.EXTRA_SUBJECT, "MDRS - Android App Feedback");
+		startActivity(email);
+		
+	}
 
 	@Override
 	public boolean onMyLocationButtonClick() {
@@ -154,8 +166,8 @@ OnMyLocationButtonClickListener{
 	@Override
 	public void onConnected(Bundle connectionHint) {
 		Toast.makeText(this, "Waiting for location...", Toast.LENGTH_SHORT).show();
-			mCurrentLocation = mLocationClient.getLastLocation();
-			zoomInOnStart(mCurrentLocation);
+		mCurrentLocation = mLocationClient.getLastLocation();
+		zoomInOnStart(mCurrentLocation);
 	}
 
 	private void zoomInOnStart(Location start){
@@ -306,7 +318,7 @@ OnMyLocationButtonClickListener{
 				@Override
 				public void onClick(DialogInterface paramDialogInterface, int paramInt) {
 					// TODO Auto-generated method stub
-					Intent myIntent = new Intent( Settings.ACTION_SECURITY_SETTINGS );
+					Intent myIntent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS );
 					context.startActivity(myIntent);
 					//get gps
 				}

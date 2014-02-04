@@ -1,6 +1,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
+        android:id="@+id/action_feedback"
+        android:icon="@drawable/ic_action_new_email"
+        android:title="@string/feedback_long"
+        android:titleCondensed="@string/feedback"
+        android:visible="true"
+        android:showAsAction="ifRoom"/>
+    <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:showAsAction="never"
