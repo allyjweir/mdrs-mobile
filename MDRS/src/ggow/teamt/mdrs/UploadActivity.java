@@ -1,13 +1,9 @@
 package ggow.teamt.mdrs;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -26,8 +22,6 @@ import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -210,11 +204,9 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	private void upload() throws IOException {
 		createJSONFromLocationTrail();
 		saveMetadataToDevice();
-		uploadToServer();
+		//uploadToServer();
 		Toast.makeText(this, R.string.success, Toast.LENGTH_SHORT).show();
 		startActivity(new Intent(this, MapViewActivity.class));
-
-		//TODO HOW 
 	}
 
 	private void uploadToServer() {
