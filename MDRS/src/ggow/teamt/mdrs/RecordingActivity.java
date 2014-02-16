@@ -137,10 +137,12 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		
 		mRecorder = new MediaRecorder();
 		mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-		mRecorder.setAudioChannels(1);
 		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-		mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+		mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+		//mRecorder.setAudioEncodingBitRate(16);  //TODO Enable these if want to improve
+		//mRecorder.setAudioSamplingRate(44100);  //audio quality
 		mRecorder.setOutputFile(AudioPath);
+		//TODO add in higher sampling and encoding rates
 		
 		try {
 			mRecorder.prepare();

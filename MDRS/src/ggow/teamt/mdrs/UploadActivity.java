@@ -198,13 +198,14 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	 * Gather together all the data that has been created and save it to a JSON ready
 	 * for uploading when connecting to a computer.
 	 * 
-	 * In a future version this will be able to automatically upload to a server but 
+	 * In a future version this will be able to automatically upload to a 
+	 * server but 
 	 * for now it will just be old fashioned.
 	 */
 	private void upload() throws IOException {
 		createJSONFromLocationTrail();
 		saveMetadataToDevice();
-		//uploadToServer();
+		uploadToServer();
 		Toast.makeText(this, R.string.success, Toast.LENGTH_SHORT).show();
 		startActivity(new Intent(this, MapViewActivity.class));
 	}
@@ -220,7 +221,9 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 			Log.e(LOG_TAG, "Can't find a file to upload to server");
 			e.printStackTrace();
 		}
-		httpUpload.post("submit", params, new AsyncHttpResponseHandler());
+		httpUpload.post("mobile_upload", params, new AsyncHttpResponseHandler());
+		//TODO Need some form of error checking in this. How do we know it has 
+		//been successful? Also need to make it work in the background
 	}
 
 	/*

@@ -60,13 +60,13 @@ OnMyLocationButtonClickListener{
 			w.setFlags(
 					WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
 					WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-		//	w.setFlags(
-		//			WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
-		//			WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+			//	w.setFlags(
+			//			WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
+			//			WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 		} else {
 			Log.v(LOG_TAG, "Not KitKat+");
 		}
-		
+
 		setUpMapIfNeeded();
 		isLocationEnabled(this);
 		mLocationClient = new LocationClient(this, this, this);
@@ -146,7 +146,7 @@ OnMyLocationButtonClickListener{
 					.getMap();
 			mMap.setMyLocationEnabled(true);
 			mMap.getUiSettings().setCompassEnabled(false);
-			mMap.getUiSettings().setMyLocationButtonEnabled(false);
+			mMap.getUiSettings().setMyLocationButtonEnabled(true);
 			mMap.getUiSettings().setZoomControlsEnabled(false);
 			// Check if we were successful in obtaining the map.
 			if (mMap != null) {
@@ -182,7 +182,9 @@ OnMyLocationButtonClickListener{
 	public void onConnected(Bundle connectionHint) {
 		Toast.makeText(this, "Waiting for location...", Toast.LENGTH_SHORT).show();
 		mCurrentLocation = mLocationClient.getLastLocation();
-		zoomInOnStart(mCurrentLocation);
+		if (!mCurrentLocation.equals(null)){ 
+			zoomInOnStart(mCurrentLocation);
+		}
 	}
 
 	private void zoomInOnStart(Location start){
