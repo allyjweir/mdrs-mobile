@@ -55,8 +55,8 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		setContentView(R.layout.activity_upload);
 		// Show the Up button in the action bar.
 		setupActionBar();
-		
-	/*	if(android.os.Build.VERSION.SDK_INT >= 19){
+
+		/*	if(android.os.Build.VERSION.SDK_INT >= 19){
 			Window w = getWindow();
 			w.setFlags(
 					WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
@@ -169,7 +169,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	}
 
 	private void saveMetadataToDevice() throws IOException{
-		MetaDataPath = backgroundAudioRecording.AudioPath;
+		MetaDataPath = AudioRecordingService.AudioPath;
 		Log.v(LOG_TAG, "current path for json is: " + MetaDataPath);
 		MetaDataPath = MetaDataPath.substring(0, MetaDataPath.length()-9);
 		Log.v(LOG_TAG,"after chopping the tail off it is: "+ MetaDataPath);
@@ -211,7 +211,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	}
 
 	private void uploadToServer() {
-		File audioFile = new File(backgroundAudioRecording.AudioPath);
+		File audioFile = new File(AudioRecordingService.AudioPath);
 		File metadataFile = new File (MetaDataPath);
 		RequestParams params = new RequestParams();
 		try {

@@ -1,5 +1,6 @@
 package ggow.teamt.mdrs;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 
 import android.app.ActionBar;
@@ -97,9 +98,8 @@ LocationListener {
 		mLocationClient = new LocationClient(this, this, this);
 		// Start with updates turned off
 		mUpdatesRequested = true;
-		
-		//Audio recording stuff
-		startService(new Intent(this, backgroundAudioRecording.class));
+
+		startService(new Intent(this, AudioRecordingService.class));
 	}
 
 	@Override
@@ -187,11 +187,10 @@ LocationListener {
 		//mRecorder.stop();
 		//mRecorder.release();
 		//mRecorder=null;
-		stopService(new Intent(this, backgroundAudioRecording.class));
-		Intent intent = new Intent(this, UploadActivity.class);
+		stopService(new Intent(this, AudioRecordingService.class));
 		//intent.putExtra(TRAIL, locationTrail);
 		//intent.putExtra(AUDIO, path);  //This may be incorrect
-		startActivity(intent);
+		startActivity(new Intent(this, UploadActivity.class));
 	}
 
 	/*
