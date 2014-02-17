@@ -7,22 +7,18 @@ import java.util.LinkedHashMap;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.location.Location;
-import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.IBinder;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
-import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -40,8 +36,6 @@ public class RecordingActivity extends FragmentActivity implements
 GooglePlayServicesClient.ConnectionCallbacks,
 GooglePlayServicesClient.OnConnectionFailedListener, 
 LocationListener {
-
-	private Class audioRecording;
 
 	private static final String LOG_TAG = "MDRS - RecordingActivity";
 	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
@@ -62,91 +56,9 @@ LocationListener {
 	public final static String TRAIL = "ggow.teamt.MDRS.trail";
 	public final static String AUDIO = "ggow.teamt.MDRS.audio";
 
-	//Old Audio Stuff
-	//private MediaRecorder mRecorder;  //NOTE: Moved to new private audioRecording Class to support background recording
-	//private String folderTime;
-	//public static String AudioPath;
+	//audio path stuff
+	public static String AudioPath; 
 
-
-	private class audioRecording extends Service implements SurfaceHolder.Callback {
-
-		private MediaRecorder mRecorder;
-		private String folderTime;
-		public String AudioPath;
-
-		public void onCreate(Bundle savedInstanceState){
-			//Audio Recording setup
-			folderTime = String.valueOf(System.currentTimeMillis());
-			AudioPath = folderTime + "/audio.3gp";
-			Log.v(LOG_TAG, "path before prep is: " + AudioPath);
-			PathPrep(AudioPath);
-			Log.v(LOG_TAG, "path after prep is: " + AudioPath);
-			try {
-				AudioRecordStart();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
-
-		public void PathPrep(String path) {
-			RecordingActivity.AudioPath = sanitisePath(path);
-		}
-
-		private String sanitisePath(String path) {
-			if(!path.startsWith("/")){
-				path = "/" + path;
-			}
-			if (!path.contains(".")) {
-				path += ".3gp";
-			}
-			return Environment.getExternalStorageDirectory().getAbsolutePath() + path;
-		}
-
-
-		public void AudioRecordStart() throws IOException {
-			String state = android.os.Environment.getExternalStorageState();
-			if (!state.equals(android.os.Environment.MEDIA_MOUNTED)) {
-				throw new IOException("SD Card is causing issues");
-			}
-
-			File directory = new File(AudioPath).getParentFile();
-			if(!directory.exists() && !directory.mkdirs()) {
-				throw new IOException("Path to file could not be created");
-			}
-
-			mRecorder = new MediaRecorder();
-			mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-			mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-			mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-			//mRecorder.setAudioEncodingBitRate(16);  //TODO Enable these if want to improve
-			//mRecorder.setAudioSamplingRate(44100);  //audio quality
-			mRecorder.setOutputFile(AudioPath);
-			//TODO add in higher sampling and encoding rates
-
-			try {
-				mRecorder.prepare();
-			} catch (IOException e) {
-				Log.e(LOG_TAG, "prepare() for recording failed");
-			}
-			mRecorder.start();
-		}
-
-
-		@Override
-		public IBinder onBind(Intent intent) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-	}
-
-
-
-
-
-
-
-	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_recording);
@@ -173,6 +85,7 @@ LocationListener {
 		mLocationRequest.setInterval(UPDATE_INTERVAL);
 		mLocationRequest.setFastestInterval(FASTEST_INTERVAL_IN_SECONDS);
 
+
 		// Open the shared preferences
 		mPrefs = getSharedPreferences("SharedPreferences",
 				Context.MODE_PRIVATE);
@@ -185,9 +98,53 @@ LocationListener {
 		mLocationClient = new LocationClient(this, this, this);
 		// Start with updates turned off
 		mUpdatesRequested = true;
+
+		//Audio recording service start
+		Intent audioServiceIntent = new Intent(this, RecordingService.class);
+		try {
+			createAudioPath();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		audioServiceIntent.putExtra(getAudioPath(), true);
+		startService(audioServiceIntent);
 	}
 
+	private void createAudioPath() throws IOException {
+		AudioPath = String.valueOf(System.currentTimeMillis()) + "/audio.3gp";
+		sanitisePath(AudioPath);
+		Log.v(LOG_TAG,"Audio Path is" + AudioPath);
+		if (checkDirectory()){
+			Log.v(LOG_TAG,"Directories checked. All good");
+		}
+	}
 
+	public static String getAudioPath() {
+		return AudioPath;
+	}
+
+	private String sanitisePath(String path) {
+		if(!path.startsWith("/")){
+			path = "/" + path;
+		}
+		if (!path.contains(".")) {
+			path += ".3gp";
+		}
+		return Environment.getExternalStorageDirectory().getAbsolutePath() + path;
+	}
+
+	public boolean checkDirectory() throws IOException {
+		String state = android.os.Environment.getExternalStorageState();
+		if (!state.equals(android.os.Environment.MEDIA_MOUNTED)) {
+			throw new IOException("SD Card is causing issues");
+		}
+
+		File directory = new File(AudioPath).getParentFile();
+		if(!directory.exists() && !directory.mkdirs()) {
+			throw new IOException("Path to file could not be created");
+		}
+		return true;
+	}
 
 	@Override
 	protected void onStart() {
@@ -248,14 +205,14 @@ LocationListener {
 		super.onStop();
 	}
 
-	@Override
+/*	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.recording, menu);
 		ActionBar actionBar = getActionBar();
 		actionBar.hide();
 		return true;
-	}
+	}*/
 
 	// Define the callback method that receives location updates
 	public void onLocationChanged(Location location) {
@@ -270,13 +227,8 @@ LocationListener {
 	}
 
 	public void stopRecording(View view){
-		mRecorder.stop();
-		mRecorder.release();
-		mRecorder=null;
-		Intent intent = new Intent(this, UploadActivity.class);
-		//intent.putExtra(TRAIL, locationTrail);
-		//intent.putExtra(AUDIO, path);  //This may be incorrect
-		startActivity(intent);
+		stopService(new Intent(this, RecordingService.class));
+		startActivity(new Intent(this, UploadActivity.class));
 	}
 
 	/*
@@ -293,6 +245,7 @@ LocationListener {
 		locationTrail.put(startLocation.getTime(), startLocation);
 		mLocationClient.requestLocationUpdates(mLocationRequest, this);
 	}
+	
 	/*
 	 * Called by Location Services if the connection to the
 	 * location client drops because of an error.
@@ -307,6 +260,7 @@ LocationListener {
 	 * Called by Location Services if the attempt to
 	 * Location Services fails.
 	 */
+
 	@Override
 	public void onConnectionFailed(ConnectionResult connectionResult) {
 		/*
@@ -362,6 +316,7 @@ LocationListener {
 	 * Handle results returned to the FragmentActivity
 	 * by Google Play services
 	 */
+
 	@Override
 	protected void onActivityResult(
 			int requestCode, int resultCode, Intent data) {
@@ -381,6 +336,7 @@ LocationListener {
 			}
 		}
 	}
+
 	@SuppressWarnings("unused")
 	private boolean servicesConnected() {
 		// Check that Google Play services is available
@@ -416,23 +372,5 @@ LocationListener {
 			}
 			return false;
 		}
-	}
-
-	@Override
-	public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2, int arg3) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void surfaceCreated(SurfaceHolder arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void surfaceDestroyed(SurfaceHolder arg0) {
-		// TODO Auto-generated method stub
-
 	}
 }

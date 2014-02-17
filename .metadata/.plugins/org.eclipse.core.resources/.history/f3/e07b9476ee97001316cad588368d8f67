@@ -7,22 +7,18 @@ import java.util.LinkedHashMap;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.location.Location;
-import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.IBinder;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
-import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -41,15 +37,13 @@ GooglePlayServicesClient.ConnectionCallbacks,
 GooglePlayServicesClient.OnConnectionFailedListener, 
 LocationListener {
 
-	private Class audioRecording;
-
 	private static final String LOG_TAG = "MDRS - RecordingActivity";
 	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 	private static final int MILLISECONDS_PER_SECOND = 1000;
 	public static final int UPDATE_INTERVAL_IN_SECONDS = 5;
 	private static final long UPDATE_INTERVAL =	MILLISECONDS_PER_SECOND * UPDATE_INTERVAL_IN_SECONDS;
 	private static final int FASTEST_INTERVAL_IN_SECONDS = 1;
-	
+
 	//Location stuff
 	private LocationRequest mLocationRequest;
 	private LocationClient mLocationClient;
@@ -57,17 +51,14 @@ LocationListener {
 	private Editor mEditor;
 	private SharedPreferences mPrefs;
 	public static LinkedHashMap<Long, Location> locationTrail;
-	
+
 	//Intent stuff
 	public final static String TRAIL = "ggow.teamt.MDRS.trail";
 	public final static String AUDIO = "ggow.teamt.MDRS.audio";
-	
-	//Old Audio Stuff
-	//private MediaRecorder mRecorder;  //NOTE: Moved to new private audioRecording Class to support background recording
-	//private String folderTime;
-	//public static String AudioPath;
 
-	@Override
+	//audio path stuff
+	public static String AudioPath; 
+
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_recording);
@@ -94,6 +85,7 @@ LocationListener {
 		mLocationRequest.setInterval(UPDATE_INTERVAL);
 		mLocationRequest.setFastestInterval(FASTEST_INTERVAL_IN_SECONDS);
 
+
 		// Open the shared preferences
 		mPrefs = getSharedPreferences("SharedPreferences",
 				Context.MODE_PRIVATE);
@@ -106,9 +98,48 @@ LocationListener {
 		mLocationClient = new LocationClient(this, this, this);
 		// Start with updates turned off
 		mUpdatesRequested = true;
+
+		Intent audioServiceIntent = new Intent(this, RecordingService.class);
+		createAudioPath();
+		audioServiceIntent.putExtra(getAudioPath().toString());
+		startService(audioServiceIntent);
 	}
 
+	private void createAudioPath() throws IOException {
+		AudioPath = String.valueOf(System.currentTimeMillis()) + "/audio.3gp";
+		sanitisePath(AudioPath);
+		Log.v(LOG_TAG,"Audio Path is" + AudioPath);
+		if (checkDirectory()){
+			Log.v(LOG_TAG,"Directories checked. All good");
+		}
+	}
 
+	public static String getAudioPath() {
+		return AudioPath;
+	}
+
+	private String sanitisePath(String path) {
+		if(!path.startsWith("/")){
+			path = "/" + path;
+		}
+		if (!path.contains(".")) {
+			path += ".3gp";
+		}
+		return Environment.getExternalStorageDirectory().getAbsolutePath() + path;
+	}
+
+	public boolean checkDirectory() throws IOException {
+		String state = android.os.Environment.getExternalStorageState();
+		if (!state.equals(android.os.Environment.MEDIA_MOUNTED)) {
+			throw new IOException("SD Card is causing issues");
+		}
+
+		File directory = new File(AudioPath).getParentFile();
+		if(!directory.exists() && !directory.mkdirs()) {
+			throw new IOException("Path to file could not be created");
+		}
+		return true;
+	}
 
 	@Override
 	protected void onStart() {
@@ -191,13 +222,8 @@ LocationListener {
 	}
 
 	public void stopRecording(View view){
-		mRecorder.stop();
-		mRecorder.release();
-		mRecorder=null;
-		Intent intent = new Intent(this, UploadActivity.class);
-		//intent.putExtra(TRAIL, locationTrail);
-		//intent.putExtra(AUDIO, path);  //This may be incorrect
-		startActivity(intent);
+		stopService(new Intent(this, RecordingService.class));
+		startActivity(new Intent(this, UploadActivity.class));
 	}
 
 	/*
@@ -218,6 +244,7 @@ LocationListener {
 	 * Called by Location Services if the connection to the
 	 * location client drops because of an error.
 	 */
+
 	@Override
 	public void onDisconnected() {
 		// Display the connection status
@@ -228,6 +255,7 @@ LocationListener {
 	 * Called by Location Services if the attempt to
 	 * Location Services fails.
 	 */
+
 	@Override
 	public void onConnectionFailed(ConnectionResult connectionResult) {
 		/*
@@ -283,6 +311,7 @@ LocationListener {
 	 * Handle results returned to the FragmentActivity
 	 * by Google Play services
 	 */
+
 	@Override
 	protected void onActivityResult(
 			int requestCode, int resultCode, Intent data) {
@@ -302,6 +331,7 @@ LocationListener {
 			}
 		}
 	}
+
 	@SuppressWarnings("unused")
 	private boolean servicesConnected() {
 		// Check that Google Play services is available
@@ -337,23 +367,5 @@ LocationListener {
 			}
 			return false;
 		}
-	}
-
-	@Override
-	public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2, int arg3) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void surfaceCreated(SurfaceHolder arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void surfaceDestroyed(SurfaceHolder arg0) {
-		// TODO Auto-generated method stub
-
 	}
 }

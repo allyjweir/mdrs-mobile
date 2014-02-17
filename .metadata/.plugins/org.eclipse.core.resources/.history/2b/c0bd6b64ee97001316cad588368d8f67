@@ -174,7 +174,6 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		MetaDataPath = MetaDataPath.substring(0, MetaDataPath.length()-9);
 		Log.v(LOG_TAG,"after chopping the tail off it is: "+ MetaDataPath);
 		MetaDataPath = MetaDataPath + "metadata.json";
-		Log.v(LOG_TAG,"now with the new one on it is: " + MetaDataPath);
 
 		String state = android.os.Environment.getExternalStorageState();
 		if (!state.equals(android.os.Environment.MEDIA_MOUNTED)) {
@@ -206,13 +205,13 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	private void upload() throws IOException {
 		createJSONFromLocationTrail();
 		saveMetadataToDevice();
-		//uploadToServer();
+		uploadToServer();
 		Toast.makeText(this, R.string.success, Toast.LENGTH_SHORT).show();
 		startActivity(new Intent(this, MapViewActivity.class));
 	}
 
 	private void uploadToServer() {
-		File audioFile = new File(RecordingActivity.getAudioPath());
+		File audioFile = new File(AudioRecordingService.AudioPath);
 		File metadataFile = new File (MetaDataPath);
 		RequestParams params = new RequestParams();
 		try {

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -18,7 +17,6 @@ import android.os.Environment;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -99,9 +97,14 @@ LocationListener {
 		// Start with updates turned off
 		mUpdatesRequested = true;
 
+		//Audio recording service start
 		Intent audioServiceIntent = new Intent(this, RecordingService.class);
-		createAudioPath();
-		audioServiceIntent.putExtra(getAudioPath());
+		try {
+			createAudioPath();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		audioServiceIntent.putExtra(getAudioPath(), true);
 		startService(audioServiceIntent);
 	}
 
@@ -200,14 +203,14 @@ LocationListener {
 		super.onStop();
 	}
 
-	@Override
+/*	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.recording, menu);
 		ActionBar actionBar = getActionBar();
 		actionBar.hide();
 		return true;
-	}
+	}*/
 
 	// Define the callback method that receives location updates
 	public void onLocationChanged(Location location) {
@@ -240,11 +243,11 @@ LocationListener {
 		locationTrail.put(startLocation.getTime(), startLocation);
 		mLocationClient.requestLocationUpdates(mLocationRequest, this);
 	}
+	
 	/*
 	 * Called by Location Services if the connection to the
 	 * location client drops because of an error.
 	 */
-
 	@Override
 	public void onDisconnected() {
 		// Display the connection status
