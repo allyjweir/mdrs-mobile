@@ -54,6 +54,11 @@ LocationListener {
 	public final static String TRAIL = "ggow.teamt.MDRS.trail";
 	public final static String AUDIO = "ggow.teamt.MDRS.audio";
 
+	//Old Audio Stuff
+	//private MediaRecorder mRecorder;  //NOTE: Moved to new private audioRecording Class to support background recording
+	//private String folderTime;
+	//public static String AudioPath;
+
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_recording);
@@ -177,8 +182,14 @@ LocationListener {
 		locationTrail.put(location.getTime(), location);
 	}
 
+	//TODO fix with new private class changes
 	public void stopRecording(View view){
+		//mRecorder.stop();
+		//mRecorder.release();
+		//mRecorder=null;
 		stopService(new Intent(this, AudioRecordingService.class));
+		//intent.putExtra(TRAIL, locationTrail);
+		//intent.putExtra(AUDIO, path);  //This may be incorrect
 		startActivity(new Intent(this, UploadActivity.class));
 	}
 
