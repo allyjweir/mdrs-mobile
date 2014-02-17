@@ -203,14 +203,14 @@ LocationListener {
 		super.onStop();
 	}
 
-	@Override
+/*	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.recording, menu);
 		ActionBar actionBar = getActionBar();
 		actionBar.hide();
 		return true;
-	}
+	}*/
 
 	// Define the callback method that receives location updates
 	public void onLocationChanged(Location location) {
