@@ -222,6 +222,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 			e.printStackTrace();
 		}
 		httpUpload.post("mobile_upload", params, new AsyncHttpResponseHandler());
+		Log.v(LOG_TAG, "Hopefully this should httpUpload");
 		//TODO Need some form of error checking in this. How do we know it has 
 		//been successful? Also need to make it work in the background
 	}

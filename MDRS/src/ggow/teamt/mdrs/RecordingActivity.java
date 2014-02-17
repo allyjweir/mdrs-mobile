@@ -1,6 +1,8 @@
 package ggow.teamt.mdrs;
 //Hey
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 
@@ -12,17 +14,25 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageManager;
+import android.hardware.Camera;
+import android.hardware.Camera.PictureCallback;
 import android.location.Location;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore.Files.FileColumns;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,7 +64,33 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	private MediaRecorder mRecorder;
 	private String folderTime;
 	public static String AudioPath;
-	
+
+	private Camera mCamera;
+	private CameraPreview mPreview;
+	public static final int MEDIA_TYPE_IMAGE = 1;
+	private PictureCallback mPicture = new PictureCallback() {
+		@Override
+		public void onPictureTaken(byte[] data, Camera camera) {
+
+	        File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+			if (pictureFile == null){
+				Log.d(LOG_TAG, "Error creating media file, check storage permissions: " +
+						e.getMessage());
+				return;
+			}
+
+			try {
+				FileOutputStream fos = new FileOutputStream(pictureFile);
+				fos.write(data);
+				fos.close();
+			} catch (FileNotFoundException e) {
+				Log.d(LOG_TAG, "File not found: " + e.getMessage());
+			} catch (IOException e) {
+				Log.d(LOG_TAG, "Error accessing file: " + e.getMessage());
+			}
+		}
+	};
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -65,13 +101,13 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 			w.setFlags(
 					WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
 					WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-		//	w.setFlags(
-		//			WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
-		//			WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+			//	w.setFlags(
+			//			WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
+			//			WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 		} else {
 			Log.v(LOG_TAG, "Not KitKat+");
 		}
-		
+
 		//Location Setup
 		locationTrail = new LinkedHashMap<Long, Location>();
 		Intent intent = getIntent();
@@ -81,7 +117,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 		mLocationRequest.setInterval(UPDATE_INTERVAL);
 		mLocationRequest.setFastestInterval(FASTEST_INTERVAL_IN_SECONDS);
-		
+
 		// Open the shared preferences
 		mPrefs = getSharedPreferences("SharedPreferences",
 				Context.MODE_PRIVATE);
@@ -95,7 +131,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		// Start with updates turned off
 		mUpdatesRequested = true;
 
-		
+
 		//Audio Recording setup
 		folderTime = String.valueOf(System.currentTimeMillis());
 		AudioPath = folderTime + "/audio.3gp";
@@ -107,10 +143,27 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+		//Camera Stuff
+		mCamera = getCameraInstance();
+		mPreview = new CameraPreview(this, mCamera);
+		FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+		preview.addView(mPreview);
+		// Add a listener to the Capture button
+		Button captureButton = (Button) findViewById(R.id.button_capture);
+		captureButton.setOnClickListener(
+				new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						// get an image from the camera
+						mCamera.takePicture(null, null, mPicture);
+					}
+				}
+				);
 	}
-	
+
 	public void PathPrep(String path) {
-		RecordingActivity.AudioPath = sanitisePath(path);
+		AudioPath = sanitisePath(path);
 	}
 
 	private String sanitisePath(String path) {
@@ -121,29 +174,26 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 			path += ".3gp";
 		}
 		return Environment.getExternalStorageDirectory().getAbsolutePath() + path;
-	}
-	
+	}	
 
 	public void AudioRecordStart() throws IOException {
 		String state = android.os.Environment.getExternalStorageState();
 		if (!state.equals(android.os.Environment.MEDIA_MOUNTED)) {
 			throw new IOException("SD Card is causing issues");
 		}
-		
+
 		File directory = new File(AudioPath).getParentFile();
 		if(!directory.exists() && !directory.mkdirs()) {
 			throw new IOException("Path to file could not be created");
 		}
-		
+
 		mRecorder = new MediaRecorder();
 		mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
 		mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
 		//mRecorder.setAudioEncodingBitRate(16);  //TODO Enable these if want to improve
 		//mRecorder.setAudioSamplingRate(44100);  //audio quality
-		mRecorder.setOutputFile(AudioPath);
-		//TODO add in higher sampling and encoding rates
-		
+		mRecorder.setOutputFile(AudioPath);		
 		try {
 			mRecorder.prepare();
 		} catch (IOException e) {
@@ -167,8 +217,10 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		mEditor.putBoolean("KEY_UPDATES_ON", mUpdatesRequested);
 		mEditor.commit();
 		super.onPause();
+		releaseCamera();              // release the camera immediately on pause event
+
 	}
-	
+
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -221,6 +273,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	}
 
 	// Define the callback method that receives location updates
+	@Override
 	public void onLocationChanged(Location location) {
 		// Report to the UI that the location was updated
 		String msg = "Updated Location: " +
@@ -241,7 +294,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		//intent.putExtra(AUDIO, path);  //This may be incorrect
 		startActivity(intent);
 	}
-	
+
 	/*
 	 * Called by Location Services when the request to connect the
 	 * client finishes successfully. At this point, you can
@@ -266,6 +319,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		Toast.makeText(this, "Disconnected. Please re-connect.",
 				Toast.LENGTH_SHORT).show();
 	}
+
 	/*
 	 * Called by Location Services if the attempt to
 	 * Location Services fails.
@@ -321,6 +375,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 			return mDialog;
 		}
 	}
+
 	/*
 	 * Handle results returned to the FragmentActivity
 	 * by Google Play services
@@ -344,6 +399,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 			}
 		}
 	}
+
 	@SuppressWarnings("unused")
 	private boolean servicesConnected() {
 		// Check that Google Play services is available
@@ -378,6 +434,104 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 						"Location Updates");
 			}
 			return false;
+		}
+	}
+
+
+	/** Check if this device has a camera */
+	private boolean checkCameraHardware(Context context) {
+		if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)){
+			// this device has a camera
+			return true;
+		} else {
+			// no camera on this device
+			return false;
+		}
+	}
+
+	private void releaseCamera(){
+		if (mCamera != null){
+			mCamera.release();        // release the camera for other applications
+			mCamera = null;
+		}
+	}
+
+	/** A safe way to get an instance of the Camera object. */
+	public static Camera getCameraInstance(){
+		Camera c = null;
+		try {
+			c = Camera.open(); // attempt to get a Camera instance
+		}
+		catch (Exception e){
+			// Camera is not available (in use or does not exist)
+		}
+		return c; // returns null if camera is unavailable
+	}
+
+
+
+	/** A basic Camera preview class */
+	public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
+		private SurfaceHolder mHolder;
+		private Camera mCamera;
+		private static final String LOG_TAG = "MDRS - Camera Preview Class";
+
+		public CameraPreview(Context context, Camera camera) {
+			super(context);
+			mCamera = camera;
+
+			// Install a SurfaceHolder.Callback so we get notified when the
+			// underlying surface is created and destroyed.
+			mHolder = getHolder();
+			mHolder.addCallback(this);
+			// deprecated setting, but required on Android versions prior to 3.0
+			mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+		}
+
+		@Override
+		public void surfaceCreated(SurfaceHolder holder) {
+			// The Surface has been created, now tell the camera where to draw the preview.
+			try {
+				mCamera.setPreviewDisplay(holder);
+				mCamera.startPreview();
+			} catch (IOException e) {
+				Log.d(LOG_TAG, "Error setting camera preview: " + e.getMessage());
+			}
+		}
+
+		@Override
+		public void surfaceDestroyed(SurfaceHolder holder) {
+			// empty. Take care of releasing the Camera preview in your activity.
+		}
+
+		@Override
+		public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
+			// If your preview can change or rotate, take care of those events here.
+			// Make sure to stop the preview before resizing or reformatting it.
+
+			if (mHolder.getSurface() == null){
+				// preview surface does not exist
+				return;
+			}
+
+			// stop preview before making changes
+			try {
+				mCamera.stopPreview();
+			} catch (Exception e){
+				// ignore: tried to stop a non-existent preview
+			}
+
+			// set preview size and make any resize, rotate or
+			// reformatting changes here
+
+			// start preview with new settings
+			try {
+				mCamera.setPreviewDisplay(mHolder);
+				mCamera.startPreview();
+
+			} catch (Exception e){
+				Log.d(LOG_TAG, "Error starting camera preview: " + e.getMessage());
+			}
 		}
 	}
 }
