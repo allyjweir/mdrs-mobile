@@ -1,7 +1,5 @@
 package ggow.teamt.mdrs;
 
-import java.io.IOException;
-
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -14,7 +12,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
-import android.util.Log;
 import android.widget.Toast;
 
 public class RecordingService extends Service {
@@ -23,6 +20,8 @@ public class RecordingService extends Service {
 	private ServiceHandler mServiceHandler;
 
 	private static MediaRecorder mRecorder;
+	private static String folderTime;
+	public static String AudioPath;
 	private static final String LOG_TAG = "MDRS - Recording Service";
 
 
@@ -70,26 +69,7 @@ public class RecordingService extends Service {
 		//TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
 		//stackBuilder.addParentStack(arg0) TODO don't know what to put here
 
-		//Audio recording starting
-		startAudioRecording();
 		return START_STICKY;
-	}
-
-	private void startAudioRecording() {
-		mRecorder = new MediaRecorder();
-		mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-		mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-		mRecorder.setOutputFile(RecordingActivity.getAudioPath());
-		//.setAudioEncodingBitRate(16);  //TODO Enable these if want to improve
-		//.setAudioSamplingRate(44100);  //audio quality
-
-		try {
-			mRecorder.prepare();
-		} catch (IOException e) {
-			Log.e(LOG_TAG, "prepare() for recording failed");
-		}
-		mRecorder.start();
 	}
 
 	@Override

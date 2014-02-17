@@ -101,7 +101,7 @@ LocationListener {
 
 		Intent audioServiceIntent = new Intent(this, RecordingService.class);
 		createAudioPath();
-		audioServiceIntent.putExtra(getAudioPath());
+		audioServiceIntent.putExtras(getAudioPath());
 		startService(audioServiceIntent);
 	}
 

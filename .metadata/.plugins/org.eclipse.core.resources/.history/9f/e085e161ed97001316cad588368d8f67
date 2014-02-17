@@ -140,7 +140,7 @@ LocationListener {
 		}
 		return true;
 	}
-
+	
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -222,7 +222,7 @@ LocationListener {
 	}
 
 	public void stopRecording(View view){
-		stopService(new Intent(this, RecordingService.class));
+		stopService(new Intent(this, AudioRecordingService.class));
 		startActivity(new Intent(this, UploadActivity.class));
 	}
 
