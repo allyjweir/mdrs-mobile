@@ -169,7 +169,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	}
 
 	private void saveMetadataToDevice() throws IOException{
-		MetaDataPath = RecordingActivity.AudioPath;
+		MetaDataPath = backgroundAudioRecording.AudioPath;
 		Log.v(LOG_TAG, "current path for json is: " + MetaDataPath);
 		MetaDataPath = MetaDataPath.substring(0, MetaDataPath.length()-9);
 		Log.v(LOG_TAG,"after chopping the tail off it is: "+ MetaDataPath);
@@ -211,7 +211,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	}
 
 	private void uploadToServer() {
-		File audioFile = new File(RecordingActivity.AudioPath);
+		File audioFile = new File(backgroundAudioRecording.AudioPath);
 		File metadataFile = new File (MetaDataPath);
 		RequestParams params = new RequestParams();
 		try {

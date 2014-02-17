@@ -1,7 +1,5 @@
 package ggow.teamt.mdrs;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.LinkedHashMap;
 
 import android.app.ActionBar;
@@ -13,9 +11,7 @@ import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.location.Location;
-import android.media.MediaRecorder;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -35,7 +31,8 @@ import com.google.android.gms.location.LocationRequest;
 
 public class RecordingActivity extends FragmentActivity implements
 GooglePlayServicesClient.ConnectionCallbacks,
-GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
+GooglePlayServicesClient.OnConnectionFailedListener, 
+LocationListener {
 
 	private static final String LOG_TAG = "MDRS - RecordingActivity";
 	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
@@ -43,19 +40,24 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	public static final int UPDATE_INTERVAL_IN_SECONDS = 5;
 	private static final long UPDATE_INTERVAL =	MILLISECONDS_PER_SECOND * UPDATE_INTERVAL_IN_SECONDS;
 	private static final int FASTEST_INTERVAL_IN_SECONDS = 1;
+
+	//Location stuff
 	private LocationRequest mLocationRequest;
 	private LocationClient mLocationClient;
 	private boolean mUpdatesRequested;
 	private Editor mEditor;
 	private SharedPreferences mPrefs;
 	public static LinkedHashMap<Long, Location> locationTrail;
+
+	//Intent stuff
 	public final static String TRAIL = "ggow.teamt.MDRS.trail";
 	public final static String AUDIO = "ggow.teamt.MDRS.audio";
-	private MediaRecorder mRecorder;
-	private String folderTime;
-	public static String AudioPath;
-	
-	@Override
+
+	//Old Audio Stuff
+	//private MediaRecorder mRecorder;  //NOTE: Moved to new private audioRecording Class to support background recording
+	//private String folderTime;
+	//public static String AudioPath;
+
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_recording);
@@ -65,13 +67,13 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 			w.setFlags(
 					WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
 					WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-		//	w.setFlags(
-		//			WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
-		//			WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+			//	w.setFlags(
+			//			WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
+			//			WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 		} else {
 			Log.v(LOG_TAG, "Not KitKat+");
 		}
-		
+
 		//Location Setup
 		locationTrail = new LinkedHashMap<Long, Location>();
 		Intent intent = getIntent();
@@ -81,7 +83,8 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 		mLocationRequest.setInterval(UPDATE_INTERVAL);
 		mLocationRequest.setFastestInterval(FASTEST_INTERVAL_IN_SECONDS);
-		
+
+
 		// Open the shared preferences
 		mPrefs = getSharedPreferences("SharedPreferences",
 				Context.MODE_PRIVATE);
@@ -94,62 +97,9 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		mLocationClient = new LocationClient(this, this, this);
 		// Start with updates turned off
 		mUpdatesRequested = true;
-
 		
-		//Audio Recording setup
-		folderTime = String.valueOf(System.currentTimeMillis());
-		AudioPath = folderTime + "/audio.3gp";
-		Log.v(LOG_TAG, "path before prep is: " + AudioPath);
-		PathPrep(AudioPath);
-		Log.v(LOG_TAG, "path after prep is: " + AudioPath);
-		try {
-			AudioRecordStart();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public void PathPrep(String path) {
-		RecordingActivity.AudioPath = sanitisePath(path);
-	}
-
-	private String sanitisePath(String path) {
-		if(!path.startsWith("/")){
-			path = "/" + path;
-		}
-		if (!path.contains(".")) {
-			path += ".3gp";
-		}
-		return Environment.getExternalStorageDirectory().getAbsolutePath() + path;
-	}
-	
-
-	public void AudioRecordStart() throws IOException {
-		String state = android.os.Environment.getExternalStorageState();
-		if (!state.equals(android.os.Environment.MEDIA_MOUNTED)) {
-			throw new IOException("SD Card is causing issues");
-		}
-		
-		File directory = new File(AudioPath).getParentFile();
-		if(!directory.exists() && !directory.mkdirs()) {
-			throw new IOException("Path to file could not be created");
-		}
-		
-		mRecorder = new MediaRecorder();
-		mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-		mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-		//mRecorder.setAudioEncodingBitRate(16);  //TODO Enable these if want to improve
-		//mRecorder.setAudioSamplingRate(44100);  //audio quality
-		mRecorder.setOutputFile(AudioPath);
-		//TODO add in higher sampling and encoding rates
-		
-		try {
-			mRecorder.prepare();
-		} catch (IOException e) {
-			Log.e(LOG_TAG, "prepare() for recording failed");
-		}
-		mRecorder.start();
+		//Audio recording stuff
+		startService(new Intent(this, backgroundAudioRecording.class));
 	}
 
 	@Override
@@ -168,7 +118,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		mEditor.commit();
 		super.onPause();
 	}
-	
+
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -232,16 +182,18 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		locationTrail.put(location.getTime(), location);
 	}
 
+	//TODO fix with new private class changes
 	public void stopRecording(View view){
-		mRecorder.stop();
-		mRecorder.release();
-		mRecorder=null;
+		//mRecorder.stop();
+		//mRecorder.release();
+		//mRecorder=null;
+		stopService(new Intent(this, backgroundAudioRecording.class));
 		Intent intent = new Intent(this, UploadActivity.class);
 		//intent.putExtra(TRAIL, locationTrail);
 		//intent.putExtra(AUDIO, path);  //This may be incorrect
 		startActivity(intent);
 	}
-	
+
 	/*
 	 * Called by Location Services when the request to connect the
 	 * client finishes successfully. At this point, you can
@@ -260,6 +212,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	 * Called by Location Services if the connection to the
 	 * location client drops because of an error.
 	 */
+
 	@Override
 	public void onDisconnected() {
 		// Display the connection status
@@ -270,6 +223,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	 * Called by Location Services if the attempt to
 	 * Location Services fails.
 	 */
+
 	@Override
 	public void onConnectionFailed(ConnectionResult connectionResult) {
 		/*
@@ -325,6 +279,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	 * Handle results returned to the FragmentActivity
 	 * by Google Play services
 	 */
+
 	@Override
 	protected void onActivityResult(
 			int requestCode, int resultCode, Intent data) {
@@ -344,6 +299,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 			}
 		}
 	}
+
 	@SuppressWarnings("unused")
 	private boolean servicesConnected() {
 		// Check that Google Play services is available
