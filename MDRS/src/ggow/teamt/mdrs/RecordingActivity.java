@@ -1,9 +1,11 @@
 package ggow.teamt.mdrs;
-//Hey
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
 
 import android.app.ActionBar;
@@ -21,7 +23,6 @@ import android.location.Location;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore.Files.FileColumns;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -44,14 +45,21 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 
 public class RecordingActivity extends FragmentActivity implements
-GooglePlayServicesClient.ConnectionCallbacks,
-GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
+		GooglePlayServicesClient.ConnectionCallbacks,
+		GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 
+	// General
 	private static final String LOG_TAG = "MDRS - RecordingActivity";
+	private String timeOfRecording;
+	public static String currentRecordingPath;
+	public static String imagesFolder;
+
+	// Location
 	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 	private static final int MILLISECONDS_PER_SECOND = 1000;
 	public static final int UPDATE_INTERVAL_IN_SECONDS = 5;
-	private static final long UPDATE_INTERVAL =	MILLISECONDS_PER_SECOND * UPDATE_INTERVAL_IN_SECONDS;
+	private static final long UPDATE_INTERVAL = MILLISECONDS_PER_SECOND
+			* UPDATE_INTERVAL_IN_SECONDS;
 	private static final int FASTEST_INTERVAL_IN_SECONDS = 1;
 	private LocationRequest mLocationRequest;
 	private LocationClient mLocationClient;
@@ -59,12 +67,11 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	private Editor mEditor;
 	private SharedPreferences mPrefs;
 	public static LinkedHashMap<Long, Location> locationTrail;
-	public final static String TRAIL = "ggow.teamt.MDRS.trail";
-	public final static String AUDIO = "ggow.teamt.MDRS.audio";
-	private MediaRecorder mRecorder;
-	private String folderTime;
-	public static String AudioPath;
 
+	// Audio
+	private MediaRecorder mRecorder;
+
+	// Camera
 	private Camera mCamera;
 	private CameraPreview mPreview;
 	public static final int MEDIA_TYPE_IMAGE = 1;
@@ -72,10 +79,10 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		@Override
 		public void onPictureTaken(byte[] data, Camera camera) {
 
-	        File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
-			if (pictureFile == null){
-				Log.d(LOG_TAG, "Error creating media file, check storage permissions: " +
-						e.getMessage());
+			File pictureFile = getOutputMediaFile();
+			if (pictureFile == null) {
+				Log.d(LOG_TAG,
+						"Error creating media file, check storage permissions: ");
 				return;
 			}
 
@@ -95,105 +102,132 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_recording);
+		try {
+			buildDirectory();
+		} catch (IOException e1) {
+			Log.e(LOG_TAG,"Error in building Directories");
+			e1.printStackTrace();
+		}
+		checkCameraHardware(this);
 
-		if(android.os.Build.VERSION.SDK_INT >= 19){
+		// Translucent system bar - Still to figure out how to do top bar.
+		// TODO interface tweaks
+		if (android.os.Build.VERSION.SDK_INT >= 19) {
 			Window w = getWindow();
-			w.setFlags(
-					WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
+			w.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
 					WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-			//	w.setFlags(
-			//			WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
-			//			WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+			// w.setFlags(
+			// WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
+			// WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 		} else {
 			Log.v(LOG_TAG, "Not KitKat+");
 		}
 
-		//Location Setup
+		// Location Setup
 		locationTrail = new LinkedHashMap<Long, Location>();
 		Intent intent = getIntent();
 		intent.getParcelableExtra(MapViewActivity.START_LOCATION);
-		Toast.makeText(this, "Got starter location!", Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, "Got starter location!", Toast.LENGTH_SHORT)
+				.show();
 		mLocationRequest = LocationRequest.create();
 		mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 		mLocationRequest.setInterval(UPDATE_INTERVAL);
 		mLocationRequest.setFastestInterval(FASTEST_INTERVAL_IN_SECONDS);
 
 		// Open the shared preferences
-		mPrefs = getSharedPreferences("SharedPreferences",
-				Context.MODE_PRIVATE);
+		mPrefs = getSharedPreferences("SharedPreferences", Context.MODE_PRIVATE);
 		// Get a SharedPreferences editor
 		mEditor = mPrefs.edit();
 		/*
-		 * Create a new location client, using the enclosing class to
-		 * handle callback.
+		 * Create a new location client, using the enclosing class to handle
+		 * callback.
 		 */
 		mLocationClient = new LocationClient(this, this, this);
 		// Start with updates turned off
 		mUpdatesRequested = true;
 
-
-		//Audio Recording setup
-		folderTime = String.valueOf(System.currentTimeMillis());
-		AudioPath = folderTime + "/audio.3gp";
-		Log.v(LOG_TAG, "path before prep is: " + AudioPath);
-		PathPrep(AudioPath);
-		Log.v(LOG_TAG, "path after prep is: " + AudioPath);
+		// Audio Recording setup
 		try {
 			AudioRecordStart();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		//Camera Stuff
+		// Camera Stuff
 		mCamera = getCameraInstance();
 		mPreview = new CameraPreview(this, mCamera);
 		FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
 		preview.addView(mPreview);
 		// Add a listener to the Capture button
 		Button captureButton = (Button) findViewById(R.id.button_capture);
-		captureButton.setOnClickListener(
-				new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						// get an image from the camera
-						mCamera.takePicture(null, null, mPicture);
-					}
-				}
-				);
+		captureButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// get an image from the camera
+				mCamera.takePicture(null, null, mPicture);
+			}
+		});
 	}
 
-	public void PathPrep(String path) {
-		AudioPath = sanitisePath(path);
+	private void buildDirectory() throws IOException {
+		Log.v(LOG_TAG, "Into buildDirectory()");
+		// Initial construction
+		timeOfRecording = String.valueOf(System.currentTimeMillis());
+		currentRecordingPath = "MDRS/" + timeOfRecording;
+		currentRecordingPath = sanitisePath(currentRecordingPath);
+		Log.v(LOG_TAG, "Initial path: " + currentRecordingPath);
+		if (!initDir(currentRecordingPath)) {
+			Log.e(LOG_TAG, "Problem building main Dir.");
+		}
+
+		// Build folder for images
+		imagesFolder = getCurrentRecordingPath() + "/images";
+		imagesFolder = sanitisePath(imagesFolder);
+		Log.v(LOG_TAG, "Initial path: " + imagesFolder);
+		if (!initDir(imagesFolder)) {
+			Log.e(LOG_TAG, "Problem building images dir");
+		}
+
 	}
 
-	private String sanitisePath(String path) {
-		if(!path.startsWith("/")){
-			path = "/" + path;
-		}
-		if (!path.contains(".")) {
-			path += ".3gp";
-		}
-		return Environment.getExternalStorageDirectory().getAbsolutePath() + path;
-	}	
-
-	public void AudioRecordStart() throws IOException {
+	private boolean initDir(String dir) throws IOException {
 		String state = android.os.Environment.getExternalStorageState();
 		if (!state.equals(android.os.Environment.MEDIA_MOUNTED)) {
 			throw new IOException("SD Card is causing issues");
 		}
 
-		File directory = new File(AudioPath).getParentFile();
-		if(!directory.exists() && !directory.mkdirs()) {
+		File directory = new File(dir).getParentFile();
+		if (!directory.exists() && !directory.mkdirs()) {
+
 			throw new IOException("Path to file could not be created");
 		}
+		return true;
+	}
 
+	static String getCurrentRecordingPath() {
+		return currentRecordingPath;
+	}
+
+	private String sanitisePath(String path) {
+		if (!path.startsWith("/")) {
+			path = "/" + path;
+		}
+		/*
+		 * if (!path.contains(".")) { path += ".3gp"; }
+		 */
+		return Environment.getExternalStorageDirectory().getAbsolutePath()
+				+ path;
+	}
+
+	public void AudioRecordStart() throws IOException {
 		mRecorder = new MediaRecorder();
 		mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
 		mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-		//mRecorder.setAudioEncodingBitRate(16);  //TODO Enable these if want to improve
-		//mRecorder.setAudioSamplingRate(44100);  //audio quality
-		mRecorder.setOutputFile(AudioPath);		
+		mRecorder.setAudioEncodingBitRate(16); // TODO Enable these if want to
+												// improve
+		mRecorder.setAudioSamplingRate(44100); // audio quality
+		mRecorder.setOutputFile(getCurrentRecordingPath() + "/audio.3gp");
 		try {
 			mRecorder.prepare();
 		} catch (IOException e) {
@@ -205,59 +239,57 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	@Override
 	protected void onStart() {
 		super.onStart();
-		Log.v(LOG_TAG, "into onStart");
-
-		// Connect the client.
+		Log.v(LOG_TAG, "initialising mLocationClient");
 		mLocationClient.connect();
 	}
 
 	@Override
 	protected void onPause() {
+		Log.v(LOG_TAG, "Pausing application.");
 		// Save the current setting for updates
 		mEditor.putBoolean("KEY_UPDATES_ON", mUpdatesRequested);
 		mEditor.commit();
 		super.onPause();
-		releaseCamera();              // release the camera immediately on pause event
+		releaseCamera(); // release the camera immediately on pause event
 
 	}
 
 	@Override
 	protected void onResume() {
+		Log.v(LOG_TAG, "Resuming application");
 		super.onResume();
 		/*
-		 * Get any previous setting for location updates
-		 * Gets "false" if an error occurs
+		 * Get any previous setting for location updates Gets "false" if an
+		 * error occurs
 		 */
 		if (mPrefs.contains("KEY_UPDATES_ON")) {
-			mUpdatesRequested =
-					mPrefs.getBoolean("KEY_UPDATES_ON", false);
+			mUpdatesRequested = mPrefs.getBoolean("KEY_UPDATES_ON", false);
 
 			// Otherwise, turn off location updates
 		} else {
 			mEditor.putBoolean("KEY_UPDATES_ON", false);
 			mEditor.commit();
 		}
-	}    
+	}
 
 	/*
-	 * Called when the Activity is no longer visible at all.
-	 * Stop updates and disconnect.
+	 * Called when the Activity is no longer visible at all. Stop updates and
+	 * disconnect.
 	 */
 	@Override
 	protected void onStop() {
+		Log.v(LOG_TAG, "Stopping application");
 		// If the client is connected
 		if (mLocationClient.isConnected()) {
 			/*
-			 * Remove location updates for a listener.
-			 * The current Activity is the listener, so
-			 * the argument is "this".
+			 * Remove location updates for a listener. The current Activity is
+			 * the listener, so the argument is "this".
 			 */
-			//removeLocationUpdates(this);
-			//TODO FIX THIS, WHATEVER IT DOES...
+			// removeLocationUpdates(this);
+			// TODO FIX THIS, WHATEVER IT DOES...
 		}
 		/*
-		 * After disconnect() is called, the client is
-		 * considered "dead".
+		 * After disconnect() is called, the client is considered "dead".
 		 */
 		mLocationClient.disconnect();
 		super.onStop();
@@ -276,29 +308,26 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	@Override
 	public void onLocationChanged(Location location) {
 		// Report to the UI that the location was updated
-		String msg = "Updated Location: " +
-				Double.toString(location.getLatitude()) + "," +
-				Double.toString(location.getLongitude());
+		String msg = "Updated Location: "
+				+ Double.toString(location.getLatitude()) + ","
+				+ Double.toString(location.getLongitude());
 		TextView text = (TextView) findViewById(R.id.current_location_ticker);
 		text.setText(msg);
 		Log.v(LOG_TAG, location.toString());
 		locationTrail.put(location.getTime(), location);
 	}
 
-	public void stopRecording(View view){
+	public void stopRecording(View view) {
 		mRecorder.stop();
 		mRecorder.release();
-		mRecorder=null;
-		Intent intent = new Intent(this, UploadActivity.class);
-		//intent.putExtra(TRAIL, locationTrail);
-		//intent.putExtra(AUDIO, path);  //This may be incorrect
-		startActivity(intent);
+		mRecorder = null;
+		startActivity(new Intent(this, UploadActivity.class));
 	}
 
 	/*
-	 * Called by Location Services when the request to connect the
-	 * client finishes successfully. At this point, you can
-	 * request the current location or start periodic updates
+	 * Called by Location Services when the request to connect the client
+	 * finishes successfully. At this point, you can request the current
+	 * location or start periodic updates
 	 */
 	@Override
 	public void onConnected(Bundle dataBundle) {
@@ -306,12 +335,15 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
 		Location startLocation = mLocationClient.getLastLocation();
 		Log.v(LOG_TAG, startLocation.toString());
-		locationTrail.put(startLocation.getTime(), startLocation);
+		locationTrail.put(startLocation.getTime(), startLocation); // Possibly
+																	// remove
+																	// this
 		mLocationClient.requestLocationUpdates(mLocationRequest, this);
 	}
+
 	/*
-	 * Called by Location Services if the connection to the
-	 * location client drops because of an error.
+	 * Called by Location Services if the connection to the location client
+	 * drops because of an error.
 	 */
 	@Override
 	public void onDisconnected() {
@@ -321,22 +353,19 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	}
 
 	/*
-	 * Called by Location Services if the attempt to
-	 * Location Services fails.
+	 * Called by Location Services if the attempt to Location Services fails.
 	 */
 	@Override
 	public void onConnectionFailed(ConnectionResult connectionResult) {
 		/*
-		 * Google Play services can resolve some errors it detects.
-		 * If the error has a resolution, try sending an Intent to
-		 * start a Google Play services activity that can resolve
-		 * error.
+		 * Google Play services can resolve some errors it detects. If the error
+		 * has a resolution, try sending an Intent to start a Google Play
+		 * services activity that can resolve error.
 		 */
 		if (connectionResult.hasResolution()) {
 			try {
 				// Start an Activity that tries to resolve the error
-				connectionResult.startResolutionForResult(
-						this,
+				connectionResult.startResolutionForResult(this,
 						CONNECTION_FAILURE_RESOLUTION_REQUEST);
 				/*
 				 * Thrown if Google Play services cancelled the original
@@ -348,11 +377,12 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 			}
 		} else {
 			/*
-			 * If no resolution is available, display a dialog to the
-			 * user with the error.
+			 * If no resolution is available, display a dialog to the user with
+			 * the error.
 			 */
-			System.err.println("No resolution available. Some form of error with reconnect.");
-			//showErrorDialog(connectionResult.getErrorCode());
+			System.err
+					.println("No resolution available. Some form of error with reconnect.");
+			// showErrorDialog(connectionResult.getErrorCode());
 		}
 	}
 
@@ -360,15 +390,18 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	public static class ErrorDialogFragment extends DialogFragment {
 		// Global field to contain the error dialog
 		private Dialog mDialog;
+
 		// Default constructor. Sets the dialog field to null
 		public ErrorDialogFragment() {
 			super();
 			mDialog = null;
 		}
+
 		// Set the dialog to display
 		public void setDialog(Dialog dialog) {
 			mDialog = dialog;
 		}
+
 		// Return a Dialog to the DialogFragment.
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -377,21 +410,18 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	}
 
 	/*
-	 * Handle results returned to the FragmentActivity
-	 * by Google Play services
+	 * Handle results returned to the FragmentActivity by Google Play services
 	 */
 	@Override
-	protected void onActivityResult(
-			int requestCode, int resultCode, Intent data) {
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		// Decide what to do based on the original request code
 		switch (requestCode) {
-		case CONNECTION_FAILURE_RESOLUTION_REQUEST :
+		case CONNECTION_FAILURE_RESOLUTION_REQUEST:
 			/*
-			 * If the result code is Activity.RESULT_OK, try
-			 * to connect again
+			 * If the result code is Activity.RESULT_OK, try to connect again
 			 */
 			switch (resultCode) {
-			case Activity.RESULT_OK :
+			case Activity.RESULT_OK:
 				/*
 				 * Try the request again
 				 */
@@ -403,14 +433,12 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 	@SuppressWarnings("unused")
 	private boolean servicesConnected() {
 		// Check that Google Play services is available
-		int resultCode =
-				GooglePlayServicesUtil.
-				isGooglePlayServicesAvailable(this);
+		int resultCode = GooglePlayServicesUtil
+				.isGooglePlayServicesAvailable(this);
 		// If Google Play services is available
 		if (ConnectionResult.SUCCESS == resultCode) {
 			// In debug mode, log the status
-			Log.d("Location Updates",
-					"Google Play services is available.");
+			Log.d("Location Updates", "Google Play services is available.");
 			// Continue
 			return true;
 			// Google Play services was not available for some reason
@@ -418,29 +446,27 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 			// Get the error code
 			// Get the error dialog from Google Play services
 			Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(
-					resultCode,
-					this,
-					CONNECTION_FAILURE_RESOLUTION_REQUEST);
+					resultCode, this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
 			// If Google Play services can provide an error dialog
 			if (errorDialog != null) {
 				// Create a new DialogFragment for the error dialog
-				ErrorDialogFragment errorFragment =
-						new ErrorDialogFragment();
+				ErrorDialogFragment errorFragment = new ErrorDialogFragment();
 				// Set the dialog in the DialogFragment
 				errorFragment.setDialog(errorDialog);
 				// Show the error dialog in the DialogFragment
-				errorFragment.show(
-						getSupportFragmentManager(),
+				errorFragment.show(getSupportFragmentManager(),
 						"Location Updates");
 			}
 			return false;
 		}
 	}
 
+	// CAMERA STUFF
 
 	/** Check if this device has a camera */
 	private boolean checkCameraHardware(Context context) {
-		if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)){
+		if (context.getPackageManager().hasSystemFeature(
+				PackageManager.FEATURE_CAMERA)) {
 			// this device has a camera
 			return true;
 		} else {
@@ -449,29 +475,27 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 		}
 	}
 
-	private void releaseCamera(){
-		if (mCamera != null){
-			mCamera.release();        // release the camera for other applications
+	private void releaseCamera() {
+		if (mCamera != null) {
+			mCamera.release(); // release the camera for other applications
 			mCamera = null;
 		}
 	}
 
 	/** A safe way to get an instance of the Camera object. */
-	public static Camera getCameraInstance(){
+	public static Camera getCameraInstance() {
 		Camera c = null;
 		try {
 			c = Camera.open(); // attempt to get a Camera instance
-		}
-		catch (Exception e){
+		} catch (Exception e) {
 			// Camera is not available (in use or does not exist)
 		}
 		return c; // returns null if camera is unavailable
 	}
 
-
-
 	/** A basic Camera preview class */
-	public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
+	public class CameraPreview extends SurfaceView implements
+			SurfaceHolder.Callback {
 		private SurfaceHolder mHolder;
 		private Camera mCamera;
 		private static final String LOG_TAG = "MDRS - Camera Preview Class";
@@ -490,26 +514,31 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 
 		@Override
 		public void surfaceCreated(SurfaceHolder holder) {
-			// The Surface has been created, now tell the camera where to draw the preview.
+			// The Surface has been created, now tell the camera where to draw
+			// the preview.
 			try {
 				mCamera.setPreviewDisplay(holder);
 				mCamera.startPreview();
 			} catch (IOException e) {
-				Log.d(LOG_TAG, "Error setting camera preview: " + e.getMessage());
+				Log.d(LOG_TAG,
+						"Error setting camera preview: " + e.getMessage());
 			}
 		}
 
 		@Override
 		public void surfaceDestroyed(SurfaceHolder holder) {
-			// empty. Take care of releasing the Camera preview in your activity.
+			// empty. Take care of releasing the Camera preview in your
+			// activity.
 		}
 
 		@Override
-		public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
-			// If your preview can change or rotate, take care of those events here.
+		public void surfaceChanged(SurfaceHolder holder, int format, int w,
+				int h) {
+			// If your preview can change or rotate, take care of those events
+			// here.
 			// Make sure to stop the preview before resizing or reformatting it.
 
-			if (mHolder.getSurface() == null){
+			if (mHolder.getSurface() == null) {
 				// preview surface does not exist
 				return;
 			}
@@ -517,7 +546,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 			// stop preview before making changes
 			try {
 				mCamera.stopPreview();
-			} catch (Exception e){
+			} catch (Exception e) {
 				// ignore: tried to stop a non-existent preview
 			}
 
@@ -529,9 +558,31 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 				mCamera.setPreviewDisplay(mHolder);
 				mCamera.startPreview();
 
-			} catch (Exception e){
-				Log.d(LOG_TAG, "Error starting camera preview: " + e.getMessage());
+			} catch (Exception e) {
+				Log.d(LOG_TAG,
+						"Error starting camera preview: " + e.getMessage());
 			}
 		}
+	}
+
+	/** Create a File for saving the image */
+	private static File getOutputMediaFile() {
+
+		File mediaStorageDir = new File(imagesFolder);
+
+		//Probably remove this. My stuff does this checking
+		if (!mediaStorageDir.exists()) {
+			if (!mediaStorageDir.mkdirs()) {
+				Log.d("MyCameraApp", "failed to create directory");
+				return null;
+			}
+		}
+
+		// Create a media file name
+		String timeStamp = String.valueOf(System.currentTimeMillis());
+		File mediaFile;
+		mediaFile = new File(mediaStorageDir.getPath() + File.separator
+				+ "IMG_" + timeStamp + ".jpg");
+		return mediaFile;
 	}
 }

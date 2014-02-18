@@ -39,15 +39,16 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
-public class UploadActivity extends FragmentActivity implements GooglePlayServicesClient.ConnectionCallbacks,
-GooglePlayServicesClient.OnConnectionFailedListener{
+public class UploadActivity extends FragmentActivity implements
+		GooglePlayServicesClient.ConnectionCallbacks,
+		GooglePlayServicesClient.OnConnectionFailedListener {
 
 	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 	private static final String LOG_TAG = "MDRS - Upload";
 	private GoogleMap mMap;
 	private LinkedHashMap<Long, Location> locationTrail;
 	private JSONArray metadata;
-	private String MetaDataPath;
+	private String metadataPath;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,21 +56,18 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		setContentView(R.layout.activity_upload);
 		// Show the Up button in the action bar.
 		setupActionBar();
-		
-	/*	if(android.os.Build.VERSION.SDK_INT >= 19){
-			Window w = getWindow();
-			w.setFlags(
-					WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
-					WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-		//	w.setFlags(
-		//			WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
-		//			WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-		} else {
-			Log.v(LOG_TAG, "Not KitKat+");
-		}*/
+
+		/*
+		 * if(android.os.Build.VERSION.SDK_INT >= 19){ Window w = getWindow();
+		 * w.setFlags( WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
+		 * WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION); //
+		 * w.setFlags( // WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, //
+		 * WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS); } else {
+		 * Log.v(LOG_TAG, "Not KitKat+"); }
+		 */
 		metadata = new JSONArray();
 		getIntent();
-		//locationTrail = intent.getParcelableExtra(RecordingActivity.TRAIL);
+		// locationTrail = intent.getParcelableExtra(RecordingActivity.TRAIL);
 		locationTrail = RecordingActivity.locationTrail;
 		System.out.println(locationTrail);
 		setUpMapIfNeeded();
@@ -110,7 +108,7 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				Log.e(LOG_TAG,"Problem with upload method");
+				Log.e(LOG_TAG, "Problem with upload method");
 			}
 			return true;
 		case R.id.action_cancel:
@@ -127,14 +125,16 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	}
 
 	private void createJSONFromLocationTrail() {
-		//Metadata gathered from user into JSON
-		JSONObject titleObj = new JSONObject(); //Object at the start of the JSON which holds general info
+		// Metadata gathered from user into JSON
+		JSONObject titleObj = new JSONObject(); // Object at the start of the
+												// JSON which holds general info
 		try {
 			EditText etTitle = (EditText) findViewById(R.id.name);
 			titleObj.put("title", etTitle.getText().toString());
 			EditText etDesc = (EditText) findViewById(R.id.description);
 			titleObj.put("description", etDesc.getText().toString());
-			titleObj.put("startTime", locationTrail.entrySet().iterator().next().getKey());
+			titleObj.put("startTime", locationTrail.entrySet().iterator()
+					.next().getKey());
 			titleObj.put("endTime", getEndTime());
 		} catch (JSONException e1) {
 			// TODO Auto-generated catch block
@@ -143,11 +143,13 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		metadata.put(titleObj);
 		Log.v(LOG_TAG, "Successful init metadata JSON");
 
-		//Location loading into the JSON
-		JSONArray locations = new JSONArray(); //array to hold all location objects
+		// Location loading into the JSON
+		JSONArray locations = new JSONArray(); // array to hold all location
+												// objects
 		Iterator<Location> it = locationTrail.values().iterator();
-		while (it.hasNext()){
-			JSONObject obj = new JSONObject(); //Object to hold specific location data
+		while (it.hasNext()) {
+			JSONObject obj = new JSONObject(); // Object to hold specific
+												// location data
 			Location curLoc = (Location) it.next();
 			try {
 				obj.put("lon", curLoc.getLongitude());
@@ -168,25 +170,25 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		metadata.put(locations);
 	}
 
-	private void saveMetadataToDevice() throws IOException{
-		MetaDataPath = RecordingActivity.AudioPath;
-		Log.v(LOG_TAG, "current path for json is: " + MetaDataPath);
-		MetaDataPath = MetaDataPath.substring(0, MetaDataPath.length()-9);
-		Log.v(LOG_TAG,"after chopping the tail off it is: "+ MetaDataPath);
-		MetaDataPath = MetaDataPath + "metadata.json";
+	private void saveMetadataToDevice() throws IOException {
+		metadataPath = RecordingActivity.getCurrentRecordingPath();
+		metadataPath = metadataPath + "/metadata.json";
+		Log.v(LOG_TAG, "The metadata path is: " + metadataPath);
 
+		// Checking directory (not sure if I need this. Will test and remove
+		// if so.
 		String state = android.os.Environment.getExternalStorageState();
 		if (!state.equals(android.os.Environment.MEDIA_MOUNTED)) {
 			throw new IOException("SD Card is causing issues");
 		}
 
-		File directory = new File(MetaDataPath).getParentFile();
-		if(!directory.exists() && !directory.mkdirs()) {
+		File directory = new File(metadataPath).getParentFile();
+		if (!directory.exists() && !directory.mkdirs()) {
 			throw new IOException("Path to file could not be created");
 		}
 
-		try{
-			FileWriter fw = new FileWriter(MetaDataPath);
+		try {
+			FileWriter fw = new FileWriter(metadataPath);
 			fw.write(metadata.toString());
 			fw.close();
 		} catch (IOException ioe) {
@@ -194,13 +196,13 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 			ioe.printStackTrace();
 		}
 	}
+
 	/*
-	 * Gather together all the data that has been created and save it to a JSON ready
-	 * for uploading when connecting to a computer.
+	 * Gather together all the data that has been created and save it to a JSON
+	 * ready for uploading when connecting to a computer.
 	 * 
-	 * In a future version this will be able to automatically upload to a 
-	 * server but 
-	 * for now it will just be old fashioned.
+	 * In a future version this will be able to automatically upload to a server
+	 * but for now it will just be old fashioned.
 	 */
 	private void upload() throws IOException {
 		createJSONFromLocationTrail();
@@ -211,8 +213,13 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 	}
 
 	private void uploadToServer() {
-		File audioFile = new File(RecordingActivity.AudioPath);
-		File metadataFile = new File (MetaDataPath);
+		Log.v(LOG_TAG, "into uploadToServer()");
+		File audioFile = new File(RecordingActivity.getCurrentRecordingPath()
+				+ "/audio.3gp");
+		Log.v(LOG_TAG, "Audio file: " + audioFile.toString());
+		File metadataFile = new File(metadataPath);
+		Log.v(LOG_TAG, "Metadata file: " + metadataFile.toString());
+		// need a tar.gz creation here for the images
 		RequestParams params = new RequestParams();
 		try {
 			params.put("audio", audioFile);
@@ -221,30 +228,33 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 			Log.e(LOG_TAG, "Can't find a file to upload to server");
 			e.printStackTrace();
 		}
-		httpUpload.post("mobile_upload", params, new AsyncHttpResponseHandler());
+		httpUpload
+				.post("mobile_upload", params, new AsyncHttpResponseHandler());
 		Log.v(LOG_TAG, "Hopefully this should httpUpload");
-		//TODO Need some form of error checking in this. How do we know it has 
-		//been successful? Also need to make it work in the background
+		// TODO Need some form of error checking in this. How do we know it has
+		// been successful? Also need to make it work in the background
 	}
 
 	/*
-	 * Using a LinkedHashMap causes issues as unlike a list you cannot just get the end
-	 * object or key. To work around this (and yes, this could be avoided with a better
-	 * suited data structure) I take the key set and put it into a list. Then I take the
-	 * end one from the list and return the Long value.
+	 * Using a LinkedHashMap causes issues as unlike a list you cannot just get
+	 * the end object or key. To work around this (and yes, this could be
+	 * avoided with a better suited data structure) I take the key set and put
+	 * it into a list. Then I take the end one from the list and return the Long
+	 * value.
 	 */
 	private Long getEndTime() {
 		List<Long> times = new ArrayList<Long>(locationTrail.keySet());
-		return times.get(times.size()-1);
+		return times.get(times.size() - 1);
 	}
 
-	private void setUpMapIfNeeded() { //would be used onResume I would assume
+	private void setUpMapIfNeeded() { // would be used onResume I would assume
 		Log.v(LOG_TAG, "into map setup");
 
-		// Do a null check to confirm that we have not already instantiated the map.
+		// Do a null check to confirm that we have not already instantiated the
+		// map.
 		if (mMap == null) {
-			mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.uploadScreenMap))
-					.getMap();			
+			mMap = ((MapFragment) getFragmentManager().findFragmentById(
+					R.id.uploadScreenMap)).getMap();
 			mMap.setMyLocationEnabled(false);
 			mMap.getUiSettings().setCompassEnabled(false);
 			mMap.getUiSettings().setMyLocationButtonEnabled(false);
@@ -257,59 +267,67 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 		}
 	}
 
-	private void fillMap(){
+	private void fillMap() {
 		boolean isFirstLocation = true;
-		//Create line of recording
+		// Create line of recording
 		Iterator<Location> it = locationTrail.values().iterator();
 		PolylineOptions trail = new PolylineOptions();
-		while(it.hasNext()){
+		while (it.hasNext()) {
 			Location currentLocation = (Location) it.next();
-			if (isFirstLocation){
+			if (isFirstLocation) {
 				zoomInOnStart(currentLocation);
 			}
-			trail.add(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+			trail.add(new LatLng(currentLocation.getLatitude(), currentLocation
+					.getLongitude()));
 		}
 		mMap.addPolyline(trail);
 
-		//Starter Marker
+		// Starter Marker
 		mMap.addMarker(new MarkerOptions()
-		.position(new LatLng(locationTrail.get(getEndTime()).getLatitude(), locationTrail.get(getEndTime()).getLongitude()))
-		.draggable(false)
-		.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-				);
+				.position(
+						new LatLng(locationTrail.get(getEndTime())
+								.getLatitude(), locationTrail.get(getEndTime())
+								.getLongitude()))
+				.draggable(false)
+				.icon(BitmapDescriptorFactory
+						.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
-		//End Marker
-		mMap.addMarker(new MarkerOptions()//end marker
-		.position(new LatLng(locationTrail.entrySet().iterator().next().getValue().getLatitude(), locationTrail.entrySet().iterator().next().getValue().getLongitude()))
-		.draggable(false)
-		.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-				);
+		// End Marker
+		mMap.addMarker(new MarkerOptions()
+				// end marker
+				.position(
+						new LatLng(locationTrail.entrySet().iterator().next()
+								.getValue().getLatitude(), locationTrail
+								.entrySet().iterator().next().getValue()
+								.getLongitude()))
+				.draggable(false)
+				.icon(BitmapDescriptorFactory
+						.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
 
-		//TODO	place markers where images are along the trail. Possibly MVC with the horizontal scroll of them?
+		// TODO place markers where images are along the trail. Possibly MVC
+		// with the horizontal scroll of them?
 	}
 
-	private void zoomInOnStart(Location start){
+	private void zoomInOnStart(Location start) {
 		CameraPosition cameraPosition = new CameraPosition.Builder()
-		.target(new LatLng(start.getLatitude(), start.getLongitude()))
-		.zoom(17)
-		.build();
+				.target(new LatLng(start.getLatitude(), start.getLongitude()))
+				.zoom(17).build();
 		mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 	}
+
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onConnectionFailed(ConnectionResult connectionResult) {
 		System.err.println("Connection failed");
 		/*
-		 * Google Play services can resolve some errors it detects.
-		 * If the error has a resolution, try sending an Intent to
-		 * start a Google Play services activity that can resolve
-		 * error.
+		 * Google Play services can resolve some errors it detects. If the error
+		 * has a resolution, try sending an Intent to start a Google Play
+		 * services activity that can resolve error.
 		 */
 		if (connectionResult.hasResolution()) {
 			try {
 				// Start an Activity that tries to resolve the error
-				connectionResult.startResolutionForResult(
-						this,
+				connectionResult.startResolutionForResult(this,
 						CONNECTION_FAILURE_RESOLUTION_REQUEST);
 				/*
 				 * Thrown if Google Play services cancelled the original
@@ -321,23 +339,26 @@ GooglePlayServicesClient.OnConnectionFailedListener{
 			}
 		} else {
 			/*
-			 * If no resolution is available, display a dialog to the
-			 * user with the error.
+			 * If no resolution is available, display a dialog to the user with
+			 * the error.
 			 */
 			showDialog(connectionResult.getErrorCode());
 		}
 	}
 
 	/**
-	 * Callback called when connected to GCore. Implementation of {@link ConnectionCallbacks}.
+	 * Callback called when connected to GCore. Implementation of
+	 * {@link ConnectionCallbacks}.
 	 */
 	@Override
 	public void onConnected(Bundle connectionHint) {
-		Toast.makeText(this, "Waiting for location...", Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, "Waiting for location...", Toast.LENGTH_SHORT)
+				.show();
 	}
 
 	/**
-	 * Callback called when disconnected from GCore. Implementation of {@link ConnectionCallbacks}.
+	 * Callback called when disconnected from GCore. Implementation of
+	 * {@link ConnectionCallbacks}.
 	 */
 	@Override
 	public void onDisconnected() {
