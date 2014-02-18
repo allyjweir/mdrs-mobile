@@ -36,6 +36,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
@@ -214,6 +215,10 @@ public class UploadActivity extends FragmentActivity implements
 
 	private void uploadToServer() {
 		Log.v(LOG_TAG, "into uploadToServer()");
+		
+		AsyncHttpClient client = new AsyncHttpClient();
+		
+		
 		File audioFile = new File(RecordingActivity.getCurrentRecordingPath()
 				+ "/audio.3gp");
 		Log.v(LOG_TAG, "Audio file: " + audioFile.toString());
@@ -228,8 +233,14 @@ public class UploadActivity extends FragmentActivity implements
 			Log.e(LOG_TAG, "Can't find a file to upload to server");
 			e.printStackTrace();
 		}
-		httpUpload
-				.post("mobile_upload", params, new AsyncHttpResponseHandler());
+		
+		client.post("mobile_upload", params, new AsyncHttpResponseHandler() {
+			@Override
+			public void onSuccess(String response) {
+				Log.v(LOG_TAG, "Successful upload.");
+				//TODO add intent to move to map view activity from here instead of out there
+			}
+		});
 		Log.v(LOG_TAG, "Hopefully this should httpUpload");
 		// TODO Need some form of error checking in this. How do we know it has
 		// been successful? Also need to make it work in the background

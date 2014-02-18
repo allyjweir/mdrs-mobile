@@ -493,6 +493,13 @@ public class RecordingActivity extends FragmentActivity implements
 		}
 		return c; // returns null if camera is unavailable
 	}
+	
+	private void releaseCamera() {
+		Log.v(LOG_TAG,"Into releaseCamera()");
+		mCamera.stopPreview();
+		mCamera.setPreviewCallback(null);
+		mCamera.release();
+	}
 
 	/** A basic Camera preview class */
 	public class CameraPreview extends SurfaceView implements
