@@ -21,6 +21,7 @@ import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
 import android.location.Location;
 import android.media.MediaRecorder;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.DialogFragment;
@@ -74,17 +75,13 @@ public class RecordingActivity extends FragmentActivity implements
 	// Camera
 	private Camera mCamera;
 	private CameraPreview mPreview;
-	public static final int MEDIA_TYPE_IMAGE = 1;
 	private PictureCallback mPicture = new PictureCallback() {
 		@Override
 		public void onPictureTaken(byte[] data, Camera camera) {
-
-			File pictureFile = getOutputMediaFile();
-			if (pictureFile == null) {
-				Log.d(LOG_TAG,
-						"Error creating media file, check storage permissions: ");
-				return;
-			}
+			// Create a media file name
+			String timeStamp = String.valueOf(System.currentTimeMillis());
+			File pictureFile;
+			pictureFile = new File(imagesFolder + "/IMG_" + timeStamp + ".jpg");
 
 			try {
 				FileOutputStream fos = new FileOutputStream(pictureFile);
@@ -105,7 +102,7 @@ public class RecordingActivity extends FragmentActivity implements
 		try {
 			buildDirectory();
 		} catch (IOException e1) {
-			Log.e(LOG_TAG,"Error in building Directories");
+			Log.e(LOG_TAG, "Error in building Directories");
 			e1.printStackTrace();
 		}
 		checkCameraHardware(this);
@@ -156,7 +153,7 @@ public class RecordingActivity extends FragmentActivity implements
 		// Camera Stuff
 		mCamera = getCameraInstance();
 		mPreview = new CameraPreview(this, mCamera);
-		//Add CameraPreview to FrameLayout in activity_recording.xml
+		// Add CameraPreview to FrameLayout in activity_recording.xml
 		FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
 		preview.addView(mPreview);
 		// Add a listener to the Capture button
@@ -165,7 +162,9 @@ public class RecordingActivity extends FragmentActivity implements
 			@Override
 			public void onClick(View v) {
 				// get an image from the camera
-				mCamera.takePicture(null, null, mPicture);
+				TakePictureTask takePictureTask = new TakePictureTask();
+				takePictureTask.execute();
+				// mCamera.takePicture(null, null, mPicture);
 			}
 		});
 	}
@@ -224,10 +223,10 @@ public class RecordingActivity extends FragmentActivity implements
 		mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
 		mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-		mRecorder.setAudioEncodingBitRate(16); // TODO Enable these if want to
-												// improve
-		mRecorder.setAudioSamplingRate(44100); // audio quality
-		Log.v(LOG_TAG, "Audio path: " + getCurrentRecordingPath() + "/audio.3gp");
+		mRecorder.setAudioEncodingBitRate(16);
+		mRecorder.setAudioSamplingRate(44100);
+		Log.v(LOG_TAG, "Audio path: " + getCurrentRecordingPath()
+				+ "/audio.3gp");
 		mRecorder.setOutputFile(getCurrentRecordingPath() + "/audio.3gp");
 		try {
 			mRecorder.prepare();
@@ -271,6 +270,7 @@ public class RecordingActivity extends FragmentActivity implements
 			mEditor.putBoolean("KEY_UPDATES_ON", false);
 			mEditor.commit();
 		}
+		//mCamera = getCameraInstance();
 	}
 
 	/*
@@ -293,6 +293,7 @@ public class RecordingActivity extends FragmentActivity implements
 		 * After disconnect() is called, the client is considered "dead".
 		 */
 		mLocationClient.disconnect();
+		mCamera.release();
 		super.onStop();
 	}
 
@@ -338,8 +339,8 @@ public class RecordingActivity extends FragmentActivity implements
 		Location startLocation = mLocationClient.getLastLocation();
 		Log.v(LOG_TAG, startLocation.toString());
 		locationTrail.put(startLocation.getTime(), startLocation); // Possibly
-																	// remove
-																	// this
+		// remove
+		// this
 		mLocationClient.requestLocationUpdates(mLocationRequest, this);
 	}
 
@@ -518,7 +519,7 @@ public class RecordingActivity extends FragmentActivity implements
 			mHolder = getHolder();
 			mHolder.addCallback(this);
 			// deprecated setting, but required on Android versions prior to 3.0
-			//mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+			// mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 		}
 
 		@Override
@@ -538,8 +539,11 @@ public class RecordingActivity extends FragmentActivity implements
 
 		@Override
 		public void surfaceDestroyed(SurfaceHolder holder) {
-			// empty. Take care of releasing the Camera preview in your
-			// activity.
+			Log.e("LOG_TAG", "surfaceDestroyed()");
+			mCamera.stopPreview();
+			mCamera.setPreviewCallback(null);
+			mCamera.release();
+			mCamera = null;
 		}
 
 		@Override
@@ -578,23 +582,52 @@ public class RecordingActivity extends FragmentActivity implements
 	}
 
 	/** Create a File for saving the image */
-	private static File getOutputMediaFile() {
+	private File getOutputMediaFile() {
 
 		File mediaStorageDir = new File(imagesFolder);
-
-		//Probably remove this. My stuff does this checking
-		if (!mediaStorageDir.exists()) {
-			if (!mediaStorageDir.mkdirs()) {
-				Log.d("MDRS borrowed code", "failed to create directory");
-				return null;
-			}
-		}
 
 		// Create a media file name
 		String timeStamp = String.valueOf(System.currentTimeMillis());
 		File mediaFile;
 		mediaFile = new File(mediaStorageDir.getPath() + File.separator
 				+ "IMG_" + timeStamp + ".jpg");
+
 		return mediaFile;
 	}
+
+	/**
+	 * A pretty basic example of an AsyncTask that takes the photo and then
+	 * sleeps for a defined period of time before finishing. Upon finishing, it
+	 * will restart the preview - Camera.startPreview().
+	 */
+	private class TakePictureTask extends AsyncTask<Void, Void, Void> {
+
+		@Override
+		protected void onPostExecute(Void result) {
+			// This returns the preview back to the live camera feed
+			Log.v(LOG_TAG, "Into onPostExecute()");
+			mCamera.startPreview();
+		}
+
+		@Override
+		protected Void doInBackground(Void... params) {
+			Log.v(LOG_TAG, "Into doInBackground()");
+			mCamera.takePicture(null, null, mPicture);
+
+			// Sleep for however long, you could store this in a variable and
+			// have it updated by a menu item which the user selects.
+			try {
+				Log.v(LOG_TAG, "Having a snooze in doInBackground");
+				Thread.sleep(3000); // 3 second preview
+			} catch (InterruptedException e) {
+				Log.e(LOG_TAG, "Couldn't have a snooze!");
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			return null;
+		}
+
+	}
+
 }
