@@ -156,6 +156,7 @@ public class RecordingActivity extends FragmentActivity implements
 		// Camera Stuff
 		mCamera = getCameraInstance();
 		mPreview = new CameraPreview(this, mCamera);
+		//Add CameraPreview to FrameLayout in activity_recording.xml
 		FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
 		preview.addView(mPreview);
 		// Add a listener to the Capture button
@@ -319,6 +320,7 @@ public class RecordingActivity extends FragmentActivity implements
 
 	public void stopRecording(View view) {
 		mRecorder.stop();
+		mRecorder.reset();
 		mRecorder.release();
 		mRecorder = null;
 		startActivity(new Intent(this, UploadActivity.class));
@@ -468,15 +470,17 @@ public class RecordingActivity extends FragmentActivity implements
 		if (context.getPackageManager().hasSystemFeature(
 				PackageManager.FEATURE_CAMERA)) {
 			// this device has a camera
+			Log.v(LOG_TAG, "Camera hardware check success!");
 			return true;
 		} else {
-			// no camera on this device
+			Log.e(LOG_TAG, "Camera hardware check fail!");
 			return false;
 		}
 	}
 
 	private void releaseCamera() {
 		if (mCamera != null) {
+			Log.v(LOG_TAG, "Camera released");
 			mCamera.release(); // release the camera for other applications
 			mCamera = null;
 		}
@@ -487,8 +491,12 @@ public class RecordingActivity extends FragmentActivity implements
 		Camera c = null;
 		try {
 			c = Camera.open(); // attempt to get a Camera instance
+			Log.v(LOG_TAG, "Camera open success!");
 		} catch (Exception e) {
 			// Camera is not available (in use or does not exist)
+			Log.e(LOG_TAG, "Camera not available");
+			e.printStackTrace();
+
 		}
 		return c; // returns null if camera is unavailable
 	}
@@ -502,6 +510,7 @@ public class RecordingActivity extends FragmentActivity implements
 
 		public CameraPreview(Context context, Camera camera) {
 			super(context);
+			Log.v(LOG_TAG, "into CameraPreview constructor");
 			mCamera = camera;
 
 			// Install a SurfaceHolder.Callback so we get notified when the
@@ -509,11 +518,12 @@ public class RecordingActivity extends FragmentActivity implements
 			mHolder = getHolder();
 			mHolder.addCallback(this);
 			// deprecated setting, but required on Android versions prior to 3.0
-			mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+			//mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 		}
 
 		@Override
 		public void surfaceCreated(SurfaceHolder holder) {
+			Log.v(LOG_TAG, "into surfaceCreated()");
 			// The Surface has been created, now tell the camera where to draw
 			// the preview.
 			try {
@@ -534,6 +544,7 @@ public class RecordingActivity extends FragmentActivity implements
 		@Override
 		public void surfaceChanged(SurfaceHolder holder, int format, int w,
 				int h) {
+			Log.v(LOG_TAG, "into surfaceChanged()");
 			// If your preview can change or rotate, take care of those events
 			// here.
 			// Make sure to stop the preview before resizing or reformatting it.
@@ -573,7 +584,7 @@ public class RecordingActivity extends FragmentActivity implements
 		//Probably remove this. My stuff does this checking
 		if (!mediaStorageDir.exists()) {
 			if (!mediaStorageDir.mkdirs()) {
-				Log.d("MyCameraApp", "failed to create directory");
+				Log.d("MDRS borrowed code", "failed to create directory");
 				return null;
 			}
 		}
