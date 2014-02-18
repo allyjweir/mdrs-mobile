@@ -73,6 +73,7 @@ public class RecordingActivity extends FragmentActivity implements
 	private MediaRecorder mRecorder;
 
 	// Camera
+	public FrameLayout preview;
 	private Camera mCamera;
 	private CameraPreview mPreview;
 	private PictureCallback mPicture = new PictureCallback() {
@@ -154,7 +155,7 @@ public class RecordingActivity extends FragmentActivity implements
 		mCamera = getCameraInstance();
 		mPreview = new CameraPreview(this, mCamera);
 		// Add CameraPreview to FrameLayout in activity_recording.xml
-		FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+		preview = (FrameLayout) findViewById(R.id.camera_preview);
 		preview.addView(mPreview);
 		// Add a listener to the Capture button
 		Button captureButton = (Button) findViewById(R.id.button_capture);
@@ -293,7 +294,6 @@ public class RecordingActivity extends FragmentActivity implements
 		 * After disconnect() is called, the client is considered "dead".
 		 */
 		mLocationClient.disconnect();
-		mCamera.release();
 		super.onStop();
 	}
 
@@ -479,14 +479,6 @@ public class RecordingActivity extends FragmentActivity implements
 		}
 	}
 
-	private void releaseCamera() {
-		if (mCamera != null) {
-			Log.v(LOG_TAG, "Camera released");
-			mCamera.release(); // release the camera for other applications
-			mCamera = null;
-		}
-	}
-
 	/** A safe way to get an instance of the Camera object. */
 	public static Camera getCameraInstance() {
 		Camera c = null;
@@ -539,11 +531,15 @@ public class RecordingActivity extends FragmentActivity implements
 
 		@Override
 		public void surfaceDestroyed(SurfaceHolder holder) {
-			Log.e("LOG_TAG", "surfaceDestroyed()");
+			Log.v("LOG_TAG", "surfaceDestroyed()");
+			//mCamera.setPreviewCallback(null);		
+			Log.v("LOG_TAG", "setPreviewCallback done");
 			mCamera.stopPreview();
-			mCamera.setPreviewCallback(null);
-			mCamera.release();
+			Log.v("LOG_TAG", "stopPreview done");
+	        mCamera.setPreviewCallback(null);
+			mCamera.release(); // release the camera for other applications
 			mCamera = null;
+			//mCamera = null;
 		}
 
 		@Override
