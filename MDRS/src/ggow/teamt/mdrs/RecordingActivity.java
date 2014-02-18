@@ -182,8 +182,7 @@ public class RecordingActivity extends FragmentActivity implements
 
 		// Build folder for images
 		imagesFolder = getCurrentRecordingPath() + "/images";
-		imagesFolder = sanitisePath(imagesFolder);
-		Log.v(LOG_TAG, "Initial path: " + imagesFolder);
+		Log.v(LOG_TAG, "Initial images path: " + imagesFolder);
 		if (!initDir(imagesFolder)) {
 			Log.e(LOG_TAG, "Problem building images dir");
 		}
@@ -227,6 +226,7 @@ public class RecordingActivity extends FragmentActivity implements
 		mRecorder.setAudioEncodingBitRate(16); // TODO Enable these if want to
 												// improve
 		mRecorder.setAudioSamplingRate(44100); // audio quality
+		Log.v(LOG_TAG, "Audio path: " + getCurrentRecordingPath() + "/audio.3gp");
 		mRecorder.setOutputFile(getCurrentRecordingPath() + "/audio.3gp");
 		try {
 			mRecorder.prepare();
