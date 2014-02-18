@@ -528,6 +528,7 @@ public class RecordingActivity extends FragmentActivity implements
 			// the preview.
 			try {
 				mCamera.setPreviewDisplay(holder);
+				mCamera.setDisplayOrientation(90);
 				mCamera.startPreview();
 			} catch (IOException e) {
 				Log.d(LOG_TAG,
