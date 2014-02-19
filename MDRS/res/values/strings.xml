@@ -21,4 +21,6 @@
 	<string name="success">Save complete.</string>
 	<string name="feedback">Feedback</string>
 	<string name="feedback_long">Give the developer feedback</string>
+	<string name="cancel_recording_message">Abandon your recording?</string>
+	<string name="abandon">Abandon</string>
 </resources>

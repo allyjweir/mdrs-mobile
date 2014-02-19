@@ -270,6 +270,7 @@ containing a value of this type.
     }
     public static final class string {
         public static final int Cancel=0x7f070023;
+        public static final int abandon=0x7f07002f;
         public static final int action_settings=0x7f07001b;
         public static final int app_name=0x7f07001a;
         /**   Title for notification shown when GooglePlayServices needs to be
@@ -296,6 +297,7 @@ containing a value of this type.
          */
         public static final int auth_client_using_bad_version_title=0x7f070014;
         public static final int cancel=0x7f070028;
+        public static final int cancel_recording_message=0x7f07002e;
         public static final int cancel_upload=0x7f070029;
         /**  Button in confirmation dialog to enable Google Play services.  Clicking it
         will direct user to application settings of Google Play services where they
@@ -377,32 +379,32 @@ containing a value of this type.
         public static final int hello_world=0x7f07001c;
         public static final int name=0x7f070025;
         public static final int open_location_settings=0x7f070022;
-        public static final int pref_default_display_name=0x7f070033;
-        public static final int pref_description_social_recommendations=0x7f070031;
+        public static final int pref_default_display_name=0x7f070035;
+        public static final int pref_description_social_recommendations=0x7f070033;
         /**  Example settings for Data & Sync 
          */
-        public static final int pref_header_data_sync=0x7f070035;
+        public static final int pref_header_data_sync=0x7f070037;
         /**  Strings related to Settings 
  Example General settings 
          */
-        public static final int pref_header_general=0x7f07002f;
+        public static final int pref_header_general=0x7f070031;
         /**  Example settings for Notifications 
          */
-        public static final int pref_header_notifications=0x7f070038;
-        public static final int pref_ringtone_silent=0x7f07003b;
-        public static final int pref_title_add_friends_to_messages=0x7f070034;
-        public static final int pref_title_display_name=0x7f070032;
-        public static final int pref_title_new_message_notifications=0x7f070039;
-        public static final int pref_title_ringtone=0x7f07003a;
-        public static final int pref_title_social_recommendations=0x7f070030;
-        public static final int pref_title_sync_frequency=0x7f070036;
-        public static final int pref_title_system_sync_settings=0x7f070037;
-        public static final int pref_title_vibrate=0x7f07003c;
+        public static final int pref_header_notifications=0x7f07003a;
+        public static final int pref_ringtone_silent=0x7f07003d;
+        public static final int pref_title_add_friends_to_messages=0x7f070036;
+        public static final int pref_title_display_name=0x7f070034;
+        public static final int pref_title_new_message_notifications=0x7f07003b;
+        public static final int pref_title_ringtone=0x7f07003c;
+        public static final int pref_title_social_recommendations=0x7f070032;
+        public static final int pref_title_sync_frequency=0x7f070038;
+        public static final int pref_title_system_sync_settings=0x7f070039;
+        public static final int pref_title_vibrate=0x7f07003e;
         public static final int startRec=0x7f07001f;
         public static final int stopRec=0x7f070020;
         public static final int success=0x7f07002b;
         public static final int title_activity_recording=0x7f07001d;
-        public static final int title_activity_settings=0x7f07002e;
+        public static final int title_activity_settings=0x7f070030;
         public static final int title_activity_upload=0x7f07001e;
         public static final int upload=0x7f070026;
     }

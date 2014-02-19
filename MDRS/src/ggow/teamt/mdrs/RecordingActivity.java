@@ -10,8 +10,10 @@ import java.util.LinkedHashMap;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
@@ -46,8 +48,8 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 
 public class RecordingActivity extends FragmentActivity implements
-		GooglePlayServicesClient.ConnectionCallbacks,
-		GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
+GooglePlayServicesClient.ConnectionCallbacks,
+GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 
 	// General
 	private static final String LOG_TAG = "MDRS - RecordingActivity";
@@ -126,7 +128,7 @@ public class RecordingActivity extends FragmentActivity implements
 		Intent intent = getIntent();
 		intent.getParcelableExtra(MapViewActivity.START_LOCATION);
 		Toast.makeText(this, "Got starter location!", Toast.LENGTH_SHORT)
-				.show();
+		.show();
 		mLocationRequest = LocationRequest.create();
 		mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 		mLocationRequest.setInterval(UPDATE_INTERVAL);
@@ -170,73 +172,6 @@ public class RecordingActivity extends FragmentActivity implements
 		});
 	}
 
-	private void buildDirectory() throws IOException {
-		Log.v(LOG_TAG, "Into buildDirectory()");
-		// Initial construction
-		timeOfRecording = String.valueOf(System.currentTimeMillis());
-		currentRecordingPath = "MDRS/" + timeOfRecording;
-		currentRecordingPath = sanitisePath(currentRecordingPath);
-		Log.v(LOG_TAG, "Initial path: " + currentRecordingPath);
-		if (!initDir(currentRecordingPath)) {
-			Log.e(LOG_TAG, "Problem building main Dir.");
-		}
-
-		// Build folder for images
-		imagesFolder = getCurrentRecordingPath() + "/images";
-		Log.v(LOG_TAG, "Initial images path: " + imagesFolder);
-		if (!initDir(imagesFolder)) {
-			Log.e(LOG_TAG, "Problem building images dir");
-		}
-
-	}
-
-	private boolean initDir(String dir) throws IOException {
-		String state = android.os.Environment.getExternalStorageState();
-		if (!state.equals(android.os.Environment.MEDIA_MOUNTED)) {
-			throw new IOException("SD Card is causing issues");
-		}
-
-		File directory = new File(dir).getParentFile();
-		if (!directory.exists() && !directory.mkdirs()) {
-
-			throw new IOException("Path to file could not be created");
-		}
-		return true;
-	}
-
-	static String getCurrentRecordingPath() {
-		return currentRecordingPath;
-	}
-
-	private String sanitisePath(String path) {
-		if (!path.startsWith("/")) {
-			path = "/" + path;
-		}
-		/*
-		 * if (!path.contains(".")) { path += ".3gp"; }
-		 */
-		return Environment.getExternalStorageDirectory().getAbsolutePath()
-				+ path;
-	}
-
-	public void AudioRecordStart() throws IOException {
-		mRecorder = new MediaRecorder();
-		mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-		mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-		mRecorder.setAudioEncodingBitRate(16);
-		mRecorder.setAudioSamplingRate(44100);
-		Log.v(LOG_TAG, "Audio path: " + getCurrentRecordingPath()
-				+ "/audio.3gp");
-		mRecorder.setOutputFile(getCurrentRecordingPath() + "/audio.3gp");
-		try {
-			mRecorder.prepare();
-		} catch (IOException e) {
-			Log.e(LOG_TAG, "prepare() for recording failed");
-		}
-		mRecorder.start();
-	}
-
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -271,7 +206,7 @@ public class RecordingActivity extends FragmentActivity implements
 			mEditor.putBoolean("KEY_UPDATES_ON", false);
 			mEditor.commit();
 		}
-		//mCamera = getCameraInstance();
+		// mCamera = getCameraInstance();
 	}
 
 	/*
@@ -317,14 +252,6 @@ public class RecordingActivity extends FragmentActivity implements
 		text.setText(msg);
 		Log.v(LOG_TAG, location.toString());
 		locationTrail.put(location.getTime(), location);
-	}
-
-	public void stopRecording(View view) {
-		mRecorder.stop();
-		mRecorder.reset();
-		mRecorder.release();
-		mRecorder = null;
-		startActivity(new Intent(this, UploadActivity.class));
 	}
 
 	/*
@@ -384,9 +311,115 @@ public class RecordingActivity extends FragmentActivity implements
 			 * the error.
 			 */
 			System.err
-					.println("No resolution available. Some form of error with reconnect.");
+			.println("No resolution available. Some form of error with reconnect.");
 			// showErrorDialog(connectionResult.getErrorCode());
 		}
+	}
+
+	@Override
+	public void onBackPressed() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage(R.string.cancel_recording_message)
+		.setTitle(R.string.cancel)
+		.setPositiveButton(R.string.abandon, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int id) {
+				stopRecording();
+				returnToMapView();
+			}
+		})
+		.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int id) {
+				return;
+			}
+		});
+		AlertDialog dialog = builder.create();
+
+	}
+
+	//Broken out to its own class as it errors inside onBackPressed
+	protected void returnToMapView() {
+		startActivity(new Intent(this, MapViewActivity.class));
+	}
+
+	private void buildDirectory() throws IOException {
+		Log.v(LOG_TAG, "Into buildDirectory()");
+		// Initial construction
+		timeOfRecording = String.valueOf(System.currentTimeMillis());
+		currentRecordingPath = "MDRS/" + timeOfRecording;
+		currentRecordingPath = sanitisePath(currentRecordingPath);
+		Log.v(LOG_TAG, "Initial path: " + currentRecordingPath);
+		if (!initDir(currentRecordingPath)) {
+			Log.e(LOG_TAG, "Problem building main Dir.");
+		}
+
+		// Build folder for images
+		imagesFolder = getCurrentRecordingPath() + "/images";
+		Log.v(LOG_TAG, "Initial images path: " + imagesFolder);
+		if (!initDir(imagesFolder)) {
+			Log.e(LOG_TAG, "Problem building images dir");
+		}
+
+	}
+
+	private boolean initDir(String dir) throws IOException {
+		String state = android.os.Environment.getExternalStorageState();
+		if (!state.equals(android.os.Environment.MEDIA_MOUNTED)) {
+			throw new IOException("SD Card is causing issues");
+		}
+
+		File directory = new File(dir).getParentFile();
+		if (!directory.exists() && !directory.mkdirs()) {
+
+			throw new IOException("Path to file could not be created");
+		}
+		return true;
+	}
+
+	private String sanitisePath(String path) {
+		if (!path.startsWith("/")) {
+			path = "/" + path;
+		}
+		return Environment.getExternalStorageDirectory().getAbsolutePath()
+				+ path;
+	}
+
+	public void AudioRecordStart() throws IOException {
+		mRecorder = new MediaRecorder();
+		mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+		mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+		mRecorder.setAudioEncodingBitRate(16);
+		mRecorder.setAudioSamplingRate(44100);
+		Log.v(LOG_TAG, "Audio path: " + getCurrentRecordingPath()
+				+ "/audio.3gp");
+		mRecorder.setOutputFile(getCurrentRecordingPath() + "/audio.3gp");
+		try {
+			mRecorder.prepare();
+		} catch (IOException e) {
+			Log.e(LOG_TAG, "prepare() for recording failed");
+		}
+		mRecorder.start();
+	}
+
+	public void stopRecording() {
+		mRecorder.stop();
+		mRecorder.reset();
+		mRecorder.release();
+		mRecorder = null;
+		releaseCamera();		
+	}
+
+	//Made separate method to make stopRecording more universal for movement
+	//around application
+	public void moveToUpload() {
+		stopRecording();
+		startActivity(new Intent(this, UploadActivity.class));
+	}
+
+	static String getCurrentRecordingPath() {
+		return currentRecordingPath;
 	}
 
 	// Define a DialogFragment that displays the error dialog
@@ -493,9 +526,9 @@ public class RecordingActivity extends FragmentActivity implements
 		}
 		return c; // returns null if camera is unavailable
 	}
-	
+
 	private void releaseCamera() {
-		Log.v(LOG_TAG,"Into releaseCamera()");
+		Log.v(LOG_TAG, "Into releaseCamera()");
 		mCamera.stopPreview();
 		mCamera.setPreviewCallback(null);
 		mCamera.release();
@@ -503,7 +536,7 @@ public class RecordingActivity extends FragmentActivity implements
 
 	/** A basic Camera preview class */
 	public class CameraPreview extends SurfaceView implements
-			SurfaceHolder.Callback {
+	SurfaceHolder.Callback {
 		private SurfaceHolder mHolder;
 		private Camera mCamera;
 		private static final String LOG_TAG = "MDRS - Camera Preview Class";
@@ -539,14 +572,14 @@ public class RecordingActivity extends FragmentActivity implements
 		@Override
 		public void surfaceDestroyed(SurfaceHolder holder) {
 			Log.v("LOG_TAG", "surfaceDestroyed()");
-			//mCamera.setPreviewCallback(null);		
+			// mCamera.setPreviewCallback(null);
 			Log.v("LOG_TAG", "setPreviewCallback done");
 			mCamera.stopPreview();
 			Log.v("LOG_TAG", "stopPreview done");
-	        mCamera.setPreviewCallback(null);
+			mCamera.setPreviewCallback(null);
 			mCamera.release(); // release the camera for other applications
 			mCamera = null;
-			//mCamera = null;
+			// mCamera = null;
 		}
 
 		@Override

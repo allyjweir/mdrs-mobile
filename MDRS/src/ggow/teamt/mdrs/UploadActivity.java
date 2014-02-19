@@ -74,15 +74,6 @@ public class UploadActivity extends FragmentActivity implements
 		setUpMapIfNeeded();
 	}
 
-	/**
-	 * Set up the {@link android.app.ActionBar}.
-	 */
-	private void setupActionBar() {
-
-		getActionBar().setDisplayHomeAsUpEnabled(true);
-
-	}
-
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -115,13 +106,73 @@ public class UploadActivity extends FragmentActivity implements
 		case R.id.action_cancel:
 			cancel();
 			return true;
-
+	
 		}
 		return super.onOptionsItemSelected(item);
 	}
 
+	/**
+	 * Callback called when connected to GCore. Implementation of
+	 * {@link ConnectionCallbacks}.
+	 */
+	@Override
+	public void onConnected(Bundle connectionHint) {
+		Toast.makeText(this, "Waiting for location...", Toast.LENGTH_SHORT)
+				.show();
+	}
+
+	/**
+	 * Callback called when disconnected from GCore. Implementation of
+	 * {@link ConnectionCallbacks}.
+	 */
+	@Override
+	public void onDisconnected() {
+		Toast.makeText(this, "Disconnected. Please re-connect.",
+				Toast.LENGTH_SHORT).show();
+	}
+
+	@SuppressWarnings("deprecation")
+	@Override
+	public void onConnectionFailed(ConnectionResult connectionResult) {
+		System.err.println("Connection failed");
+		/*
+		 * Google Play services can resolve some errors it detects. If the error
+		 * has a resolution, try sending an Intent to start a Google Play
+		 * services activity that can resolve error.
+		 */
+		if (connectionResult.hasResolution()) {
+			try {
+				// Start an Activity that tries to resolve the error
+				connectionResult.startResolutionForResult(this,
+						CONNECTION_FAILURE_RESOLUTION_REQUEST);
+				/*
+				 * Thrown if Google Play services cancelled the original
+				 * PendingIntent
+				 */
+			} catch (IntentSender.SendIntentException e) {
+				// Log the error
+				e.printStackTrace();
+			}
+		} else {
+			/*
+			 * If no resolution is available, display a dialog to the user with
+			 * the error.
+			 */
+			showDialog(connectionResult.getErrorCode());
+		}
+	}
+
+	/**
+	 * Set up the {@link android.app.ActionBar}.
+	 */
+	private void setupActionBar() {
+
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+
+	}
+
 	private void cancel() {
-		// TODO Add dialog and then send back to mapviewactivity
+		// TODO Add confirm dialog to move back to mapviewactivity
 
 	}
 
@@ -324,56 +375,5 @@ public class UploadActivity extends FragmentActivity implements
 				.target(new LatLng(start.getLatitude(), start.getLongitude()))
 				.zoom(17).build();
 		mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-	}
-
-	@SuppressWarnings("deprecation")
-	@Override
-	public void onConnectionFailed(ConnectionResult connectionResult) {
-		System.err.println("Connection failed");
-		/*
-		 * Google Play services can resolve some errors it detects. If the error
-		 * has a resolution, try sending an Intent to start a Google Play
-		 * services activity that can resolve error.
-		 */
-		if (connectionResult.hasResolution()) {
-			try {
-				// Start an Activity that tries to resolve the error
-				connectionResult.startResolutionForResult(this,
-						CONNECTION_FAILURE_RESOLUTION_REQUEST);
-				/*
-				 * Thrown if Google Play services cancelled the original
-				 * PendingIntent
-				 */
-			} catch (IntentSender.SendIntentException e) {
-				// Log the error
-				e.printStackTrace();
-			}
-		} else {
-			/*
-			 * If no resolution is available, display a dialog to the user with
-			 * the error.
-			 */
-			showDialog(connectionResult.getErrorCode());
-		}
-	}
-
-	/**
-	 * Callback called when connected to GCore. Implementation of
-	 * {@link ConnectionCallbacks}.
-	 */
-	@Override
-	public void onConnected(Bundle connectionHint) {
-		Toast.makeText(this, "Waiting for location...", Toast.LENGTH_SHORT)
-				.show();
-	}
-
-	/**
-	 * Callback called when disconnected from GCore. Implementation of
-	 * {@link ConnectionCallbacks}.
-	 */
-	@Override
-	public void onDisconnected() {
-		Toast.makeText(this, "Disconnected. Please re-connect.",
-				Toast.LENGTH_SHORT).show();
 	}
 }
