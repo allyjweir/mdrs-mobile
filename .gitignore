@@ -1,3 +1,4 @@
-.metadata/*
+.metadata/
 MDRS/bin/
-
+.metadata/.plugins
+.metadata/.log
