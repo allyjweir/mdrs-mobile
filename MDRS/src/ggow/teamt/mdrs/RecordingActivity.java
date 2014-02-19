@@ -46,8 +46,8 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 
 public class RecordingActivity extends FragmentActivity implements
-GooglePlayServicesClient.ConnectionCallbacks,
-GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
+		GooglePlayServicesClient.ConnectionCallbacks,
+		GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 
 	// General
 	private static final String LOG_TAG = "MDRS - RecordingActivity";
@@ -80,9 +80,9 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 		@Override
 		public void onPictureTaken(byte[] data, Camera camera) {
 			// Create a media file name
-			String timeStamp = String.valueOf(System.currentTimeMillis());
-			File pictureFile;
-			pictureFile = new File(imagesFolder + "/IMG_" + timeStamp + ".jpg");
+			//String timeStamp = String.valueOf(System.currentTimeMillis());
+			//File pictureFile;
+			File pictureFile = getOutputMediaFile();//new File(imagesFolder + "/IMG_" + timeStamp + ".jpg");
 
 			try {
 				FileOutputStream fos = new FileOutputStream(pictureFile);
@@ -126,7 +126,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 		Intent intent = getIntent();
 		intent.getParcelableExtra(MapViewActivity.START_LOCATION);
 		Toast.makeText(this, "Got starter location!", Toast.LENGTH_SHORT)
-		.show();
+				.show();
 		mLocationRequest = LocationRequest.create();
 		mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 		mLocationRequest.setInterval(UPDATE_INTERVAL);
@@ -310,7 +310,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 			 * the error.
 			 */
 			System.err
-			.println("No resolution available. Some form of error with reconnect.");
+					.println("No resolution available. Some form of error with reconnect.");
 			// showErrorDialog(connectionResult.getErrorCode());
 		}
 	}
@@ -319,20 +319,22 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 	public void onBackPressed() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage(R.string.cancel_recording_message)
-		.setTitle(R.string.cancel)
-		.setPositiveButton(R.string.abandon, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int id) {
-				stopRecording();
-				returnToMapView();
-			}
-		})
-		.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int id) {
-				return;
-			}
-		});
+				.setTitle(R.string.cancel)
+				.setPositiveButton(R.string.abandon,
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int id) {
+								stopRecording();
+								returnToMapView();
+							}
+						})
+				.setNegativeButton(R.string.cancel,
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int id) {
+								return;
+							}
+						});
 		AlertDialog dialog = builder.create();
 
 	}
@@ -341,7 +343,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 		return locationTrail;
 	}
 
-	//Broken out to its own class as it errors inside onBackPressed
+	// Broken out to its own class as it errors inside onBackPressed
 	protected void returnToMapView() {
 		startActivity(new Intent(this, MapViewActivity.class));
 	}
@@ -352,32 +354,20 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 		timeOfRecording = String.valueOf(System.currentTimeMillis());
 		currentRecordingPath = "MDRS/" + timeOfRecording;
 		currentRecordingPath = sanitisePath(currentRecordingPath);
-		Log.v(LOG_TAG, "Initial path: " + currentRecordingPath);
 		if (!initDir(currentRecordingPath)) {
 			Log.e(LOG_TAG, "Problem building main Dir.");
+		} else {
+			Log.v(LOG_TAG, "Initial path: " + currentRecordingPath);
 		}
 
 		// Build folder for images
 		imagesFolder = getCurrentRecordingPath() + "/images";
-		Log.v(LOG_TAG, "Initial images path: " + imagesFolder);
 		if (!initDir(imagesFolder)) {
 			Log.e(LOG_TAG, "Problem building images dir");
+		} else {
+			Log.v(LOG_TAG, "Initial images path: " + imagesFolder);
 		}
 
-	}
-
-	private boolean initDir(String dir) throws IOException {
-		String state = android.os.Environment.getExternalStorageState();
-		if (!state.equals(android.os.Environment.MEDIA_MOUNTED)) {
-			throw new IOException("SD Card is causing issues");
-		}
-
-		File directory = new File(dir).getParentFile();
-		if (!directory.exists() && !directory.mkdirs()) {
-
-			throw new IOException("Path to file could not be created");
-		}
-		return true;
 	}
 
 	private String sanitisePath(String path) {
@@ -386,6 +376,19 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 		}
 		return Environment.getExternalStorageDirectory().getAbsolutePath()
 				+ path;
+	}
+	
+	private boolean initDir(String dir) throws IOException {
+		String state = android.os.Environment.getExternalStorageState();
+		if (!state.equals(android.os.Environment.MEDIA_MOUNTED)) {
+			throw new IOException("SD Card is causing issues");
+		}
+
+		File directory = new File(dir);//.getParentFile();
+		if (!directory.exists() && !directory.mkdirs()) {
+			throw new IOException("Path to file could not be created");
+		}
+		return true;
 	}
 
 	public void AudioRecordStart() throws IOException {
@@ -413,11 +416,11 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 		mRecorder.release();
 		mRecorder = null;
 		Log.v(LOG_TAG, "stopRecording() after recorder stuff");
-		//releaseCamera();		
+		// releaseCamera();
 	}
 
-	//Made separate method to make stopRecording more universal for movement
-	//around application
+	// Made separate method to make stopRecording more universal for movement
+	// around application
 	public void moveToUpload(View view) {
 		Log.v(LOG_TAG, "moveToUpload()");
 		stopRecording();
@@ -538,12 +541,12 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 		Log.v(LOG_TAG, "Into releaseCamera()");
 		mCamera.stopPreview();
 		mCamera.setPreviewCallback(null);
-		//mCamera.release();
+		// mCamera.release();
 	}
 
 	/** A basic Camera preview class */
 	public class CameraPreview extends SurfaceView implements
-	SurfaceHolder.Callback {
+			SurfaceHolder.Callback {
 		private SurfaceHolder mHolder;
 		private Camera mCamera;
 		private static final String LOG_TAG = "MDRS - Camera Preview Class";
