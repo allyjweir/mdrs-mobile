@@ -34,7 +34,7 @@
         android:layout_marginBottom="50dp"
         android:background="@null"
         android:contentDescription="@string/stopRec"
-        android:onClick="stopRecording"
+        android:onClick="moveToUpload"
         android:scaleType="fitCenter"
         android:src="@drawable/rec_gray" />
 

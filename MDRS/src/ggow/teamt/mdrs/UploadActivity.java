@@ -69,8 +69,8 @@ public class UploadActivity extends FragmentActivity implements
 		metadata = new JSONArray();
 		getIntent();
 		// locationTrail = intent.getParcelableExtra(RecordingActivity.TRAIL);
-		locationTrail = RecordingActivity.locationTrail;
-		System.out.println(locationTrail);
+		locationTrail = RecordingActivity.getLocationTrail();
+		Log.v(LOG_TAG, "locTrail from RecAct: " + locationTrail.toString());
 		setUpMapIfNeeded();
 	}
 
@@ -290,6 +290,14 @@ public class UploadActivity extends FragmentActivity implements
 			public void onSuccess(String response) {
 				Log.v(LOG_TAG, "Successful upload.");
 				//TODO add intent to move to map view activity from here instead of out there
+			}
+			
+			@Override
+			public void onFailure(int statusCode,
+                    org.apache.http.Header[] headers,
+                    byte[] binaryData,
+                    java.lang.Throwable error) {
+				Log.e(LOG_TAG, "Failed upload. Check server");
 			}
 		});
 		Log.v(LOG_TAG, "Hopefully this should httpUpload");

@@ -6,6 +6,7 @@ import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallback
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
@@ -44,6 +45,12 @@ public class MapViewActivity extends FragmentActivity implements
 	private GoogleMap mMap;
 	private LocationClient mLocationClient;
 	public Location mCurrentLocation = null;
+	private static final int MILLISECONDS_PER_SECOND = 1000;
+	public static final int UPDATE_INTERVAL_IN_SECONDS = 5;
+	private static final long UPDATE_INTERVAL = MILLISECONDS_PER_SECOND
+			* UPDATE_INTERVAL_IN_SECONDS;
+	private static final int FASTEST_INTERVAL_IN_SECONDS = 1;
+	private LocationRequest mLocationRequest;
 	public final static String START_LOCATION = "ggow.teamt.mdrs.location";
 
 	@Override
@@ -66,6 +73,10 @@ public class MapViewActivity extends FragmentActivity implements
 		isLocationEnabled(this);
 		mLocationClient = new LocationClient(this, this, this);
 		mLocationClient.connect();
+		mLocationRequest = LocationRequest.create();
+		mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+		mLocationRequest.setInterval(UPDATE_INTERVAL);
+		mLocationRequest.setFastestInterval(FASTEST_INTERVAL_IN_SECONDS);
 		Log.v(LOG_TAG, "onCreate() success");
 	}
 
@@ -188,15 +199,16 @@ public class MapViewActivity extends FragmentActivity implements
 	@Override
 	public void onConnected(Bundle connectionHint) {
 		Log.v(LOG_TAG, "Connected to Location Services.");
-		// Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
 
 		// I don't think this is actually needed. the onLocationChanged callback
 		// should deal with it. Will take out and test without and test.
-		/*
-		 * mCurrentLocation = mLocationClient.getLastLocation(); if
-		 * (!mCurrentLocation.equals(null)){
-		 * onLocationChanged(mCurrentLocation); }
-		 */
+
+		mCurrentLocation = mLocationClient.getLastLocation();
+		if (!mCurrentLocation.equals(null)) {
+			onLocationChanged(mCurrentLocation);
+		}
+
 	}
 
 	/*

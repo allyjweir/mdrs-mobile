@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Date;
-import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
 
 import android.app.ActionBar;
@@ -181,12 +179,13 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 
 	@Override
 	protected void onPause() {
+		Log.v(LOG_TAG, "Pausing application. muzer");
+		releaseCamera(); // release the camera immediately on pause event
 		Log.v(LOG_TAG, "Pausing application.");
 		// Save the current setting for updates
 		mEditor.putBoolean("KEY_UPDATES_ON", mUpdatesRequested);
 		mEditor.commit();
 		super.onPause();
-		releaseCamera(); // release the camera immediately on pause event
 
 	}
 
@@ -338,6 +337,10 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 
 	}
 
+	public static LinkedHashMap<Long, Location> getLocationTrail() {
+		return locationTrail;
+	}
+
 	//Broken out to its own class as it errors inside onBackPressed
 	protected void returnToMapView() {
 		startActivity(new Intent(this, MapViewActivity.class));
@@ -404,17 +407,21 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 	}
 
 	public void stopRecording() {
+		Log.v(LOG_TAG, "stopRecording()");
 		mRecorder.stop();
 		mRecorder.reset();
 		mRecorder.release();
 		mRecorder = null;
-		releaseCamera();		
+		Log.v(LOG_TAG, "stopRecording() after recorder stuff");
+		//releaseCamera();		
 	}
 
 	//Made separate method to make stopRecording more universal for movement
 	//around application
-	public void moveToUpload() {
+	public void moveToUpload(View view) {
+		Log.v(LOG_TAG, "moveToUpload()");
 		stopRecording();
+		Log.v(LOG_TAG, "moveToUpload() after stopRecording");
 		startActivity(new Intent(this, UploadActivity.class));
 	}
 
@@ -531,7 +538,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 		Log.v(LOG_TAG, "Into releaseCamera()");
 		mCamera.stopPreview();
 		mCamera.setPreviewCallback(null);
-		mCamera.release();
+		//mCamera.release();
 	}
 
 	/** A basic Camera preview class */
