@@ -12,6 +12,10 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.rauschig.jarchivelib.ArchiveFormat;
+import org.rauschig.jarchivelib.Archiver;
+import org.rauschig.jarchivelib.ArchiverFactory;
+import org.rauschig.jarchivelib.CompressionType;
 
 import android.content.Intent;
 import android.content.IntentSender;
@@ -50,6 +54,7 @@ public class UploadActivity extends FragmentActivity implements
 	private LinkedHashMap<Long, Location> locationTrail;
 	private JSONArray metadata;
 	private String metadataPath;
+	private File images;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -106,7 +111,7 @@ public class UploadActivity extends FragmentActivity implements
 		case R.id.action_cancel:
 			cancel();
 			return true;
-	
+
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -249,6 +254,20 @@ public class UploadActivity extends FragmentActivity implements
 		}
 	}
 
+	private File tarImagesUp() throws IOException {
+		String archiveName = "images";
+		File destination = new File(RecordingActivity.getCurrentRecordingPath());
+		File source = new File(RecordingActivity.getCurrentRecordingPath()
+				+ "/images");
+
+		// should probably add some error checking to this...
+		Archiver archiver = ArchiverFactory.createArchiver(ArchiveFormat.TAR,
+				CompressionType.GZIP);
+		images = archiver.create(archiveName, destination, source);
+
+		return images;
+	}
+
 	/*
 	 * Gather together all the data that has been created and save it to a JSON
 	 * ready for uploading when connecting to a computer.
@@ -259,6 +278,7 @@ public class UploadActivity extends FragmentActivity implements
 	private void upload() throws IOException {
 		createJSONFromLocationTrail();
 		saveMetadataToDevice();
+		tarImagesUp();
 		uploadToServer();
 		Toast.makeText(this, R.string.success, Toast.LENGTH_SHORT).show();
 		startActivity(new Intent(this, MapViewActivity.class));
@@ -266,37 +286,47 @@ public class UploadActivity extends FragmentActivity implements
 
 	private void uploadToServer() {
 		Log.v(LOG_TAG, "into uploadToServer()");
-		
+
 		AsyncHttpClient client = new AsyncHttpClient();
-		
-		
+
+		// audio
 		File audioFile = new File(RecordingActivity.getCurrentRecordingPath()
 				+ "/audio.3gp");
 		Log.v(LOG_TAG, "Audio file: " + audioFile.toString());
+
+		// metadata
 		File metadataFile = new File(metadataPath);
 		Log.v(LOG_TAG, "Metadata file: " + metadataFile.toString());
-		// need a tar.gz creation here for the images
+
+		// images
+		File imagesFile = new File(RecordingActivity.getCurrentRecordingPath()
+				+ "/images.tar.gz");
+		Log.v(LOG_TAG,
+				"Images file: " + RecordingActivity.getCurrentRecordingPath()
+						+ "/images.tar.gz");
+
 		RequestParams params = new RequestParams();
 		try {
 			params.put("audio", audioFile);
 			params.put("metadata", metadataFile);
+			params.put("images", imagesFile);
 		} catch (FileNotFoundException e) {
 			Log.e(LOG_TAG, "Can't find a file to upload to server");
 			e.printStackTrace();
 		}
-		
-		client.post("mobile_upload", params, new AsyncHttpResponseHandler() {
+
+		client.post("upload", params, new AsyncHttpResponseHandler() {
 			@Override
 			public void onSuccess(String response) {
 				Log.v(LOG_TAG, "Successful upload.");
-				//TODO add intent to move to map view activity from here instead of out there
+				// TODO add intent to move to map view activity from here
+				// instead of out there
 			}
-			
+
 			@Override
 			public void onFailure(int statusCode,
-                    org.apache.http.Header[] headers,
-                    byte[] binaryData,
-                    java.lang.Throwable error) {
+					org.apache.http.Header[] headers, byte[] binaryData,
+					java.lang.Throwable error) {
 				Log.e(LOG_TAG, "Failed upload. Check server");
 			}
 		});
