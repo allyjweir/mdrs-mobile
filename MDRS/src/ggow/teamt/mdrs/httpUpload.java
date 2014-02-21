@@ -5,7 +5,7 @@ import android.widget.Toast;
 import com.loopj.android.http.*;
 
 public class httpUpload {
-	private static final String BASE_URL = "http://penida.dcs.gla.ac.uk/webapp/";
+	private static final String BASE_URL = "http://posttestserver.com/post.php";
 
 	private static AsyncHttpClient client = new AsyncHttpClient();
 
