@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.LinkedHashMap;
 
 import android.app.ActionBar;
@@ -21,6 +22,7 @@ import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
 import android.location.Location;
 import android.media.MediaRecorder;
+import android.net.SntpClient;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -37,6 +39,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -100,6 +103,11 @@ public class RecordingActivity extends FragmentActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_recording);
+		
+		//Time
+		timeOfRecording = getAccurateTime();
+		
+		//Directory
 		try {
 			buildDirectory();
 		} catch (IOException e1) {
@@ -168,6 +176,27 @@ public class RecordingActivity extends FragmentActivity implements
 				// mCamera.takePicture(null, null, mPicture);
 			}
 		});
+	}
+
+	private String getAccurateTime() {
+		SntpClient client = new SntpClient();
+		if (client.requestTime("0.us.pool.ntp.org", 30000)) {
+		                long time = client.getNtpTime();
+		                long newTime = time;
+		                Log.d("shetty", newTime + "....newTime");
+		                Calendar calendar = Calendar.getInstance();
+		                try {
+		                    calendar.setTimeInMillis(time);
+		                    String returnableTime = String.valueOf(calendar.getTimeInMillis());
+		                    Log.v(LOG_TAG, "accurate time grabbed");
+		                    return returnableTime;
+		                } catch (Exception e) {
+		                    // TODO: handle exception
+		                    Log.e(LOG_TAG,"No Response from NTP");
+		                }
+
+		            }
+		return String.valueOf(System.nanoTime());
 	}
 
 	@Override
@@ -351,7 +380,6 @@ public class RecordingActivity extends FragmentActivity implements
 	private void buildDirectory() throws IOException {
 		Log.v(LOG_TAG, "Into buildDirectory()");
 		// Initial construction
-		timeOfRecording = String.valueOf(System.currentTimeMillis());
 		currentRecordingPath = "MDRS/" + timeOfRecording;
 		currentRecordingPath = sanitisePath(currentRecordingPath);
 		if (!initDir(currentRecordingPath)) {
