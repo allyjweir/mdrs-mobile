@@ -11,7 +11,7 @@
 	<string name="gps_network_not_enabled">GPS not enabled.</string>
 	<string name="open_location_settings">Open location settings?</string>
 	<string name="Cancel">Cancel</string>
-	<string name="description">Description</string>
+	<string name="description">Description (Optional)</string>
 	<string name="name">Title</string>
 	<string name="upload">Upload</string>
 	<string name="confirm_upload">Confirm Upload</string>
