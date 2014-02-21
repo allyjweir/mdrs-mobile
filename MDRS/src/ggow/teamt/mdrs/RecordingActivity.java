@@ -35,7 +35,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -81,11 +80,9 @@ public class RecordingActivity extends FragmentActivity implements
 		@Override
 		public void onPictureTaken(byte[] data, Camera camera) {
 			// Create a media file name
-			// String timeStamp = String.valueOf(System.currentTimeMillis());
-			// File pictureFile;
-			File pictureFile = getOutputMediaFile();// new File(imagesFolder +
-													// "/IMG_" + timeStamp +
-													// ".jpg");
+			//String timeStamp = String.valueOf(System.currentTimeMillis());
+			//File pictureFile;
+			File pictureFile = getOutputMediaFile();//new File(imagesFolder + "/IMG_" + timeStamp + ".jpg");
 
 			try {
 				FileOutputStream fos = new FileOutputStream(pictureFile);
@@ -160,11 +157,6 @@ public class RecordingActivity extends FragmentActivity implements
 		// Add CameraPreview to FrameLayout in activity_recording.xml
 		preview = (FrameLayout) findViewById(R.id.camera_preview);
 		preview.addView(mPreview);
-		
-		//overlay camera controls
-		//LinearLayout cameraControls = (LinearLayout) findViewById(R.layout.controls);
-		//cameraControls.bringToFront();
-
 		// Add a listener to the Capture button
 		Button captureButton = (Button) findViewById(R.id.button_capture);
 		captureButton.setOnClickListener(new View.OnClickListener() {
@@ -343,8 +335,7 @@ public class RecordingActivity extends FragmentActivity implements
 								return;
 							}
 						});
-		AlertDialog alert = builder.create();
-		alert.show();
+		AlertDialog dialog = builder.create();
 
 	}
 
@@ -386,14 +377,14 @@ public class RecordingActivity extends FragmentActivity implements
 		return Environment.getExternalStorageDirectory().getAbsolutePath()
 				+ path;
 	}
-
+	
 	private boolean initDir(String dir) throws IOException {
 		String state = android.os.Environment.getExternalStorageState();
 		if (!state.equals(android.os.Environment.MEDIA_MOUNTED)) {
 			throw new IOException("SD Card is causing issues");
 		}
 
-		File directory = new File(dir);// .getParentFile();
+		File directory = new File(dir);//.getParentFile();
 		if (!directory.exists() && !directory.mkdirs()) {
 			throw new IOException("Path to file could not be created");
 		}
@@ -434,9 +425,7 @@ public class RecordingActivity extends FragmentActivity implements
 		Log.v(LOG_TAG, "moveToUpload()");
 		stopRecording();
 		Log.v(LOG_TAG, "moveToUpload() after stopRecording");
-		Intent intent = new Intent(this, UploadActivity.class);
-		intent.putExtra("locationTrail", locationTrail);
-		startActivity(intent);
+		startActivity(new Intent(this, UploadActivity.class));
 	}
 
 	static String getCurrentRecordingPath() {

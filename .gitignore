@@ -1,5 +1,4 @@
 .metadata/
-MDRS/bin/jarlist.cache
+MDRS/bin/
 .metadata/.plugins
 .metadata/.log
-google-plagoogle-play-services_lib/bin/google-play-services_lib.jar

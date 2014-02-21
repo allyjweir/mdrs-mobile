@@ -72,9 +72,9 @@ public class UploadActivity extends FragmentActivity implements
 		 * Log.v(LOG_TAG, "Not KitKat+"); }
 		 */
 		metadata = new JSONArray();
-		Intent intent = getIntent();
-		locationTrail = intent.getParcelableExtra("locationTrail");
-		// locationTrail = RecordingActivity.getLocationTrail();
+		getIntent();
+		// locationTrail = intent.getParcelableExtra(RecordingActivity.TRAIL);
+		locationTrail = RecordingActivity.getLocationTrail();
 		Log.v(LOG_TAG, "locTrail from RecAct: " + locationTrail.toString());
 		setUpMapIfNeeded();
 	}
@@ -260,7 +260,7 @@ public class UploadActivity extends FragmentActivity implements
 		File source = new File(RecordingActivity.getCurrentRecordingPath()
 				+ "/images");
 
-		// TODO should probably add some error checking to this...
+		// should probably add some error checking to this...
 		Archiver archiver = ArchiverFactory.createArchiver(ArchiveFormat.TAR,
 				CompressionType.GZIP);
 		images = archiver.create(archiveName, destination, source);
@@ -331,7 +331,8 @@ public class UploadActivity extends FragmentActivity implements
 			}
 		});
 		Log.v(LOG_TAG, "Hopefully this should httpUpload");
-		// TODO Need to make it work in the background
+		// TODO Need some form of error checking in this. How do we know it has
+		// been successful? Also need to make it work in the background
 	}
 
 	/*
