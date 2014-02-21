@@ -54,6 +54,20 @@ public class RecordingActivity extends FragmentActivity implements
 	private String timeOfRecording;
 	public static String currentRecordingPath;
 	public static String imagesFolder;
+	
+	//NTPTime
+    // messages that are returned from service
+    public static final int RETURN_GENERIC_ERROR = 0;
+    public static final int RETURN_OKAY = 1;
+    public static final int RETURN_SERVER_TIMEOUT = 2;
+    public static final int RETURN_NO_ROOT = 3;
+
+    public static final String OUTPUT_OFFSET = "offset";
+    private Preference mGetTime;
+    private Preference mSetTime;
+
+    /** The primary interface we will be calling on the service. */
+    INtpSyncRemoteService mNtpSyncService = null;
 
 	// Location
 	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
@@ -230,6 +244,18 @@ public class RecordingActivity extends FragmentActivity implements
 		mLocationClient.disconnect();
 		super.onStop();
 	}
+	
+    /**
+     * Unbind from NTPSync when activity gets destroyed
+     */
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // unbind from NtpSync
+        unbindService(mConnection);
+    }
+
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -675,5 +701,151 @@ public class RecordingActivity extends FragmentActivity implements
 		}
 
 	}
+	
+	
+	/**
+     * Gets time using NTPSync
+     * 
+     * IPC calls via AIDL are synchronous in Android!!! Because of that we need to call the methods
+     * from AsyncTask or IntentService to not block the UI
+     */
+    private void getTime() {
+        AsyncTask<Void, Void, Integer> getTimeTask = new AsyncTask<Void, Void, Integer>() {
+            long offset;
+
+            @Override
+            protected Integer doInBackground(Void... unused) {
+                int result = RETURN_GENERIC_ERROR;
+
+                try {
+                    Bundle output = new Bundle();
+                    result = mNtpSyncService.getOffset(null, output);
+
+                    offset = output.getLong(OUTPUT_OFFSET);
+
+                    Log.d(TAG, "Result: " + result);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+
+                // return result to onPostExecute
+                return result;
+            }
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+            }
+
+            @Override
+            protected void onPostExecute(Integer result) {
+                super.onPostExecute(result);
+
+                Toast toast = null;
+                switch (result) {
+                case RETURN_GENERIC_ERROR:
+                    toast = Toast.makeText(mActivity, "Error", Toast.LENGTH_LONG);
+                    toast.show();
+
+                    break;
+
+                case RETURN_OKAY:
+                    // calculate new time
+                    Date newTime = new Date(System.currentTimeMillis() + offset);
+
+                    toast = Toast.makeText(mActivity, "NTP offset is " + offset + " (" + newTime
+                            + ")", Toast.LENGTH_LONG);
+                    toast.show();
+
+                    break;
+
+                case RETURN_SERVER_TIMEOUT:
+                    toast = Toast.makeText(mActivity, "Server timeout!", Toast.LENGTH_LONG);
+                    toast.show();
+
+                    break;
+
+                default:
+                    break;
+                }
+            }
+        };
+
+        getTimeTask.execute();
+    }
+
+    /**
+     * Sets time using NTPSync
+     * 
+     * IPC calls via AIDL are synchronous in Android!!! Because of that we need to call the methods
+     * from AsyncTask or IntentService to not block the UI
+     */
+    private void setTime() {
+        AsyncTask<Void, Void, Integer> setTimeTask = new AsyncTask<Void, Void, Integer>() {
+            long offset;
+
+            @Override
+            protected Integer doInBackground(Void... unused) {
+                int result = RETURN_GENERIC_ERROR;
+
+                try {
+                    Bundle output = new Bundle();
+                    result = mNtpSyncService.setTime(null, output);
+
+                    Log.d(TAG, "Result: " + result);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+
+                // return result to onPostExecute
+                return result;
+            }
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+            }
+
+            @Override
+            protected void onPostExecute(Integer result) {
+                super.onPostExecute(result);
+
+                Toast toast = null;
+                switch (result) {
+                case RETURN_GENERIC_ERROR:
+                    toast = Toast.makeText(mActivity, "Error!", Toast.LENGTH_LONG);
+                    toast.show();
+
+                    break;
+
+                case RETURN_OKAY:
+                    // calculate new time
+                    Date newTime = new Date(System.currentTimeMillis() + offset);
+
+                    toast = Toast.makeText(mActivity, "Time was set to " + newTime,
+                            Toast.LENGTH_LONG);
+                    toast.show();
+
+                    break;
+
+                case RETURN_SERVER_TIMEOUT:
+                    toast = Toast.makeText(mActivity, "Server timeout!", Toast.LENGTH_LONG);
+                    toast.show();
+
+                    break;
+
+                case RETURN_NO_ROOT:
+                    toast = Toast.makeText(mActivity, "No Root!", Toast.LENGTH_LONG);
+                    toast.show();
+                    break;
+
+                default:
+                    break;
+                }
+            }
+        };
+
+        setTimeTask.execute();
+    } 
 
 }
