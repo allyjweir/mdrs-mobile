@@ -260,7 +260,7 @@ public class UploadActivity extends FragmentActivity implements
 		File source = new File(RecordingActivity.getCurrentRecordingPath()
 				+ "/images");
 
-		// should probably add some error checking to this...
+		//TODO should probably add some error checking to this...
 		Archiver archiver = ArchiverFactory.createArchiver(ArchiveFormat.TAR,
 				CompressionType.GZIP);
 		images = archiver.create(archiveName, destination, source);
@@ -331,8 +331,7 @@ public class UploadActivity extends FragmentActivity implements
 			}
 		});
 		Log.v(LOG_TAG, "Hopefully this should httpUpload");
-		// TODO Need some form of error checking in this. How do we know it has
-		// been successful? Also need to make it work in the background
+		//TODO Need to make it work in the background
 	}
 
 	/*

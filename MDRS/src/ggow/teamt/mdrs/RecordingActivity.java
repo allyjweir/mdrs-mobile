@@ -80,9 +80,11 @@ public class RecordingActivity extends FragmentActivity implements
 		@Override
 		public void onPictureTaken(byte[] data, Camera camera) {
 			// Create a media file name
-			//String timeStamp = String.valueOf(System.currentTimeMillis());
-			//File pictureFile;
-			File pictureFile = getOutputMediaFile();//new File(imagesFolder + "/IMG_" + timeStamp + ".jpg");
+			// String timeStamp = String.valueOf(System.currentTimeMillis());
+			// File pictureFile;
+			File pictureFile = getOutputMediaFile();// new File(imagesFolder +
+													// "/IMG_" + timeStamp +
+													// ".jpg");
 
 			try {
 				FileOutputStream fos = new FileOutputStream(pictureFile);
@@ -335,7 +337,8 @@ public class RecordingActivity extends FragmentActivity implements
 								return;
 							}
 						});
-		AlertDialog dialog = builder.create();
+		AlertDialog alert = builder.create();
+		alert.show();
 
 	}
 
@@ -377,14 +380,14 @@ public class RecordingActivity extends FragmentActivity implements
 		return Environment.getExternalStorageDirectory().getAbsolutePath()
 				+ path;
 	}
-	
+
 	private boolean initDir(String dir) throws IOException {
 		String state = android.os.Environment.getExternalStorageState();
 		if (!state.equals(android.os.Environment.MEDIA_MOUNTED)) {
 			throw new IOException("SD Card is causing issues");
 		}
 
-		File directory = new File(dir);//.getParentFile();
+		File directory = new File(dir);// .getParentFile();
 		if (!directory.exists() && !directory.mkdirs()) {
 			throw new IOException("Path to file could not be created");
 		}

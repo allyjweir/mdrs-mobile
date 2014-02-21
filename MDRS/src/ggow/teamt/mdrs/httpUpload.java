@@ -1,7 +1,5 @@
 package ggow.teamt.mdrs;
 
-import android.widget.Toast;
-
 import com.loopj.android.http.*;
 
 public class httpUpload {
