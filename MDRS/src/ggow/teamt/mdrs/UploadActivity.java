@@ -177,7 +177,7 @@ public class UploadActivity extends FragmentActivity implements
 	}
 
 	private void cancel() {
-		// TODO Add confirm dialog to move back to mapviewactivity
+		// TODO Add confirm dialog to move back to mapViewActivity
 
 	}
 
@@ -287,7 +287,7 @@ public class UploadActivity extends FragmentActivity implements
 	private void uploadToServer() {
 		Log.v(LOG_TAG, "into uploadToServer()");
 
-		AsyncHttpClient client = new AsyncHttpClient();
+		mdrsHttpUpload client = new mdrsHttpUpload();
 
 		// audio
 		File audioFile = new File(RecordingActivity.getCurrentRecordingPath()

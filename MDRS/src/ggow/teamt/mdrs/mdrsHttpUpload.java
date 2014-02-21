@@ -1,11 +1,9 @@
 package ggow.teamt.mdrs;
 
-import android.widget.Toast;
-
 import com.loopj.android.http.*;
 
-public class httpUpload {
-	private static final String BASE_URL = "http://posttestserver.com/post.php";
+public class mdrsHttpUpload {
+	private static final String BASE_URL = "http://posttestserver.com/post.php?dir=mdrs";
 
 	private static AsyncHttpClient client = new AsyncHttpClient();
 
@@ -13,7 +11,7 @@ public class httpUpload {
 		client.get(getAbsoluteUrl(url), params, responseHandler);
 	}
 
-	public static void post(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+	public void post(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
 		client.post(getAbsoluteUrl(url), params, responseHandler);
 	}
 
