@@ -54,9 +54,13 @@ public class RecordingActivity extends FragmentActivity implements
 
 	// General
 	private static final String LOG_TAG = "MDRS - RecordingActivity";
-	private String timeOfRecording;
 	public static String currentRecordingPath;
 	public static String imagesFolder;
+	
+	//Time
+	private String folderTimeTag;
+	public static String startTime;
+	public static String endTime;
 
 	// Location
 	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
@@ -105,7 +109,7 @@ public class RecordingActivity extends FragmentActivity implements
 		setContentView(R.layout.activity_recording);
 		
 		//Time
-		timeOfRecording = getAccurateTime();
+		folderTimeTag = getAccurateTime();
 		
 		//Directory
 		try {
@@ -197,6 +201,14 @@ public class RecordingActivity extends FragmentActivity implements
 
 		            }
 		return String.valueOf(System.nanoTime());
+	}
+
+	public static String getStartTime() {
+		return startTime;
+	}
+
+	public static String getEndTime() {
+		return endTime;
 	}
 
 	@Override
@@ -380,7 +392,7 @@ public class RecordingActivity extends FragmentActivity implements
 	private void buildDirectory() throws IOException {
 		Log.v(LOG_TAG, "Into buildDirectory()");
 		// Initial construction
-		currentRecordingPath = "MDRS/" + timeOfRecording;
+		currentRecordingPath = "MDRS/" + folderTimeTag;
 		currentRecordingPath = sanitisePath(currentRecordingPath);
 		if (!initDir(currentRecordingPath)) {
 			Log.e(LOG_TAG, "Problem building main Dir.");
@@ -434,11 +446,13 @@ public class RecordingActivity extends FragmentActivity implements
 		} catch (IOException e) {
 			Log.e(LOG_TAG, "prepare() for recording failed");
 		}
+		startTime = getAccurateTime();
 		mRecorder.start();
 	}
 
 	public void stopRecording() {
 		Log.v(LOG_TAG, "stopRecording()");
+		endTime = getAccurateTime();
 		mRecorder.stop();
 		mRecorder.reset();
 		mRecorder.release();

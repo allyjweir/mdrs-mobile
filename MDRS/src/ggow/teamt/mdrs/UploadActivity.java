@@ -40,13 +40,12 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 public class UploadActivity extends FragmentActivity implements
-		GooglePlayServicesClient.ConnectionCallbacks,
-		GooglePlayServicesClient.OnConnectionFailedListener {
+GooglePlayServicesClient.ConnectionCallbacks,
+GooglePlayServicesClient.OnConnectionFailedListener {
 
 	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 	private static final String LOG_TAG = "MDRS - Upload";
@@ -123,7 +122,7 @@ public class UploadActivity extends FragmentActivity implements
 	@Override
 	public void onConnected(Bundle connectionHint) {
 		Toast.makeText(this, "Waiting for location...", Toast.LENGTH_SHORT)
-				.show();
+		.show();
 	}
 
 	/**
@@ -184,17 +183,16 @@ public class UploadActivity extends FragmentActivity implements
 	private void createJSONFromLocationTrail() {
 		// Metadata gathered from user into JSON
 		JSONObject titleObj = new JSONObject(); // Object at the start of the
-												// JSON which holds general info
+		// JSON which holds general info
 		try {
 			EditText etTitle = (EditText) findViewById(R.id.name);
 			titleObj.put("title", etTitle.getText().toString());
 			EditText etDesc = (EditText) findViewById(R.id.description);
 			titleObj.put("description", etDesc.getText().toString());
-			titleObj.put("startTime", locationTrail.entrySet().iterator()
-					.next().getKey());
-			titleObj.put("endTime", getEndTime());
+			titleObj.put("startTime", RecordingActivity.getStartTime());
+			titleObj.put("endTime", RecordingActivity.getEndTime());
 		} catch (JSONException e1) {
-			// TODO Auto-generated catch block
+			Log.e(LOG_TAG,"Failed to create JSON data");
 			e1.printStackTrace();
 		}
 		metadata.put(titleObj);
@@ -202,11 +200,11 @@ public class UploadActivity extends FragmentActivity implements
 
 		// Location loading into the JSON
 		JSONArray locations = new JSONArray(); // array to hold all location
-												// objects
+		// objects
 		Iterator<Location> it = locationTrail.values().iterator();
 		while (it.hasNext()) {
 			JSONObject obj = new JSONObject(); // Object to hold specific
-												// location data
+			// location data
 			Location curLoc = (Location) it.next();
 			try {
 				obj.put("lon", curLoc.getLongitude());
@@ -303,7 +301,7 @@ public class UploadActivity extends FragmentActivity implements
 				+ "/images.tar.gz");
 		Log.v(LOG_TAG,
 				"Images file: " + RecordingActivity.getCurrentRecordingPath()
-						+ "/images.tar.gz");
+				+ "/images.tar.gz");
 
 		RequestParams params = new RequestParams();
 		try {
@@ -384,25 +382,25 @@ public class UploadActivity extends FragmentActivity implements
 
 		// Starter Marker
 		mMap.addMarker(new MarkerOptions()
-				.position(
-						new LatLng(locationTrail.get(getEndTime())
-								.getLatitude(), locationTrail.get(getEndTime())
-								.getLongitude()))
-				.draggable(false)
-				.icon(BitmapDescriptorFactory
-						.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+		.position(
+				new LatLng(locationTrail.get(getEndTime())
+						.getLatitude(), locationTrail.get(getEndTime())
+						.getLongitude()))
+						.draggable(false)
+						.icon(BitmapDescriptorFactory
+								.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
 		// End Marker
 		mMap.addMarker(new MarkerOptions()
-				// end marker
-				.position(
-						new LatLng(locationTrail.entrySet().iterator().next()
-								.getValue().getLatitude(), locationTrail
-								.entrySet().iterator().next().getValue()
-								.getLongitude()))
-				.draggable(false)
-				.icon(BitmapDescriptorFactory
-						.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+		// end marker
+		.position(
+				new LatLng(locationTrail.entrySet().iterator().next()
+						.getValue().getLatitude(), locationTrail
+						.entrySet().iterator().next().getValue()
+						.getLongitude()))
+						.draggable(false)
+						.icon(BitmapDescriptorFactory
+								.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
 
 		// TODO place markers where images are along the trail. Possibly MVC
 		// with the horizontal scroll of them?
@@ -410,8 +408,8 @@ public class UploadActivity extends FragmentActivity implements
 
 	private void zoomInOnStart(Location start) {
 		CameraPosition cameraPosition = new CameraPosition.Builder()
-				.target(new LatLng(start.getLatitude(), start.getLongitude()))
-				.zoom(17).build();
+		.target(new LatLng(start.getLatitude(), start.getLongitude()))
+		.zoom(17).build();
 		mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 	}
 }
