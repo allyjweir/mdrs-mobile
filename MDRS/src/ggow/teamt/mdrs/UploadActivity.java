@@ -315,7 +315,7 @@ public class UploadActivity extends FragmentActivity implements
 			e.printStackTrace();
 		}
 
-		client.post("", params, new AsyncHttpResponseHandler() {
+		client.post("upload", params, new AsyncHttpResponseHandler() {
 			@Override
 			public void onSuccess(String response) {
 				Log.v(LOG_TAG, "Successful upload.");
