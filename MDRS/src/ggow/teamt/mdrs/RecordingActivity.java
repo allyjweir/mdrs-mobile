@@ -35,6 +35,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -159,6 +160,11 @@ public class RecordingActivity extends FragmentActivity implements
 		// Add CameraPreview to FrameLayout in activity_recording.xml
 		preview = (FrameLayout) findViewById(R.id.camera_preview);
 		preview.addView(mPreview);
+		
+		//overlay camera controls
+		//LinearLayout cameraControls = (LinearLayout) findViewById(R.layout.controls);
+		//cameraControls.bringToFront();
+
 		// Add a listener to the Capture button
 		Button captureButton = (Button) findViewById(R.id.button_capture);
 		captureButton.setOnClickListener(new View.OnClickListener() {
@@ -428,7 +434,9 @@ public class RecordingActivity extends FragmentActivity implements
 		Log.v(LOG_TAG, "moveToUpload()");
 		stopRecording();
 		Log.v(LOG_TAG, "moveToUpload() after stopRecording");
-		startActivity(new Intent(this, UploadActivity.class));
+		Intent intent = new Intent(this, UploadActivity.class);
+		intent.putExtra("locationTrail", locationTrail);
+		startActivity(intent);
 	}
 
 	static String getCurrentRecordingPath() {
