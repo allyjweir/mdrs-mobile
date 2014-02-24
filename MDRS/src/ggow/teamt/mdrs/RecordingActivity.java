@@ -434,13 +434,13 @@ public class RecordingActivity extends FragmentActivity implements
 	public void AudioRecordStart() throws IOException {
 		mRecorder = new MediaRecorder();
 		mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
 		mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
 		//mRecorder.setAudioEncodingBitRate(16);
 		//mRecorder.setAudioSamplingRate(44100);
 		Log.v(LOG_TAG, "Audio path: " + getCurrentRecordingPath()
-				+ "/audio.3gp");
-		mRecorder.setOutputFile(getCurrentRecordingPath() + "/audio.3gp");
+				+ "/audio.aac");
+		mRecorder.setOutputFile(getCurrentRecordingPath() + "/audio.aac");
 		try {
 			mRecorder.prepare();
 		} catch (IOException e) {

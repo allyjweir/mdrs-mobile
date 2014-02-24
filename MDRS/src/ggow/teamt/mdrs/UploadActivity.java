@@ -289,7 +289,7 @@ GooglePlayServicesClient.OnConnectionFailedListener {
 
 		// audio
 		File audioFile = new File(RecordingActivity.getCurrentRecordingPath()
-				+ "/audio.3gp");
+				+ "/audio.aac");
 		Log.v(LOG_TAG, "Audio file: " + audioFile.toString());
 
 		// metadata
