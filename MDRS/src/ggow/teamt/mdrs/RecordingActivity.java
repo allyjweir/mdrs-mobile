@@ -118,7 +118,6 @@ public class RecordingActivity extends FragmentActivity implements
 			Log.e(LOG_TAG, "Error in building Directories");
 			e1.printStackTrace();
 		}
-		checkCameraHardware(this);
 
 		// Translucent system bar - Still to figure out how to do top bar.
 		// TODO interface tweaks
@@ -163,8 +162,18 @@ public class RecordingActivity extends FragmentActivity implements
 			e.printStackTrace();
 		}
 
-		// Camera Stuff
+		// Check and get camera instance
+		checkCameraHardware(this);
 		mCamera = getCameraInstance();
+		
+		//Set parameters (This contains possibility of manipulating timestamp
+		Camera.Parameters params = mCamera.getParameters();
+		params.setFocusMode(Camera.Parameters.FLASH_MODE_AUTO);  //to make pictures in focus
+		params.setRotation(90);  //to make output the right way up
+		//Also possibility of antibanding
+		mCamera.setParameters(params);
+		
+		//Make camera preview
 		mPreview = new CameraPreview(this, mCamera);
 		// Add CameraPreview to FrameLayout in activity_recording.xml
 		preview = (FrameLayout) findViewById(R.id.camera_preview);
