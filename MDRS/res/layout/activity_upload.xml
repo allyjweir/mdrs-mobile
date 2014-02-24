@@ -1,60 +1,82 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/RelativeLayout1"
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout android:id="@+id/GridLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:columnCount="1"
-    tools:context=".UploadActivity">
+    android:orientation="vertical"
+    android:rowCount="4" xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <HorizontalScrollView
-        android:id="@+id/horizontalScrollView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/description"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/description"
-        android:layout_marginTop="40dp" >
-
-    <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="horizontal" >
-        </LinearLayout>
-    </HorizontalScrollView>
-
-    <EditText
-        android:id="@+id/description"
-        android:layout_width="182dp"
-        android:layout_height="68dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="58dp"
-        android:ems="10"
-        android:hint="@string/description"
-        android:inputType="textMultiLine" />
-
-    <EditText
-        android:id="@+id/name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/description"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="18dp"
-        android:ems="10"
-        android:hint="@string/name"
-        android:inputType="text" >
-
-        <requestFocus />
-    </EditText>
+    <Gallery
+        android:id="@+id/gallery1"
+        android:layout_width="match_parent"
+        android:layout_height="122dp"
+        android:layout_column="0"
+        android:layout_gravity="left|top"
+        android:layout_row="2" />
 
     <fragment
         android:id="@+id/uploadScreenMap"
         android:name="com.google.android.gms.maps.MapFragment"
         android:layout_width="match_parent"
-        android:layout_height="171dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true" />
+        android:layout_height="210dp"
+        android:layout_row="3" />
 
-</RelativeLayout>
+    <GridLayout
+        android:layout_width="206dp"
+        android:layout_height="116dp"
+        android:layout_column="0"
+        android:layout_gravity="fill_horizontal"
+        android:layout_row="0"
+        android:columnCount="2"
+        android:rowCount="2" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_column="0"
+            android:layout_columnSpan="1"
+            android:layout_gravity="left|center_vertical"
+            android:layout_row="0"
+            android:layout_rowSpan="1"
+            android:orientation="vertical" >
+
+            <EditText
+                android:id="@+id/title"
+                android:layout_width="176dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/name" />
+
+            <EditText
+                android:id="@+id/desc"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:ems="10"
+                android:hint="@string/description"
+                android:inputType="textMultiLine" >
+
+                <requestFocus />
+            </EditText>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_height="match_parent"
+            android:layout_gravity="fill_horizontal"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/logged_in_as"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/logged_in_as" />
+
+            <ImageView
+                android:id="@+id/user_image"
+                android:layout_width="110dp"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/user_image"
+                android:src="@drawable/common_signin_btn_icon_dark" />
+        </LinearLayout>
+    </GridLayout>
+
+</GridLayout>

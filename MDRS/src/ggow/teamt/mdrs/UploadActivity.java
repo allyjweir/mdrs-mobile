@@ -27,6 +27,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -59,6 +61,15 @@ GooglePlayServicesClient.OnConnectionFailedListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_upload);
+		
+		//To show username when username/password support added
+		//TextView text = (TextView) findViewById(R.id.logged_in_as);
+		//text.append(username)
+		
+		//To show user image when login support added
+		//ImageView userProfile = (ImageView) findViewById(R.id.user_image);
+		//userProfile.setImageResource(getUserImage());
+		
 		// Show the Up button in the action bar.
 		setupActionBar();
 
@@ -185,9 +196,9 @@ GooglePlayServicesClient.OnConnectionFailedListener {
 		JSONObject titleObj = new JSONObject(); // Object at the start of the
 		// JSON which holds general info
 		try {
-			EditText etTitle = (EditText) findViewById(R.id.name);
+			EditText etTitle = (EditText) findViewById(R.id.title);
 			titleObj.put("title", etTitle.getText().toString());
-			EditText etDesc = (EditText) findViewById(R.id.description);
+			EditText etDesc = (EditText) findViewById(R.id.desc);
 			titleObj.put("description", etDesc.getText().toString());
 			titleObj.put("startTime", RecordingActivity.getStartTime());
 			titleObj.put("endTime", RecordingActivity.getEndTime());
