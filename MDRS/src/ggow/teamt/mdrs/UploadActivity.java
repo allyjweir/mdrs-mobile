@@ -19,15 +19,22 @@ import org.rauschig.jarchivelib.CompressionType;
 
 import android.content.Intent;
 import android.content.IntentSender;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.EditText;
+import android.widget.Gallery;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,8 +53,8 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 public class UploadActivity extends FragmentActivity implements
-GooglePlayServicesClient.ConnectionCallbacks,
-GooglePlayServicesClient.OnConnectionFailedListener {
+		GooglePlayServicesClient.ConnectionCallbacks,
+		GooglePlayServicesClient.OnConnectionFailedListener {
 
 	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 	private static final String LOG_TAG = "MDRS - Upload";
@@ -61,15 +68,17 @@ GooglePlayServicesClient.OnConnectionFailedListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_upload);
-		
-		//To show username when username/password support added
-		//TextView text = (TextView) findViewById(R.id.logged_in_as);
-		//text.append(username)
-		
-		//To show user image when login support added
-		//ImageView userProfile = (ImageView) findViewById(R.id.user_image);
-		//userProfile.setImageResource(getUserImage());
-		
+
+		// To show username when username/password support added
+		// TextView text = (TextView) findViewById(R.id.logged_in_as);
+		// text.append(username)
+
+		// To show user image when login support added
+		// ImageView userProfile = (ImageView) findViewById(R.id.user_image);
+		// userProfile.setImageResource(getUserImage());
+
+		fillGallery();
+
 		// Show the Up button in the action bar.
 		setupActionBar();
 
@@ -133,7 +142,7 @@ GooglePlayServicesClient.OnConnectionFailedListener {
 	@Override
 	public void onConnected(Bundle connectionHint) {
 		Toast.makeText(this, "Waiting for location...", Toast.LENGTH_SHORT)
-		.show();
+				.show();
 	}
 
 	/**
@@ -203,7 +212,7 @@ GooglePlayServicesClient.OnConnectionFailedListener {
 			titleObj.put("startTime", RecordingActivity.getStartTime());
 			titleObj.put("endTime", RecordingActivity.getEndTime());
 		} catch (JSONException e1) {
-			Log.e(LOG_TAG,"Failed to create JSON data");
+			Log.e(LOG_TAG, "Failed to create JSON data");
 			e1.printStackTrace();
 		}
 		metadata.put(titleObj);
@@ -312,7 +321,7 @@ GooglePlayServicesClient.OnConnectionFailedListener {
 				+ "/images.tar.gz");
 		Log.v(LOG_TAG,
 				"Images file: " + RecordingActivity.getCurrentRecordingPath()
-				+ "/images.tar.gz");
+						+ "/images.tar.gz");
 
 		RequestParams params = new RequestParams();
 		try {
@@ -393,25 +402,25 @@ GooglePlayServicesClient.OnConnectionFailedListener {
 
 		// Starter Marker
 		mMap.addMarker(new MarkerOptions()
-		.position(
-				new LatLng(locationTrail.get(getEndTime())
-						.getLatitude(), locationTrail.get(getEndTime())
-						.getLongitude()))
-						.draggable(false)
-						.icon(BitmapDescriptorFactory
-								.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+				.position(
+						new LatLng(locationTrail.get(getEndTime())
+								.getLatitude(), locationTrail.get(getEndTime())
+								.getLongitude()))
+				.draggable(false)
+				.icon(BitmapDescriptorFactory
+						.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
 		// End Marker
 		mMap.addMarker(new MarkerOptions()
-		// end marker
-		.position(
-				new LatLng(locationTrail.entrySet().iterator().next()
-						.getValue().getLatitude(), locationTrail
-						.entrySet().iterator().next().getValue()
-						.getLongitude()))
-						.draggable(false)
-						.icon(BitmapDescriptorFactory
-								.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+				// end marker
+				.position(
+						new LatLng(locationTrail.entrySet().iterator().next()
+								.getValue().getLatitude(), locationTrail
+								.entrySet().iterator().next().getValue()
+								.getLongitude()))
+				.draggable(false)
+				.icon(BitmapDescriptorFactory
+						.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
 
 		// TODO place markers where images are along the trail. Possibly MVC
 		// with the horizontal scroll of them?
@@ -419,8 +428,85 @@ GooglePlayServicesClient.OnConnectionFailedListener {
 
 	private void zoomInOnStart(Location start) {
 		CameraPosition cameraPosition = new CameraPosition.Builder()
-		.target(new LatLng(start.getLatitude(), start.getLongitude()))
-		.zoom(17).build();
+				.target(new LatLng(start.getLatitude(), start.getLongitude()))
+				.zoom(17).build();
 		mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+	}
+
+	private void fillGallery() {
+		LinearLayout gallery = (LinearLayout) findViewById(R.id.gallery1);
+
+		String imagesPath = RecordingActivity.getCurrentRecordingPath()
+				+ "/images/";
+		File imageDir = new File(imagesPath);
+		File[] images = imageDir.listFiles();
+
+		for (File file : images) {
+			gallery.addView(insertPhoto(file.getAbsolutePath()));
+		}
+	}
+
+	/*
+	 * From http://android-er.blogspot.co.uk/2012/07/implement-gallery-like.html
+	 */
+	View insertPhoto(String path) {
+		Bitmap bm = decodeSampledBitmapFromUri(path, 220, 220);
+
+		LinearLayout layout = new LinearLayout(getApplicationContext());
+		layout.setLayoutParams(new LayoutParams(250, 250));
+		layout.setGravity(Gravity.CENTER);
+
+		ImageView imageView = new ImageView(getApplicationContext());
+		imageView.setLayoutParams(new LayoutParams(220, 220));
+		imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+		imageView.setImageBitmap(bm);
+
+		layout.addView(imageView);
+		return layout;
+	}
+
+	/*
+	 * From http://android-er.blogspot.co.uk/2012/07/implement-gallery-like.html
+	 */
+	public Bitmap decodeSampledBitmapFromUri(String path, int reqWidth,
+			int reqHeight) {
+		Bitmap bm = null;
+
+		// First decode with inJustDecodeBounds=true to check dimensions
+		final BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inJustDecodeBounds = true;
+		BitmapFactory.decodeFile(path, options);
+
+		// Calculate inSampleSize
+		options.inSampleSize = calculateInSampleSize(options, reqWidth,
+				reqHeight);
+
+		// Decode bitmap with inSampleSize set
+		options.inJustDecodeBounds = false;
+		bm = BitmapFactory.decodeFile(path, options);
+
+		return bm;
+	}
+
+	/*
+	 * From http://android-er.blogspot.co.uk/2012/07/implement-gallery-like.html
+	 */
+	public int calculateInSampleSize(
+
+	BitmapFactory.Options options, int reqWidth, int reqHeight) {
+		// Raw height and width of image
+		final int height = options.outHeight;
+		final int width = options.outWidth;
+		int inSampleSize = 1;
+
+		if (height > reqHeight || width > reqWidth) {
+			if (width > height) {
+				inSampleSize = Math.round((float) height / (float) reqHeight);
+			} else {
+				inSampleSize = Math.round((float) width / (float) reqWidth);
+			}
+		}
+
+		return inSampleSize;
 	}
 }
