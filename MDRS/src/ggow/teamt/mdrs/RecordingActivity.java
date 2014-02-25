@@ -127,9 +127,9 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 			Window w = getWindow();
 			w.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
 					WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-			w.setFlags(
-					WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
-					WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+			//w.setFlags(
+			//		WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
+			//		WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 		} else {
 			Log.v(LOG_TAG, "Not KitKat+");
 		}
