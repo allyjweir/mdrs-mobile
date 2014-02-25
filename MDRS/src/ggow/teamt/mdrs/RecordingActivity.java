@@ -461,13 +461,13 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 		} catch (IOException e) {
 			Log.e(LOG_TAG, "prepare() for recording failed");
 		}
-		startTime = getAccurateTime();
+		startTime = String.valueOf(System.currentTimeMillis());
 		mRecorder.start();
 	}
 
 	public void stopRecording() {
 		Log.v(LOG_TAG, "stopRecording()");
-		endTime = getAccurateTime();
+		endTime = String.valueOf(System.currentTimeMillis());
 		mRecorder.stop();
 		mRecorder.reset();
 		mRecorder.release();
