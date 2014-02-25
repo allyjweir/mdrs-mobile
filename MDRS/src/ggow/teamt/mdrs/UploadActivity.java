@@ -30,6 +30,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.EditText;
 import android.widget.Gallery;
@@ -453,11 +454,11 @@ public class UploadActivity extends FragmentActivity implements
 		Bitmap bm = decodeSampledBitmapFromUri(path, 220, 220);
 
 		LinearLayout layout = new LinearLayout(getApplicationContext());
-		layout.setLayoutParams(new LayoutParams(250, 250));
+		//layout.setLayoutParams(new LayoutParams(250, 250));
 		layout.setGravity(Gravity.CENTER);
 
 		ImageView imageView = new ImageView(getApplicationContext());
-		imageView.setLayoutParams(new LayoutParams(220, 220));
+		imageView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 		imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 		imageView.setImageBitmap(bm);
 

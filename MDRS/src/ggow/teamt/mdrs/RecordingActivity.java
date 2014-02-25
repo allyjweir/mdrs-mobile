@@ -721,7 +721,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 			// have it updated by a menu item which the user selects.
 			try {
 				Log.v(LOG_TAG, "Having a snooze in doInBackground");
-				Thread.sleep(3000); // 3 second preview
+				Thread.sleep(1000); // 3 second preview
 			} catch (InterruptedException e) {
 				Log.e(LOG_TAG, "Couldn't have a snooze!");
 				// TODO Auto-generated catch block
