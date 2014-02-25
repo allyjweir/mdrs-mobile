@@ -40,7 +40,6 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -56,8 +55,8 @@ public class RecordingActivity extends FragmentActivity implements
 	private static final String LOG_TAG = "MDRS - RecordingActivity";
 	public static String currentRecordingPath;
 	public static String imagesFolder;
-	
-	//Time
+
+	// Time
 	private String folderTimeTag;
 	public static String startTime;
 	public static String endTime;
@@ -87,9 +86,11 @@ public class RecordingActivity extends FragmentActivity implements
 		@Override
 		public void onPictureTaken(byte[] data, Camera camera) {
 			// Create a media file name
-			//String timeStamp = String.valueOf(System.currentTimeMillis());
-			//File pictureFile;
-			File pictureFile = getOutputMediaFile();//new File(imagesFolder + "/IMG_" + timeStamp + ".jpg");
+			// String timeStamp = String.valueOf(System.currentTimeMillis());
+			// File pictureFile;
+			File pictureFile = getOutputMediaFile();// new File(imagesFolder +
+													// "/IMG_" + timeStamp +
+													// ".jpg");
 
 			try {
 				FileOutputStream fos = new FileOutputStream(pictureFile);
@@ -107,11 +108,11 @@ public class RecordingActivity extends FragmentActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_recording);
-		
-		//Time
+
+		// Time
 		folderTimeTag = getAccurateTime();
-		
-		//Directory
+
+		// Directory
 		try {
 			buildDirectory();
 		} catch (IOException e1) {
@@ -165,15 +166,17 @@ public class RecordingActivity extends FragmentActivity implements
 		// Check and get camera instance
 		checkCameraHardware(this);
 		mCamera = getCameraInstance();
-		
-		//Set parameters (This contains possibility of manipulating timestamp
+
+		// Set parameters (This contains possibility of manipulating timestamp
 		Camera.Parameters params = mCamera.getParameters();
-		params.setFocusMode(Camera.Parameters.FLASH_MODE_AUTO);  //to make pictures in focus
-		params.setRotation(90);  //to make output the right way up
-		//Also possibility of antibanding
+		params.setFocusMode(Camera.Parameters.FLASH_MODE_AUTO); // to make
+																// pictures in
+																// focus
+		params.setRotation(90); // to make output the right way up
+		// Also possibility of antibanding
 		mCamera.setParameters(params);
-		
-		//Make camera preview
+
+		// Make camera preview
 		mPreview = new CameraPreview(this, mCamera);
 		// Add CameraPreview to FrameLayout in activity_recording.xml
 		preview = (FrameLayout) findViewById(R.id.camera_preview);
@@ -194,21 +197,22 @@ public class RecordingActivity extends FragmentActivity implements
 	private String getAccurateTime() {
 		SntpClient client = new SntpClient();
 		if (client.requestTime("0.us.pool.ntp.org", 30000)) {
-		                long time = client.getNtpTime();
-		                long newTime = time;
-		                Log.d("shetty", newTime + "....newTime");
-		                Calendar calendar = Calendar.getInstance();
-		                try {
-		                    calendar.setTimeInMillis(time);
-		                    String returnableTime = String.valueOf(calendar.getTimeInMillis());
-		                    Log.v(LOG_TAG, "accurate time grabbed");
-		                    return returnableTime;
-		                } catch (Exception e) {
-		                    // TODO: handle exception
-		                    Log.e(LOG_TAG,"No Response from NTP");
-		                }
+			long time = client.getNtpTime();
+			long newTime = time;
+			Log.d("shetty", newTime + "....newTime");
+			Calendar calendar = Calendar.getInstance();
+			try {
+				calendar.setTimeInMillis(time);
+				String returnableTime = String.valueOf(calendar
+						.getTimeInMillis());
+				Log.v(LOG_TAG, "accurate time grabbed");
+				return returnableTime;
+			} catch (Exception e) {
+				// TODO: handle exception
+				Log.e(LOG_TAG, "No Response from NTP");
+			}
 
-		            }
+		}
 		return String.valueOf(System.nanoTime());
 	}
 
@@ -297,8 +301,9 @@ public class RecordingActivity extends FragmentActivity implements
 		String msg = "Updated Location: "
 				+ Double.toString(location.getLatitude()) + ","
 				+ Double.toString(location.getLongitude());
-		TextView text = (TextView) findViewById(R.id.current_location_ticker);
-		text.setText(msg);
+		// TextView text = (TextView)
+		// findViewById(R.id.current_location_ticker);
+		// text.setText(msg);
 		Log.v(LOG_TAG, location.toString());
 		locationTrail.put(location.getTime(), location);
 	}
@@ -426,14 +431,14 @@ public class RecordingActivity extends FragmentActivity implements
 		return Environment.getExternalStorageDirectory().getAbsolutePath()
 				+ path;
 	}
-	
+
 	private boolean initDir(String dir) throws IOException {
 		String state = android.os.Environment.getExternalStorageState();
 		if (!state.equals(android.os.Environment.MEDIA_MOUNTED)) {
 			throw new IOException("SD Card is causing issues");
 		}
 
-		File directory = new File(dir);//.getParentFile();
+		File directory = new File(dir);// .getParentFile();
 		if (!directory.exists() && !directory.mkdirs()) {
 			throw new IOException("Path to file could not be created");
 		}
@@ -445,8 +450,8 @@ public class RecordingActivity extends FragmentActivity implements
 		mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
 		mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-		//mRecorder.setAudioEncodingBitRate(16);
-		//mRecorder.setAudioSamplingRate(44100);
+		// mRecorder.setAudioEncodingBitRate(16);
+		// mRecorder.setAudioSamplingRate(44100);
 		Log.v(LOG_TAG, "Audio path: " + getCurrentRecordingPath()
 				+ "/audio.aac");
 		mRecorder.setOutputFile(getCurrentRecordingPath() + "/audio.aac");

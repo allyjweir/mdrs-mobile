@@ -1,36 +1,23 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/LinearLayout"
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/camera_preview"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".RecordingActivity" >
+    android:layout_height="match_parent" >
 
-    <TextView
-        android:id="@+id/current_location_ticker"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/current_location"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <FrameLayout
-        android:id="@+id/camera_preview"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.79" />
-
-    <Button
+    <ImageButton
         android:id="@+id/button_capture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Capture"
-        tools:ignore="HardcodedText" />
+        android:background="@null"
+        android:contentDescription="@string/capture"
+        android:src="@null" />
 
     <ImageButton
         android:id="@+id/stopRecording"
         android:layout_width="150dp"
         android:layout_height="150dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
         android:layout_marginBottom="50dp"
         android:background="@null"
         android:contentDescription="@string/stopRec"
@@ -38,4 +25,4 @@
         android:scaleType="fitCenter"
         android:src="@drawable/rec_gray" />
 
-</LinearLayout>
+</RelativeLayout>

@@ -170,6 +170,7 @@ containing a value of this type.
         public static final int zOrderOnTop=0x7f010010;
     }
     public static final class color {
+        public static final int black=0x7f05000b;
         public static final int common_action_bar_splitter=0x7f050009;
         /**  Sign-in Button Colors 
          */
@@ -182,8 +183,9 @@ containing a value of this type.
         public static final int common_signin_btn_light_text_disabled=0x7f050006;
         public static final int common_signin_btn_light_text_focused=0x7f050007;
         public static final int common_signin_btn_light_text_pressed=0x7f050005;
-        public static final int common_signin_btn_text_dark=0x7f05000a;
-        public static final int common_signin_btn_text_light=0x7f05000b;
+        public static final int common_signin_btn_text_dark=0x7f05000c;
+        public static final int common_signin_btn_text_light=0x7f05000d;
+        public static final int red=0x7f05000a;
     }
     public static final class dimen {
         /**  Default screen margins, per the Android Design guidelines. 
@@ -233,29 +235,27 @@ containing a value of this type.
         public static final int soundwave=0x7f020022;
     }
     public static final class id {
-        public static final int GridLayout1=0x7f06000c;
-        public static final int LinearLayout=0x7f060007;
-        public static final int action_cancel=0x7f060015;
-        public static final int action_confirm=0x7f060016;
-        public static final int action_feedback=0x7f060013;
-        public static final int action_settings=0x7f060014;
-        public static final int button_capture=0x7f06000a;
-        public static final int camera_preview=0x7f060009;
-        public static final int current_location_ticker=0x7f060008;
-        public static final int desc=0x7f060010;
-        public static final int gallery1=0x7f06000d;
+        public static final int GridLayout1=0x7f06000a;
+        public static final int action_cancel=0x7f060013;
+        public static final int action_confirm=0x7f060014;
+        public static final int action_feedback=0x7f060011;
+        public static final int action_settings=0x7f060012;
+        public static final int button_capture=0x7f060008;
+        public static final int camera_preview=0x7f060007;
+        public static final int desc=0x7f06000e;
+        public static final int gallery1=0x7f06000b;
         public static final int hybrid=0x7f060004;
-        public static final int logged_in_as=0x7f060011;
+        public static final int logged_in_as=0x7f06000f;
         public static final int map=0x7f060005;
         public static final int none=0x7f060000;
         public static final int normal=0x7f060001;
         public static final int recButton=0x7f060006;
         public static final int satellite=0x7f060002;
-        public static final int stopRecording=0x7f06000b;
+        public static final int stopRecording=0x7f060009;
         public static final int terrain=0x7f060003;
-        public static final int title=0x7f06000f;
-        public static final int uploadScreenMap=0x7f06000e;
-        public static final int user_image=0x7f060012;
+        public static final int title=0x7f06000d;
+        public static final int uploadScreenMap=0x7f06000c;
+        public static final int user_image=0x7f060010;
     }
     public static final class integer {
         public static final int google_play_services_version=0x7f080000;
@@ -301,6 +301,7 @@ containing a value of this type.
         public static final int cancel=0x7f070028;
         public static final int cancel_recording_message=0x7f07002e;
         public static final int cancel_upload=0x7f070029;
+        public static final int capture=0x7f070032;
         /**  Button in confirmation dialog to enable Google Play services.  Clicking it
         will direct user to application settings of Google Play services where they
         can enable it [CHAR LIMIT=40] 
@@ -382,32 +383,32 @@ containing a value of this type.
         public static final int logged_in_as=0x7f070030;
         public static final int name=0x7f070025;
         public static final int open_location_settings=0x7f070022;
-        public static final int pref_default_display_name=0x7f070037;
-        public static final int pref_description_social_recommendations=0x7f070035;
+        public static final int pref_default_display_name=0x7f070038;
+        public static final int pref_description_social_recommendations=0x7f070036;
         /**  Example settings for Data & Sync 
          */
-        public static final int pref_header_data_sync=0x7f070039;
+        public static final int pref_header_data_sync=0x7f07003a;
         /**  Strings related to Settings 
  Example General settings 
          */
-        public static final int pref_header_general=0x7f070033;
+        public static final int pref_header_general=0x7f070034;
         /**  Example settings for Notifications 
          */
-        public static final int pref_header_notifications=0x7f07003c;
-        public static final int pref_ringtone_silent=0x7f07003f;
-        public static final int pref_title_add_friends_to_messages=0x7f070038;
-        public static final int pref_title_display_name=0x7f070036;
-        public static final int pref_title_new_message_notifications=0x7f07003d;
-        public static final int pref_title_ringtone=0x7f07003e;
-        public static final int pref_title_social_recommendations=0x7f070034;
-        public static final int pref_title_sync_frequency=0x7f07003a;
-        public static final int pref_title_system_sync_settings=0x7f07003b;
-        public static final int pref_title_vibrate=0x7f070040;
+        public static final int pref_header_notifications=0x7f07003d;
+        public static final int pref_ringtone_silent=0x7f070040;
+        public static final int pref_title_add_friends_to_messages=0x7f070039;
+        public static final int pref_title_display_name=0x7f070037;
+        public static final int pref_title_new_message_notifications=0x7f07003e;
+        public static final int pref_title_ringtone=0x7f07003f;
+        public static final int pref_title_social_recommendations=0x7f070035;
+        public static final int pref_title_sync_frequency=0x7f07003b;
+        public static final int pref_title_system_sync_settings=0x7f07003c;
+        public static final int pref_title_vibrate=0x7f070041;
         public static final int startRec=0x7f07001f;
         public static final int stopRec=0x7f070020;
         public static final int success=0x7f07002b;
         public static final int title_activity_recording=0x7f07001d;
-        public static final int title_activity_settings=0x7f070032;
+        public static final int title_activity_settings=0x7f070033;
         public static final int title_activity_upload=0x7f07001e;
         public static final int upload=0x7f070026;
         public static final int user_image=0x7f070031;

@@ -25,4 +25,5 @@
 	<string name="abandon">Abandon</string>
 	<string name="logged_in_as">Logged in as</string>
 	<string name="user_image">User\'s profile image</string>
+	<string name="capture">Capture image</string>
 </resources>
