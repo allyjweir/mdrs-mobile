@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
 
-    <android.view.SurfaceView
-        android:id="@+id/camera_preview"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
-    </android.view.SurfaceView>
 
-    <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="60dp"
-        android:background="#FFFFFF" >
+        <FrameLayout
+            android:id="@+id/camera_preview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+        </FrameLayout>
 
         <ImageButton
             android:id="@+id/button_capture"
@@ -21,17 +20,18 @@
             android:background="@null"
             android:contentDescription="@string/capture"
             android:src="@null" />
+    </FrameLayout>
 
-        <ImageButton
-            android:id="@+id/stopRecording"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:layout_marginBottom="50dp"
-            android:background="@null"
-            android:contentDescription="@string/stopRec"
-            android:onClick="moveToUpload"
-            android:scaleType="fitCenter"
-            android:src="@drawable/rec_gray" />
-    </RelativeLayout>
+    <ImageButton
+        android:id="@+id/stopRecording"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_gravity="bottom|center"
+        android:layout_marginBottom="50dp"
+        android:background="@null"
+        android:contentDescription="@string/stopRec"
+        android:onClick="moveToUpload"
+        android:scaleType="fitCenter"
+        android:src="@drawable/rec_gray" />
 
 </FrameLayout>
