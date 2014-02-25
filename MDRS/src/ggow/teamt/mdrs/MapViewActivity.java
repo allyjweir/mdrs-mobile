@@ -25,6 +25,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -52,11 +54,25 @@ public class MapViewActivity extends FragmentActivity implements
 	private static final int FASTEST_INTERVAL_IN_SECONDS = 1;
 	private LocationRequest mLocationRequest;
 	public final static String START_LOCATION = "ggow.teamt.mdrs.location";
+	
+	private SharedPreferences mPrefs;
+	private Editor mEditor;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_map_view);
+		
+		//first time check
+		boolean firstrun = getSharedPreferences("PREFERENCE", MODE_PRIVATE).getBoolean("firstrun", true);
+	    if (firstrun){
+	    	
+	    }
+	    // Save the state
+	    getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+	        .edit()
+	        .putBoolean("firstrun", false)
+	        .commit();
 
 		if (android.os.Build.VERSION.SDK_INT >= 19) {
 			Window w = getWindow();
@@ -78,6 +94,11 @@ public class MapViewActivity extends FragmentActivity implements
 		mLocationRequest.setInterval(UPDATE_INTERVAL);
 		mLocationRequest.setFastestInterval(FASTEST_INTERVAL_IN_SECONDS);
 		Log.v(LOG_TAG, "onCreate() success");
+	}
+
+	private void firstRunSetup() {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override

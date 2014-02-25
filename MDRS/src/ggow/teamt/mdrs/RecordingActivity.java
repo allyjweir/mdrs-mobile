@@ -37,6 +37,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,8 +49,8 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 
 public class RecordingActivity extends FragmentActivity implements
-		GooglePlayServicesClient.ConnectionCallbacks,
-		GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
+GooglePlayServicesClient.ConnectionCallbacks,
+GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 
 	// General
 	private static final String LOG_TAG = "MDRS - RecordingActivity";
@@ -89,8 +90,8 @@ public class RecordingActivity extends FragmentActivity implements
 			// String timeStamp = String.valueOf(System.currentTimeMillis());
 			// File pictureFile;
 			File pictureFile = getOutputMediaFile();// new File(imagesFolder +
-													// "/IMG_" + timeStamp +
-													// ".jpg");
+			// "/IMG_" + timeStamp +
+			// ".jpg");
 
 			try {
 				FileOutputStream fos = new FileOutputStream(pictureFile);
@@ -126,9 +127,9 @@ public class RecordingActivity extends FragmentActivity implements
 			Window w = getWindow();
 			w.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
 					WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-			// w.setFlags(
-			// WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
-			// WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+			w.setFlags(
+					WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
+					WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 		} else {
 			Log.v(LOG_TAG, "Not KitKat+");
 		}
@@ -138,7 +139,7 @@ public class RecordingActivity extends FragmentActivity implements
 		Intent intent = getIntent();
 		intent.getParcelableExtra(MapViewActivity.START_LOCATION);
 		Toast.makeText(this, "Got starter location!", Toast.LENGTH_SHORT)
-				.show();
+		.show();
 		mLocationRequest = LocationRequest.create();
 		mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 		mLocationRequest.setInterval(UPDATE_INTERVAL);
@@ -170,8 +171,8 @@ public class RecordingActivity extends FragmentActivity implements
 		// Set parameters (This contains possibility of manipulating timestamp
 		Camera.Parameters params = mCamera.getParameters();
 		params.setFocusMode(Camera.Parameters.FLASH_MODE_AUTO); // to make
-																// pictures in
-																// focus
+		// pictures in
+		// focus
 		params.setRotation(90); // to make output the right way up
 		// Also possibility of antibanding
 		mCamera.setParameters(params);
@@ -182,7 +183,7 @@ public class RecordingActivity extends FragmentActivity implements
 		preview = (FrameLayout) findViewById(R.id.camera_preview);
 		preview.addView(mPreview);
 		// Add a listener to the Capture button
-		Button captureButton = (Button) findViewById(R.id.button_capture);
+		ImageButton captureButton = (ImageButton) findViewById(R.id.button_capture);
 		captureButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -365,7 +366,7 @@ public class RecordingActivity extends FragmentActivity implements
 			 * the error.
 			 */
 			System.err
-					.println("No resolution available. Some form of error with reconnect.");
+			.println("No resolution available. Some form of error with reconnect.");
 			// showErrorDialog(connectionResult.getErrorCode());
 		}
 	}
@@ -374,22 +375,22 @@ public class RecordingActivity extends FragmentActivity implements
 	public void onBackPressed() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage(R.string.cancel_recording_message)
-				.setTitle(R.string.cancel)
-				.setPositiveButton(R.string.abandon,
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int id) {
-								stopRecording();
-								returnToMapView();
-							}
-						})
-				.setNegativeButton(R.string.cancel,
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int id) {
-								return;
-							}
-						});
+		.setTitle(R.string.cancel)
+		.setPositiveButton(R.string.abandon,
+				new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int id) {
+				stopRecording();
+				returnToMapView();
+			}
+		})
+		.setNegativeButton(R.string.cancel,
+				new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int id) {
+				return;
+			}
+		});
 		AlertDialog dialog = builder.create();
 
 	}
@@ -602,7 +603,7 @@ public class RecordingActivity extends FragmentActivity implements
 
 	/** A basic Camera preview class */
 	public class CameraPreview extends SurfaceView implements
-			SurfaceHolder.Callback {
+	SurfaceHolder.Callback {
 		private SurfaceHolder mHolder;
 		private Camera mCamera;
 		private static final String LOG_TAG = "MDRS - Camera Preview Class";
