@@ -231,9 +231,10 @@ containing a value of this type.
         public static final int ic_plusone_standard_off_client=0x7f02001e;
         public static final int ic_plusone_tall_off_client=0x7f02001f;
         public static final int image_capture=0x7f020020;
-        public static final int rec_gray=0x7f020021;
-        public static final int rec_red=0x7f020022;
-        public static final int soundwave=0x7f020023;
+        public static final int placeholder=0x7f020021;
+        public static final int rec_gray=0x7f020022;
+        public static final int rec_red=0x7f020023;
+        public static final int soundwave=0x7f020024;
     }
     public static final class id {
         public static final int GridLayout1=0x7f06000a;

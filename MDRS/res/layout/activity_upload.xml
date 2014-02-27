@@ -82,7 +82,7 @@
                 android:layout_width="110dp"
                 android:layout_height="match_parent"
                 android:contentDescription="@string/user_image"
-                android:src="@drawable/common_signin_btn_icon_dark" />
+                android:src="@drawable/placeholder" />
         </LinearLayout>
     </GridLayout>
 

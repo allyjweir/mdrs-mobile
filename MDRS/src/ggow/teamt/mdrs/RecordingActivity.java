@@ -28,7 +28,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.GravityCompat;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -49,8 +51,8 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 
 public class RecordingActivity extends FragmentActivity implements
-GooglePlayServicesClient.ConnectionCallbacks,
-GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
+		GooglePlayServicesClient.ConnectionCallbacks,
+		GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 
 	// General
 	private static final String LOG_TAG = "MDRS - RecordingActivity";
@@ -127,9 +129,9 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 			Window w = getWindow();
 			w.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
 					WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-			//w.setFlags(
-			//		WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
-			//		WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+			// w.setFlags(
+			// WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
+			// WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 		} else {
 			Log.v(LOG_TAG, "Not KitKat+");
 		}
@@ -139,7 +141,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 		Intent intent = getIntent();
 		intent.getParcelableExtra(MapViewActivity.START_LOCATION);
 		Toast.makeText(this, "Got starter location!", Toast.LENGTH_SHORT)
-		.show();
+				.show();
 		mLocationRequest = LocationRequest.create();
 		mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 		mLocationRequest.setInterval(UPDATE_INTERVAL);
@@ -190,9 +192,14 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 				// get an image from the camera
 				TakePictureTask takePictureTask = new TakePictureTask();
 				takePictureTask.execute();
-				// mCamera.takePicture(null, null, mPicture);
 			}
 		});
+
+		// Toast to alert user how to take images
+		Toast cameraToast = Toast.makeText(getApplicationContext(),
+				"Tap anywhere to capture", Toast.LENGTH_SHORT);
+		cameraToast.setGravity(Gravity.TOP, 0, 0);
+		cameraToast.show();
 	}
 
 	private String getAccurateTime() {
@@ -366,7 +373,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 			 * the error.
 			 */
 			System.err
-			.println("No resolution available. Some form of error with reconnect.");
+					.println("No resolution available. Some form of error with reconnect.");
 			// showErrorDialog(connectionResult.getErrorCode());
 		}
 	}
@@ -375,22 +382,22 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 	public void onBackPressed() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage(R.string.cancel_recording_message)
-		.setTitle(R.string.cancel)
-		.setPositiveButton(R.string.abandon,
-				new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int id) {
-				stopRecording();
-				returnToMapView();
-			}
-		})
-		.setNegativeButton(R.string.cancel,
-				new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int id) {
-				return;
-			}
-		});
+				.setTitle(R.string.cancel)
+				.setPositiveButton(R.string.abandon,
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int id) {
+								stopRecording();
+								returnToMapView();
+							}
+						})
+				.setNegativeButton(R.string.cancel,
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int id) {
+								return;
+							}
+						});
 		AlertDialog dialog = builder.create();
 
 	}
@@ -603,7 +610,7 @@ GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 
 	/** A basic Camera preview class */
 	public class CameraPreview extends SurfaceView implements
-	SurfaceHolder.Callback {
+			SurfaceHolder.Callback {
 		private SurfaceHolder mHolder;
 		private Camera mCamera;
 		private static final String LOG_TAG = "MDRS - Camera Preview Class";
