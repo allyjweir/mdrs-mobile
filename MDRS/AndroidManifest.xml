@@ -29,7 +29,8 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name="ggow.teamt.mdrs.MapViewActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -39,19 +40,22 @@
         <activity
             android:name="ggow.teamt.mdrs.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName="MapViewActivity" >
+            android:parentActivityName="MapViewActivity"
+            android:screenOrientation="portrait" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="MapViewActivity" />
         </activity>
         <activity
             android:name="ggow.teamt.mdrs.RecordingActivity"
-            android:label="@string/title_activity_recording" >
+            android:label="@string/title_activity_recording"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name="ggow.teamt.mdrs.UploadActivity"
             android:label="@string/title_activity_upload"
-            android:parentActivityName="MapViewActivity" >
+            android:parentActivityName="MapViewActivity"
+            android:screenOrientation="portrait" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="MapViewActivity" />
