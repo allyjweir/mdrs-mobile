@@ -427,7 +427,7 @@ public class UploadActivity extends FragmentActivity implements
 		}
 		mMap.addPolyline(trail);
 
-		// Starter Marker
+		// End Marker
 		mMap.addMarker(new MarkerOptions()
 				.position(
 						new LatLng(locationTrail.get(getEndTime())
@@ -435,9 +435,9 @@ public class UploadActivity extends FragmentActivity implements
 								.getLongitude()))
 				.draggable(false)
 				.icon(BitmapDescriptorFactory
-						.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+						.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
 
-		// End Marker
+		// Starter Marker
 		mMap.addMarker(new MarkerOptions()
 				// end marker
 				.position(
@@ -447,7 +447,7 @@ public class UploadActivity extends FragmentActivity implements
 								.getLongitude()))
 				.draggable(false)
 				.icon(BitmapDescriptorFactory
-						.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+						.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
 		// TODO place markers where images are along the trail. Possibly MVC
 		// with the horizontal scroll of them?
