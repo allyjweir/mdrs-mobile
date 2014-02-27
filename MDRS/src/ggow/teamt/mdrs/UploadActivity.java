@@ -273,7 +273,7 @@ public class UploadActivity extends FragmentActivity implements
 		}
 	}
 
-	private File tarImagesUp() throws IOException {
+	private boolean tarImagesUp() throws IOException {
 		String archiveName = "images";
 		File destination = new File(RecordingActivity.getCurrentRecordingPath());
 		File source = new File(RecordingActivity.getCurrentRecordingPath()
@@ -284,7 +284,26 @@ public class UploadActivity extends FragmentActivity implements
 				CompressionType.GZIP);
 		images = archiver.create(archiveName, destination, source);
 
-		return images;
+		if (images.canRead()) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/*
+	 * Borrowed from Stack Overflow.
+	 * 
+	 * @user teedyay
+	 * url:http://stackoverflow.com/questions/4943629/android-how-to
+	 * -delete-a-whole-folder-and-content
+	 */
+	void deleteRecursive(File fileOrDirectory) {
+		if (fileOrDirectory.isDirectory())
+			for (File child : fileOrDirectory.listFiles())
+				deleteRecursive(child);
+
+		fileOrDirectory.delete();
 	}
 
 	/*
@@ -297,7 +316,14 @@ public class UploadActivity extends FragmentActivity implements
 	private void upload() throws IOException {
 		createJSONFromLocationTrail();
 		saveMetadataToDevice();
-		tarImagesUp();
+
+		if (tarImagesUp()) {
+			deleteRecursive(new File(
+					RecordingActivity.getCurrentRecordingPath() + "/images"));
+		} else {
+			Log.e(LOG_TAG, "Failed to zip images");
+		}
+
 		uploadToServer();
 		Toast.makeText(this, R.string.success, Toast.LENGTH_SHORT).show();
 		startActivity(new Intent(this, MapViewActivity.class));
@@ -454,11 +480,13 @@ public class UploadActivity extends FragmentActivity implements
 		Bitmap bm = decodeSampledBitmapFromUri(path, 220, 220);
 
 		LinearLayout layout = new LinearLayout(getApplicationContext());
-		//layout.setLayoutParams(new LayoutParams(250, 250));
+		// layout.setLayoutParams(new LayoutParams(250, 250));
 		layout.setGravity(Gravity.CENTER);
 
 		ImageView imageView = new ImageView(getApplicationContext());
-		imageView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+		imageView.setLayoutParams(new LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT,
+				ViewGroup.LayoutParams.MATCH_PARENT));
 		imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 		imageView.setImageBitmap(bm);
 
