@@ -63,7 +63,8 @@ public class UploadActivity extends FragmentActivity implements
 	private LinkedHashMap<Long, Location> locationTrail;
 	private JSONArray metadata;
 	private String metadataPath;
-	private File images;
+	private File images = new File(RecordingActivity.getCurrentRecordingPath()
+			+ "/images");
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +79,11 @@ public class UploadActivity extends FragmentActivity implements
 		// ImageView userProfile = (ImageView) findViewById(R.id.user_image);
 		// userProfile.setImageResource(getUserImage());
 
-		fillGallery();
+		if (images.listFiles().equals(null)) {
+			fillEmptyGallery();
+		} else {
+			fillGallery();
+		}
 
 		// Show the Up button in the action bar.
 		setupActionBar();
@@ -460,6 +465,12 @@ public class UploadActivity extends FragmentActivity implements
 		mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 	}
 
+	private void fillEmptyGallery() {
+		LinearLayout gallery = (LinearLayout) findViewById(R.id.gallery1);
+		TextView noImagesText = new TextView(getApplicationContext());
+		noImagesText.setText(R.string.noImages);
+		gallery.addView(noImagesText);
+	}
 	private void fillGallery() {
 		LinearLayout gallery = (LinearLayout) findViewById(R.id.gallery1);
 
