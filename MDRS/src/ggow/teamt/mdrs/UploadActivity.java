@@ -16,6 +16,7 @@ import org.rauschig.jarchivelib.ArchiveFormat;
 import org.rauschig.jarchivelib.Archiver;
 import org.rauschig.jarchivelib.ArchiverFactory;
 import org.rauschig.jarchivelib.CompressionType;
+import org.rauschig.*;
 
 import android.content.Intent;
 import android.content.IntentSender;
@@ -281,7 +282,9 @@ public class UploadActivity extends FragmentActivity implements
 	private boolean tarImagesUp() throws IOException {
 		Log.v(LOG_TAG, "into tarImagesUp");
 		String archiveName = "images";
-		File destination = new File(RecordingActivity.getCurrentRecordingPath() + "/");
+		String destString = RecordingActivity.getCurrentRecordingPath() + "/";
+		Log.v(LOG_TAG, "destString: " + destString);
+		File destination = new File(destString);
 		Log.v(LOG_TAG, "destination: " + destination.getAbsolutePath());
 		
 		File source = new File(RecordingActivity.getCurrentRecordingPath()
