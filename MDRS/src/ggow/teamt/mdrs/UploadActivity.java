@@ -489,10 +489,9 @@ public class UploadActivity extends FragmentActivity implements
 	 * Modified to have a margin surrounding each image.
 	 */
 	View insertPhoto(String path) {
-		Bitmap bm = decodeSampledBitmapFromUri(path, 220, 220);
+		Bitmap bm = decodeSampledBitmapFromUri(path, 350, 350);
 
 		LinearLayout layout = new LinearLayout(getApplicationContext());
-		// layout.setLayoutParams(new LayoutParams(250, 250));
 		layout.setGravity(Gravity.CENTER);
 		
 		//Create the ImageView for adding to the gallery
@@ -501,7 +500,7 @@ public class UploadActivity extends FragmentActivity implements
 		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
 				ViewGroup.LayoutParams.MATCH_PARENT,
 				ViewGroup.LayoutParams.MATCH_PARENT);
-		lp.setMargins(0, 5, 5, 0);
+		lp.setMargins(0, 5, 10, 0);
 		imageView.setLayoutParams(lp);
 		imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 		
