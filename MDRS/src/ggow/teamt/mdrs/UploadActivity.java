@@ -9,6 +9,21 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpParams;
+import org.apache.http.util.EntityUtils;
+import org.apache.james.mime4j.dom.Multipart;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,7 +32,6 @@ import org.rauschig.jarchivelib.ArchiveFormat;
 import org.rauschig.jarchivelib.Archiver;
 import org.rauschig.jarchivelib.ArchiverFactory;
 import org.rauschig.jarchivelib.CompressionType;
-import org.rauschig.jarchivelib.IOUtils;
 
 
 import android.content.Intent;
@@ -53,12 +67,11 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
+
 
 public class UploadActivity extends FragmentActivity implements
-		GooglePlayServicesClient.ConnectionCallbacks,
-		GooglePlayServicesClient.OnConnectionFailedListener {
+GooglePlayServicesClient.ConnectionCallbacks,
+GooglePlayServicesClient.OnConnectionFailedListener {
 
 	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 	private static final String LOG_TAG = "MDRS - Upload";
@@ -68,6 +81,7 @@ public class UploadActivity extends FragmentActivity implements
 	private String metadataPath;
 	private File images = new File(RecordingActivity.getCurrentRecordingPath()
 			+ "/images");
+	private DefaultHttpClient mHttpClient;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -151,7 +165,7 @@ public class UploadActivity extends FragmentActivity implements
 	@Override
 	public void onConnected(Bundle connectionHint) {
 		Toast.makeText(this, "Waiting for location...", Toast.LENGTH_SHORT)
-				.show();
+		.show();
 	}
 
 	/**
@@ -288,13 +302,13 @@ public class UploadActivity extends FragmentActivity implements
 		Log.v(LOG_TAG, "destString: " + destString);
 		File destination = new File(destString);
 		Log.v(LOG_TAG, "destination: " + destination.getAbsolutePath());
-		
+
 		File source = new File(RecordingActivity.getCurrentRecordingPath()
 				+ "/images");
 		Log.v(LOG_TAG, "source: " + source.getAbsolutePath());
 
 		Log.v(LOG_TAG, "Found source and destination");		
-		
+
 		// should probably add some error checking to this...
 		Archiver arch = ArchiverFactory.createArchiver(ArchiveFormat.TAR, CompressionType.GZIP);
 		Log.v(LOG_TAG, "Archiver init");
@@ -349,10 +363,16 @@ public class UploadActivity extends FragmentActivity implements
 		startActivity(new Intent(this, MapViewActivity.class));
 	}
 
+
+
+	@SuppressWarnings("deprecation")
 	private void uploadToServer() {
 		Log.v(LOG_TAG, "into uploadToServer()");
 
-		mdrsHttpUpload client = new mdrsHttpUpload();
+		HttpParams params = new BasicHttpParams();
+		params.setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
+		mHttpClient = new DefaultHttpClient(params);
+		Log.v(LOG_TAG,"http client create");
 
 		// audio
 		File audioFile = new File(RecordingActivity.getCurrentRecordingPath()
@@ -368,38 +388,51 @@ public class UploadActivity extends FragmentActivity implements
 				+ "/images.tar.gz");
 		Log.v(LOG_TAG,
 				"Images file: " + RecordingActivity.getCurrentRecordingPath()
-						+ "/images.tar.gz");
+				+ "/images.tar.gz");
 
-		RequestParams params = new RequestParams();
+
 		try {
-			params.put("audio", audioFile);
-			params.put("metadata", metadataFile);
-			params.put("images", imagesFile);
-		} catch (FileNotFoundException e) {
-			Log.e(LOG_TAG, "Can't find a file to upload to server");
-			e.printStackTrace();
+			HttpPost httppost = new HttpPost("http://penida.dcs.gla.ac.uk/webapp/upload.html");
+			Log.v(LOG_TAG,"httppost init");
+			
+			MultipartEntityBuilder mpEntity = MultipartEntityBuilder.create();
+			mpEntity.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+			Log.v("LOG_TAG", "entity builder init");
+			mpEntity.addPart("audio", new FileBody(audioFile));
+			mpEntity.addPart("metadata", new FileBody(metadataFile));
+			mpEntity.addPart("images", new FileBody (imagesFile));
+			Log.v(LOG_TAG, "Parts added");
+			final HttpEntity finalEntity = mpEntity.build();
+			Log.v(LOG_TAG, "Entity built");
+			httppost.setEntity(finalEntity);
+			Log.v(LOG_TAG, "entity set. time to execute");
+
+			mHttpClient.execute(httppost, new FormUploadResponseHandler());
+			Log.v(LOG_TAG, "executed!");
+		} catch (Exception e) {
+			Log.e(LOG_TAG, "THAT DIDN'T WORK!");
 		}
 
-		client.post("upload", params, new AsyncHttpResponseHandler() {
-			@Override
-			public void onSuccess(String response) {
-				Log.v(LOG_TAG, "Successful upload.");
-				// TODO add intent to move to map view activity from here
-				// instead of out there
-			}
 
-			@Override
-			public void onFailure(int statusCode,
-					org.apache.http.Header[] headers, byte[] binaryData,
-					java.lang.Throwable error) {
-				Log.e(LOG_TAG, "Failed upload. Check server");
-			}
-		});
-		Log.v(LOG_TAG, "Hopefully this should httpUpload");
+		//Log.v(LOG_TAG, "Hopefully this should httpUpload");
 		// TODO Need some form of error checking in this. How do we know it has
 		// been successful? Also need to make it work in the background
 	}
 
+	private class FormUploadResponseHandler implements ResponseHandler<Object> {
+
+		@Override
+		public Object handleResponse(HttpResponse response) throws ClientProtocolException, IOException {	
+
+			HttpEntity r_entity = response.getEntity();
+			String responseString = EntityUtils.toString(r_entity);
+			Log.d(LOG_TAG, responseString);
+
+			return null;
+		}
+
+	}
+ 
 	/*
 	 * Using a LinkedHashMap causes issues as unlike a list you cannot just get
 	 * the end object or key. To work around this (and yes, this could be
@@ -449,25 +482,25 @@ public class UploadActivity extends FragmentActivity implements
 
 		// End Marker
 		mMap.addMarker(new MarkerOptions()
-				.position(
-						new LatLng(locationTrail.get(getEndTime())
-								.getLatitude(), locationTrail.get(getEndTime())
-								.getLongitude()))
-				.draggable(false)
-				.icon(BitmapDescriptorFactory
-						.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+		.position(
+				new LatLng(locationTrail.get(getEndTime())
+						.getLatitude(), locationTrail.get(getEndTime())
+						.getLongitude()))
+						.draggable(false)
+						.icon(BitmapDescriptorFactory
+								.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
 
 		// Starter Marker
 		mMap.addMarker(new MarkerOptions()
-				// end marker
-				.position(
-						new LatLng(locationTrail.entrySet().iterator().next()
-								.getValue().getLatitude(), locationTrail
-								.entrySet().iterator().next().getValue()
-								.getLongitude()))
-				.draggable(false)
-				.icon(BitmapDescriptorFactory
-						.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+		// end marker
+		.position(
+				new LatLng(locationTrail.entrySet().iterator().next()
+						.getValue().getLatitude(), locationTrail
+						.entrySet().iterator().next().getValue()
+						.getLongitude()))
+						.draggable(false)
+						.icon(BitmapDescriptorFactory
+								.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
 		// TODO place markers where images are along the trail. Possibly MVC
 		// with the horizontal scroll of them?
@@ -475,8 +508,8 @@ public class UploadActivity extends FragmentActivity implements
 
 	private void zoomInOnStart(Location start) {
 		CameraPosition cameraPosition = new CameraPosition.Builder()
-				.target(new LatLng(start.getLatitude(), start.getLongitude()))
-				.zoom(17).build();
+		.target(new LatLng(start.getLatitude(), start.getLongitude()))
+		.zoom(17).build();
 		mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 	}
 
@@ -508,17 +541,17 @@ public class UploadActivity extends FragmentActivity implements
 
 		LinearLayout layout = new LinearLayout(getApplicationContext());
 		layout.setGravity(Gravity.CENTER);
-		
+
 		//Create the ImageView for adding to the gallery
 		ImageView imageView = new ImageView(getApplicationContext());
-		
+
 		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
 				ViewGroup.LayoutParams.MATCH_PARENT,
 				ViewGroup.LayoutParams.MATCH_PARENT);
 		lp.setMargins(0, 5, 10, 0);
 		imageView.setLayoutParams(lp);
 		imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-		
+
 		imageView.setImageBitmap(bm);
 		layout.addView(imageView);
 		return layout;
@@ -552,7 +585,7 @@ public class UploadActivity extends FragmentActivity implements
 	 */
 	public int calculateInSampleSize(
 
-	BitmapFactory.Options options, int reqWidth, int reqHeight) {
+			BitmapFactory.Options options, int reqWidth, int reqHeight) {
 		// Raw height and width of image
 		final int height = options.outHeight;
 		final int width = options.outWidth;
