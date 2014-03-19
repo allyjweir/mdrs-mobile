@@ -486,6 +486,7 @@ public class UploadActivity extends FragmentActivity implements
 
 	/*
 	 * From http://android-er.blogspot.co.uk/2012/07/implement-gallery-like.html
+	 * Modified to have a margin surrounding each image.
 	 */
 	View insertPhoto(String path) {
 		Bitmap bm = decodeSampledBitmapFromUri(path, 220, 220);
@@ -493,14 +494,18 @@ public class UploadActivity extends FragmentActivity implements
 		LinearLayout layout = new LinearLayout(getApplicationContext());
 		// layout.setLayoutParams(new LayoutParams(250, 250));
 		layout.setGravity(Gravity.CENTER);
-
+		
+		//Create the ImageView for adding to the gallery
 		ImageView imageView = new ImageView(getApplicationContext());
-		imageView.setLayoutParams(new LayoutParams(
+		
+		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
 				ViewGroup.LayoutParams.MATCH_PARENT,
-				ViewGroup.LayoutParams.MATCH_PARENT));
+				ViewGroup.LayoutParams.MATCH_PARENT);
+		lp.setMargins(0, 5, 5, 0);
+		imageView.setLayoutParams(lp);
 		imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+		
 		imageView.setImageBitmap(bm);
-
 		layout.addView(imageView);
 		return layout;
 	}
