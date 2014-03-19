@@ -12,11 +12,13 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import org.rauschig.jarchivelib.ArchiveFormat;
 import org.rauschig.jarchivelib.Archiver;
 import org.rauschig.jarchivelib.ArchiverFactory;
 import org.rauschig.jarchivelib.CompressionType;
-import org.rauschig.*;
+import org.rauschig.jarchivelib.IOUtils;
+
 
 import android.content.Intent;
 import android.content.IntentSender;
@@ -291,8 +293,8 @@ public class UploadActivity extends FragmentActivity implements
 				+ "/images");
 		Log.v(LOG_TAG, "source: " + source.getAbsolutePath());
 
-		Log.v(LOG_TAG, "Found source and destination");
-
+		Log.v(LOG_TAG, "Found source and destination");		
+		
 		// should probably add some error checking to this...
 		Archiver arch = ArchiverFactory.createArchiver(ArchiveFormat.TAR, CompressionType.GZIP);
 		Log.v(LOG_TAG, "Archiver init");
