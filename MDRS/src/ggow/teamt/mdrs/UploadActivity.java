@@ -279,19 +279,26 @@ public class UploadActivity extends FragmentActivity implements
 	}
 
 	private boolean tarImagesUp() throws IOException {
+		Log.v(LOG_TAG, "into tarImagesUp");
 		String archiveName = "images";
 		File destination = new File(RecordingActivity.getCurrentRecordingPath());
 		File source = new File(RecordingActivity.getCurrentRecordingPath()
 				+ "/images");
+		Log.v(LOG_TAG, "Found source and destination");
 
 		// should probably add some error checking to this...
 		Archiver archiver = ArchiverFactory.createArchiver(ArchiveFormat.TAR,
 				CompressionType.GZIP);
+		Log.v(LOG_TAG, "Archiver init");
+
 		images = archiver.create(archiveName, destination, source);
+		Log.v(LOG_TAG, "archiver.create success");
 
 		if (images.canRead()) {
+			Log.v(LOG_TAG, "can read success");
 			return true;
 		} else {
+			Log.v(LOG_TAG, "can read fail");
 			return false;
 		}
 	}
