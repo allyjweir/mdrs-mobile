@@ -8,6 +8,7 @@
     android:rowCount="4" >
 
     <HorizontalScrollView
+        android:id="@+id/imageGallery"
         android:layout_width="match_parent"
         android:layout_height="119dp"
         android:layout_column="0"
@@ -18,6 +19,7 @@
             android:id="@+id/gallery1"
             android:layout_width="wrap_content"
             android:layout_height="match_parent" 
+            android:layout_marginLeft="10dp"
             android:orientation="horizontal"/>
     </HorizontalScrollView>
 

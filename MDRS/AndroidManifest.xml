@@ -33,7 +33,6 @@
             android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -49,16 +48,14 @@
         <activity
             android:name="ggow.teamt.mdrs.RecordingActivity"
             android:label="@string/title_activity_recording"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:parentActivityName="MapViewActivity" >
         </activity>
         <activity
             android:name="ggow.teamt.mdrs.UploadActivity"
             android:label="@string/title_activity_upload"
             android:parentActivityName="MapViewActivity"
             android:screenOrientation="portrait" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="MapViewActivity" />
         </activity>
 
         <meta-data
