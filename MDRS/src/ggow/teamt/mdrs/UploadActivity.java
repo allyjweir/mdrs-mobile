@@ -67,6 +67,8 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 
 
 public class UploadActivity extends FragmentActivity implements
@@ -369,8 +371,8 @@ GooglePlayServicesClient.OnConnectionFailedListener {
 	private void uploadToServer() {
 		Log.v(LOG_TAG, "into uploadToServer()");
 
-		
-		
+		mdrsHttpUpload client = new mdrsHttpUpload();
+
 		// audio
 		File audioFile = new File(RecordingActivity.getCurrentRecordingPath()
 				+ "/audio.aac");
@@ -385,13 +387,38 @@ GooglePlayServicesClient.OnConnectionFailedListener {
 				+ "/images.tar.gz");
 		Log.v(LOG_TAG,
 				"Images file: " + RecordingActivity.getCurrentRecordingPath()
-				+ "/images.tar.gz");
+						+ "/images.tar.gz");
 
+		RequestParams params = new RequestParams();
+		try {
+			params.put("audio", audioFile);
+			params.put("metadata", metadataFile);
+			params.put("images", imagesFile);
+		} catch (FileNotFoundException e) {
+			Log.e(LOG_TAG, "Can't find a file to upload to server");
+			e.printStackTrace();
+		}
 
+		client.post("", params, new AsyncHttpResponseHandler() {
+			@Override
+			public void onSuccess(String response) {
+				Log.v(LOG_TAG, "Successful upload.");
+				Log.v(LOG_TAG, response);
+				// TODO add intent to move to map view activity from here
+				// instead of out there
+			}
 
-
-	
-
+			@Override
+			public void onFailure(int statusCode,
+					org.apache.http.Header[] headers, byte[] binaryData,
+					java.lang.Throwable error) {
+				Log.e(LOG_TAG, "Failed upload. Check server");
+				Log.e(LOG_TAG, "Error: " + error);
+			}
+		});
+		Log.v(LOG_TAG, "Hopefully this should httpUpload");
+		// TODO Need some form of error checking in this. How do we know it has
+		// been successful? Also need to make it work in the background
 	}
  
 	/*

@@ -3,7 +3,7 @@ package ggow.teamt.mdrs;
 import com.loopj.android.http.*;
 
 public class mdrsHttpUpload {
-	private static final String BASE_URL = "http://penida.dcs.gla.ac.uk/webapp/";
+	private static final String BASE_URL = "http://penida.dcs.gla.ac.uk/webapp/upload";
 
 	private static AsyncHttpClient client = new AsyncHttpClient();
 
