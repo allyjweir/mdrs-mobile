@@ -14,5 +14,6 @@
 	<classpathentry kind="lib" path="libs/httpcomponents-core-4.3.2/lib/httpcore-4.3.2.jar"/>
 	<classpathentry kind="lib" path="libs/apache-mime4j-0.7.2/lib/apache-mime4j-dom-0.7.2.jar"/>
 	<classpathentry kind="lib" path="libs/httpcomponents-client-4.3.3/lib/httpmime-4.3.3.jar"/>
+	<classpathentry kind="lib" path="libs/retrofit-1.4.1.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

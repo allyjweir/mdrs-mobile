@@ -369,11 +369,8 @@ GooglePlayServicesClient.OnConnectionFailedListener {
 	private void uploadToServer() {
 		Log.v(LOG_TAG, "into uploadToServer()");
 
-		HttpParams params = new BasicHttpParams();
-		params.setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
-		mHttpClient = new DefaultHttpClient(params);
-		Log.v(LOG_TAG,"http client create");
-
+		
+		
 		// audio
 		File audioFile = new File(RecordingActivity.getCurrentRecordingPath()
 				+ "/audio.aac");
@@ -391,45 +388,9 @@ GooglePlayServicesClient.OnConnectionFailedListener {
 				+ "/images.tar.gz");
 
 
-		try {
-			HttpPost httppost = new HttpPost("http://penida.dcs.gla.ac.uk/webapp/upload.html");
-			Log.v(LOG_TAG,"httppost init");
-			
-			MultipartEntityBuilder mpEntity = MultipartEntityBuilder.create();
-			mpEntity.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-			Log.v("LOG_TAG", "entity builder init");
-			mpEntity.addPart("audio", new FileBody(audioFile));
-			mpEntity.addPart("metadata", new FileBody(metadataFile));
-			mpEntity.addPart("images", new FileBody (imagesFile));
-			Log.v(LOG_TAG, "Parts added");
-			final HttpEntity finalEntity = mpEntity.build();
-			Log.v(LOG_TAG, "Entity built");
-			httppost.setEntity(finalEntity);
-			Log.v(LOG_TAG, "entity set. time to execute");
-
-			mHttpClient.execute(httppost, new FormUploadResponseHandler());
-			Log.v(LOG_TAG, "executed!");
-		} catch (Exception e) {
-			Log.e(LOG_TAG, "THAT DIDN'T WORK!");
-		}
 
 
-		//Log.v(LOG_TAG, "Hopefully this should httpUpload");
-		// TODO Need some form of error checking in this. How do we know it has
-		// been successful? Also need to make it work in the background
-	}
-
-	private class FormUploadResponseHandler implements ResponseHandler<Object> {
-
-		@Override
-		public Object handleResponse(HttpResponse response) throws ClientProtocolException, IOException {	
-
-			HttpEntity r_entity = response.getEntity();
-			String responseString = EntityUtils.toString(r_entity);
-			Log.d(LOG_TAG, responseString);
-
-			return null;
-		}
+	
 
 	}
  
