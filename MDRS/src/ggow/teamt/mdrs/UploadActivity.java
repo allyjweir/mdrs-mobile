@@ -391,9 +391,9 @@ GooglePlayServicesClient.OnConnectionFailedListener {
 
 		RequestParams params = new RequestParams();
 		try {
-			params.put("audio", audioFile);
-			params.put("metadata", metadataFile);
-			params.put("images", imagesFile);
+			params.put("json_file", metadataFile);
+			params.put("images_file", imagesFile);
+			params.put("aac_file", audioFile);
 		} catch (FileNotFoundException e) {
 			Log.e(LOG_TAG, "Can't find a file to upload to server");
 			e.printStackTrace();
